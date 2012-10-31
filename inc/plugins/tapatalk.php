@@ -35,7 +35,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.0.0",
+        "version"       => "3.1.0",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -60,7 +60,22 @@ function tapatalk_install()
             )
         ");
     }
-
+    if(!$db->table_exists("tapatalk_push_data"))
+    {
+    	$db->query("
+    		CREATE TABLE " . TABLE_PREFIX . "mybb_tapatalk_push_data` (
+			  push_id int(10) NOT NULL AUTO_INCREMENT,
+			  author varchar(100) NOT NULL,
+			  user_id int(10) NOT NULL DEFAULT '0',
+			  data_type char(20) NOT NULL DEFAULT '',
+			  title varchar(200) NOT NULL DEFAULT '',
+			  data_id int(10) NOT NULL DEFAULT '0',
+			  create_time int(11) unsigned NOT NULL DEFAULT '0',
+			  PRIMARY KEY (`push_id`),
+			  KEY `user_id` (`user_id`)
+			)
+    	");
+    }
     // Insert settings in to the database
     $query = $db->query("SELECT disporder FROM ".TABLE_PREFIX."settinggroups ORDER BY `disporder` DESC LIMIT 1");
     $disporder = $db->fetch_field($query, 'disporder')+1;
@@ -118,6 +133,12 @@ function tapatalk_install()
             'optionscode'   => "radio\nkeep=Keep Data\ndelete=Delete all data and table",
             'value'         => 'keep'
         ),
+        'push_key' => array(
+        	'title'         => 'Tapatalk push key',
+        	'description'   => 'A push_key to verify your forum push certification, you can fill here with the push key you registered in Tapatalk.com. This is not mandatory but if you enter this key, it will make push feature perfect .',
+        	'optionscode'   => 'text',
+            'value'         => ''
+        ),
     );
 
     $s_index = 0;
@@ -158,6 +179,10 @@ function tapatalk_uninstall()
         if($db->table_exists('tapatalk_users'))
         {
             $db->drop_table('tapatalk_users');
+        }
+    	if($db->table_exists('tapatalk_push_data'))
+        {
+            $db->drop_table('tapatalk_push_data');
         }
     }
 
@@ -361,19 +386,45 @@ function tapatalk_push_pm()
 
 function tt_do_post_request($data)
 {
-    $ch = curl_init('http://push.tapatalk.com/push.php');
-    
-    // Set cURL options
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-         
-    // Execute the cURL request
-    $response = curl_exec($ch);
-    curl_close($ch);
-    
-    return $response;
+	global $mybb;
+	if(!empty($mybb->settings['tapatalk_push_key']))
+	{
+		$data['key'] = $mybb->settings['tapatalk_push_key'];
+	}
+	$push_url = 'http://push.tapatalk.com/push.php';
+
+	$response = 'CURL is disabled and PHP option "allow_url_fopen" is OFF. You can enable CURL or turn on "allow_url_fopen" in php.ini to fix this problem.';
+	if (function_exists('curl_init'))
+	{
+		$ch = curl_init($push_url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($ch,CURLOPT_TIMEOUT,10);
+
+		$response = curl_exec($ch);
+		curl_close($ch);
+	}
+	elseif (ini_get('allow_url_fopen'))
+	{
+		$params = array('http' => array(
+			'method' => 'POST',
+			'content' => http_build_query($data, '', '&'),
+		));
+
+		$ctx = stream_context_create($params);
+		$timeout = 10;
+		$old = ini_set('default_socket_timeout', $timeout);
+		$fp = @fopen($push_url, 'rb', false, $ctx);
+		ini_set('default_socket_timeout', $old);
+		stream_set_timeout($fp, $timeout);
+		stream_set_blocking($fp, 0); 
+		
+		if (!$fp) return false;
+		$response = @stream_get_contents($fp);
+	}
+	return $response;
 }
 
 function tt_push_clean($str)
