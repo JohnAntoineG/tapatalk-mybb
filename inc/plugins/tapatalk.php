@@ -63,7 +63,7 @@ function tapatalk_install()
     if(!$db->table_exists("tapatalk_push_data"))
     {
     	$db->query("
-    		CREATE TABLE " . TABLE_PREFIX . "mybb_tapatalk_push_data` (
+    		CREATE TABLE " . TABLE_PREFIX . "mybb_tapatalk_push_data (
 			  push_id int(10) NOT NULL AUTO_INCREMENT,
 			  author varchar(100) NOT NULL,
 			  user_id int(10) NOT NULL DEFAULT '0',
