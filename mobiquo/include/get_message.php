@@ -88,7 +88,7 @@ function get_message_func($xmlrpc_params)
 	$parser_options['allow_videocode'] = true;
 	$parser_options['nl2br'] = (boolean)$input['return_html'];
 	$parser_options['filter_badwords'] = 1;
-	$post['message'] = post_bbcode_clean($pm['message']);
+	$pm['message'] = post_bbcode_clean($pm['message']);
 	$pm['message'] = $parser->parse_message($pm['message'], $parser_options);
 
 	if($pm['receipt'] == 1)
