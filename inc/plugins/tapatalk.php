@@ -389,7 +389,7 @@ function tapatalk_push_pm()
 function tt_do_post_request($data,$pushTest = false)
 {
 	global $mybb;
-	if(!empty($mybb->settings['tapatalk_push_key']) && !pushTest)
+	if(!empty($mybb->settings['tapatalk_push_key']) && !$pushTest)
 	{
 		$data['key'] = $mybb->settings['tapatalk_push_key'];
 	}
