@@ -376,10 +376,9 @@ function tapatalk_push_pm()
             );
             tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         }
-        
         $ttp_post_data = array(
             'url'  => $mybb->settings['bburl'],
-            'data' => base64_encode(serialize(array($ttp_data))),
+            'data' => base64_encode(serialize($ttp_data)),
         );
         
         $return_status = tt_do_post_request($ttp_post_data);
@@ -407,7 +406,6 @@ function tt_do_post_request($data,$pushTest = false)
                 return false;
                 
             $data =  http_build_query($data,'', '&');
-            
             fputs($fp, "POST /push.php HTTP/1.1\r\n");
             fputs($fp, "Host: $push_host\r\n");
             fputs($fp, "Content-type: application/x-www-form-urlencoded\r\n");
