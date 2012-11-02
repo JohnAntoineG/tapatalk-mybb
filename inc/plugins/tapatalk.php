@@ -406,7 +406,7 @@ function tt_do_post_request($data,$pushTest = false)
             if(!$fp)
                 return false;
                 
-            $data =  http_build_query($data);
+            $data =  http_build_query($data,'', '&');
             
             fputs($fp, "POST /push.php HTTP/1.1\r\n");
             fputs($fp, "Host: $push_host\r\n");
