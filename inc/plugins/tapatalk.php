@@ -336,6 +336,7 @@ function tapatalk_push_reply()
                 'author'    => tt_push_clean($mybb->user['username']),
                 'dateline'  => TIME_NOW,
             );
+            tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         }
         
         $ttp_post_data = array(
@@ -373,6 +374,7 @@ function tapatalk_push_pm()
                 'author'    => tt_push_clean($mybb->user['username']),
                 'dateline'  => TIME_NOW,
             );
+            tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         }
         
         $ttp_post_data = array(
@@ -427,6 +429,23 @@ function tt_do_post_request($data)
 	return $response;
 }
 
+function tt_insert_push_data($data)
+{
+	global $mybb,$db;
+	if(!$db->table_exists("tapatalk_push_data"))
+	{
+		return ;
+	}
+	$sql_data = array(
+        'author' => $data['author'],
+		'user_id' => $data['userid'],
+		'data_type' => $data['type'],
+		'title' => $data['title'],
+		'data_id' => $data['subid'],
+		'create_time' => $data['dateline']		
+    );
+	$db->insert_query('tapatalk_push_data', $sql_data);
+}
 function tt_push_clean($str)
 {
     $str = strip_tags($str);
