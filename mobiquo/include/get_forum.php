@@ -152,8 +152,9 @@ function processForum($forum)
     $new_post = $lightbulb['folder'] == 'on';
 	$logo_url = '';
 	//@todo
+	global $tapatalk_forum_icon_url,$tapatalk_forum_icon_dir;
 	$tapatalk_forum_icon_dir = './forum_icons/';
-	$tapatalk_forum_icon_url = MYBB_ROOT . $mybb->settings['tapatalkdir'];
+	$tapatalk_forum_icon_url = MYBB_ROOT . $mybb->settings['tapatalkdir'] .'/forum_icons/';
 	if($forum['type'] == c)
 	{
 		$forum_type = 'category';
@@ -168,15 +169,15 @@ function processForum($forum)
     }
 	if(empty($forum['forum_image']))
 	{
-		$logo_url = get_forum_icon(2,$forum_type);
+		$logo_url = get_forum_icon($forum['fid'],$forum_type);
 	}
 	else if (!empty($forum['password']))
 	{
-		$logo_url = get_forum_icon(2,$forum_type,true);
+		$logo_url = get_forum_icon($forum['fid'],$forum_type,true);
 	}
 	else if(!empty($forum['unread_count']))
 	{
-		$logo_url = get_forum_icon(2,$forum_type,false,true);
+		$logo_url = get_forum_icon($forum['fid'],$forum_type,false,true);
 	}
     else if ($forum['forum_image'])
     {
