@@ -171,18 +171,18 @@ function processForum($forum)
 	{
 		$logo_url = get_forum_icon($forum['fid'],$forum_type);
 	}
-	else if (!empty($forum['password']))
-	{
-		$logo_url = get_forum_icon($forum['fid'],$forum_type,true);
-	}
-	else if(!empty($forum['unread_count']))
-	{
-		$logo_url = get_forum_icon($forum['fid'],$forum_type,false,true);
-	}
-    else if ($forum['forum_image'])
+	else if ($forum['forum_image'])
     {
         $logo_url = MYBB_ROOT . $forum['forum_image'];
     }
+	if(!empty($forum['unread_count']))
+	{
+		$logo_url = get_forum_icon($forum['fid'],$forum_type,false,true);
+	}
+	if (!empty($forum['password']))
+	{
+		$logo_url = get_forum_icon($forum['fid'],$forum_type,true);
+	}
     $xmlrpc_forum = new xmlrpcval(array(
         'forum_id'      => new xmlrpcval($forum['fid'], 'string'),
         'forum_name'    => new xmlrpcval(basic_clean($forum['name']), 'base64'),
