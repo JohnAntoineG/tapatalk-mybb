@@ -467,12 +467,21 @@ function get_topic_func($xmlrpc_params)
             ), "struct");
         }
     }
-
+	$read_only_forums = explode(",", $settings['tapatalk_forum_read_only']);
+	$can_post = true;
+	if(empty($read_only_forums) || !is_array($read_only_forums))
+	{
+		$read_only_forums = array();
+	}
+	if(!($foruminfo['type'] == "f" && $foruminfo['open'] != 0 && $mybb->user['uid'] > 0 && $mybb->usergroup['canpostthreads']) || in_array($fid, $read_only_forums))
+	{
+		$can_post = false;
+	}
     $result = array(
         'total_topic_num' => new xmlrpcval($threadcount, 'int'),
         'forum_id'        => new xmlrpcval($fid, 'string'),
         'forum_name'      => new xmlrpcval(basic_clean($foruminfo['name']), 'base64'),
-        'can_post'        => new xmlrpcval($foruminfo['type'] == "f" && $foruminfo['open'] != 0 && $mybb->user['uid'] > 0 && $mybb->usergroup['canpostthreads'], 'boolean'),
+        'can_post'        => new xmlrpcval($can_post, 'boolean'),
         //'require_prefix'  => new xmlrpcval(false, 'boolean'), default as false
         'prefixes'        => new xmlrpcval($prefix_list, 'array'),
         'can_upload'      => new xmlrpcval($fpermissions['canpostattachments'], 'boolean'),

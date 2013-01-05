@@ -527,6 +527,34 @@ $server_param = array(
     						 array($xmlrpcStruct, $xmlrpcInt),
     						 array($xmlrpcStruct, $xmlrpcInt, $xmlrpcInt)),
     ),
+    'register' => array (
+    	'function' => 'register_func',
+    	'signature' => array(array($xmlrpcStruct),
+    						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcBase64,$xmlrpcString,$xmlrpcString),
+    						 ),
+    ),
+    
+    'update_password' => array (
+    	'function' => 'update_password_func',
+    	'signature' => array(array($xmlrpcStruct),
+    						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcBase64),
+    						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcString ,$xmlrpcString),
+    						 ),
+    ),
+    
+    'update_email' => array (
+    	'function' => 'update_password_func',
+    	'signature' => array(array($xmlrpcStruct),
+    						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcBase64),
+    						 ),
+    ),
+    
+    'forget_password' => array (
+    	'function' => 'forget_password_func',
+    	'signature' => array(array($xmlrpcStruct),
+    						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcString ,$xmlrpcString),
+    						 ),
+    ),
     //**********************************************
     // Puch related functions
     //**********************************************

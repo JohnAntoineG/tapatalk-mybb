@@ -145,8 +145,7 @@ function reply_post_func($xmlrpc_params)
 		"subscriptionmethod" => $mybb->user['subscriptionmethod'] == 0 ? '':$mybb->user['subscriptionmethod'],
 		"disablesmilies" => 0
 	);
-    $post['modoptions']['stickthread'] = $thread['sticky'];
-	$post['modeptions']['closethread'] = $thread['close'];
+
 	$posthandler->set_data($post);
 
 	// Now let the post handler do all the hard work.
@@ -264,6 +263,7 @@ function reply_post_func($xmlrpc_params)
 		'can_edit'      => new xmlrpcval(is_moderator($fid, "caneditposts") || $thread['closed'] == 0 && $forumpermissions['caneditposts'] == 1, 'boolean'),
 		'can_delete'    => new xmlrpcval($can_delete, 'boolean'),
 		'post_time'     => new xmlrpcval(mobiquo_iso8601_encode(TIME_NOW), 'dateTime.iso8601'),
+		'timestamp'     => new xmlrpcval(TIME_NOW, 'string'),
 		'attachments'   => new xmlrpcval($attachment_list, 'array'),
 	), 'struct');
 

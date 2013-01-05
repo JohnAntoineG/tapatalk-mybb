@@ -12,7 +12,8 @@ require_once TT_ROOT.'parser.php';
 function get_thread_func($xmlrpc_params)
 {
     global $db, $lang, $mybb, $position, $plugins, $pids;
-
+	global $pforumcache, $currentitem, $forum_cache, $navbits, $base_url, $archiveurl;
+	
     $input = Tapatalk_Input::filterXmlInput(array(
         'topic_id'    => Tapatalk_Input::INT,
         'start_num'   => Tapatalk_Input::INT,
@@ -49,7 +50,7 @@ function get_thread_func($xmlrpc_params)
     $thread['subject'] = $parser->parse_badwords($thread['subject']);
     $tid = $thread['tid'];
     $fid = $thread['fid'];
-
+	
     if(!$thread['username'])
     {
         $thread['username'] = $lang->guest;
@@ -350,7 +351,28 @@ function get_thread_func($xmlrpc_params)
     $isbanned = !!$db->fetch_field($query, "uid");
 
     $can_reply = $forumpermissions['canpostreplys'] != 0 && $mybb->user['suspendposting'] != 1 && ($thread['closed'] != 1 || is_moderator($fid)) && $forum['open'] != 0;
-
+    
+	/*build_tt_breadcrumb($fid);
+    $navgation_arr = $navbits;
+	if(is_array($navgation_arr) && count($navgation_arr) > 1)
+    {
+    	unset($navgation_arr[0]);
+        foreach ($navgation_arr as $navigation)
+        {
+        	$forum_id = $navigation['fid'];
+        	$sub_only = false;
+        	if($navigation['type'] != 'f')
+        	{
+        		$sub_only = true;
+        	}
+            $breadcrumb[] = new xmlrpcval(array(
+                'forum_id'    => new xmlrpcval($forum_id, 'string'),
+                'forum_name'  => new xmlrpcval($navigation['name'], 'base64'),
+				'sub_only' => new xmlrpcval($sub_only, 'boolean'),
+                ), 'struct');
+        }
+    }*/
+    
     $result = array(
         'total_post_num'  => new xmlrpcval($postcount, 'int'),
         'forum_id'        => new xmlrpcval($thread['fid'], 'string'),
@@ -384,7 +406,10 @@ function get_thread_func($xmlrpc_params)
     if (is_moderator($fid, "canopenclosethreads"))  $result['can_approve']  = new xmlrpcval(true, 'boolean');
     if (is_moderator($fid, "caneditposts"))         $result['can_rename']   = new xmlrpcval(true, 'boolean');
     if ($mybb->usergroup['canmodcp'] == 1)          $result['can_ban']      = new xmlrpcval(true, 'boolean');
-
+    if (!empty($breadcrumb))
+    {
+    	$result['breadcrumb'] = new xmlrpcval($breadcrumb, 'array');
+    }
     $result['posts'] = new xmlrpcval($post_list, 'array');
 
     return new xmlrpcresp(new xmlrpcval($result, 'struct'));
@@ -408,4 +433,60 @@ if (!function_exists('build_prefixes'))
 
         return $threadprefix;
     }
+}
+
+function build_tt_breadcrumb($fid, $multipage=array())
+{
+	global $pforumcache, $currentitem, $forum_cache, $navbits, $lang, $base_url, $archiveurl;
+
+	if(!$pforumcache)
+	{
+		if(!is_array($forum_cache))
+		{
+			cache_forums();
+		}
+
+		foreach($forum_cache as $key => $val)
+		{
+			$pforumcache[$val['fid']][$val['pid']] = $val;
+		}
+	}
+
+	if(is_array($pforumcache[$fid]))
+	{
+		foreach($pforumcache[$fid] as $key => $forumnav)
+		{
+			
+			if($fid == $forumnav['fid'])
+			{
+				if($pforumcache[$forumnav['pid']])
+				{
+					build_tt_breadcrumb($forumnav['pid']);
+				}
+				
+				$navsize = count($navbits);
+				// Convert & to &amp;
+				$navbits[$navsize]['name'] = preg_replace("#&(?!\#[0-9]+;)#si", "&amp;", $forumnav['name']);
+				$navbits[$navsize]['type'] = $pforumcache[$fid][$forumnav['pid']]['type'];
+				if(IN_ARCHIVE == 1)
+				{
+					// Set up link to forum in breadcrumb.
+					if($pforumcache[$fid][$forumnav['pid']]['type'] == 'f' || $pforumcache[$fid][$forumnav['pid']]['type'] == 'c')
+					{
+						$navbits[$navsize]['fid'] = $forumnav['fid'];
+					}
+					else
+					{
+						$navbits[$navsize]['fid'] = "";
+					}
+				}
+				else
+				{
+					$navbits[$navsize]['fid'] = $forumnav['fid'];
+				}
+			}
+		}
+	}
+
+	return 1;
 }

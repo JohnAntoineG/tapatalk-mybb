@@ -275,6 +275,49 @@ switch ($request_method)
         define('THIS_SCRIPT', 'member.php');
         $_GET['action'] = 'login';
         break;
+    case 'register':
+    	$_POST['action'] = 'do_register';
+    	$_POST['allownotices'] = 1;
+    	$_POST['dstcorrection'] = 2;
+    	$_POST['tt_token'] = $request_params[2];
+    	$_POST['tt_code'] = $request_params[3];
+    	$_POST['password'] = $request_params[1];
+    	$_POST['password2'] = $request_params[1];
+    	$_POST['pmnotice'] = 1;
+    	$_POST['receivepms'] = 1;
+    	$_POST['referrername'] = '';
+    	$_POST['regcheck1'] = '';
+    	$_POST['regcheck2'] = 'true';
+    	$_POST['username'] = $request_params[0];
+    	$_POST['step'] = 'registration';
+    	$_POST['subscriptionmethod'] = 0;
+    	break;
+    case 'forget_password':
+    	$_POST['action'] = 'do_lostpw';
+    	$_POST['username'] = $request_params[0];
+    	$_POST['tt_token'] = $request_params[1];
+    	$_POST['tt_code'] = $request_params[2];
+    	break;
+    case 'update_password':
+    	$_POST['action'] = 'do_password';
+    	$_POST['oldpassword'] = !isset($request_params[2]) ? $request_params[0] : 'true';
+    	$_POST['password'] = !isset($request_params[2]) ? $request_params[1] : $request_params[0] ;
+    	$_POST['password2'] = !isset($request_params[2]) ? $request_params[1] : $request_params[0] ;
+    	if(isset($request_params[2]))
+    	{
+    		$_POST['tt_token'] = $request_params[1];
+    		$_POST['tt_code'] = $request_params[2]; 
+    		$_POST['username'] = $request_params[3];
+    		$_POST['password'] = $request_params[0];
+    		$_POST['password2'] = $request_params[0];
+    	}
+    	break;
+    case 'update_email':
+    	$_POST['action'] = 'do_email';
+    	$_POST['password'] = $request_params[0];
+    	$_POST['email'] =  $request_params[1];
+    	$_POST['email2'] =  $request_params[1];
+    	break;
 }
 
 error_reporting(MOBIQUO_DEBUG);

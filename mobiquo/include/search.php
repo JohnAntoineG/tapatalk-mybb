@@ -544,7 +544,6 @@ elseif($mybb->input['action'] == "getdaily")
 elseif($mybb->input['action'] == "do_search" && $mybb->request_method == "post")
 {
     $plugins->run_hooks("search_do_search_start");
-
     // Check if search flood checking is enabled and user is not admin
     if($mybb->settings['searchfloodtime'] > 0 && $mybb->usergroup['cancp'] != 1 && !$nofloodcheck)
     {

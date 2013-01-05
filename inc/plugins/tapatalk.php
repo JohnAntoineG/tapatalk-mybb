@@ -117,7 +117,7 @@ function tapatalk_install()
         ),
         'directory' => array(
             'title'         => 'Tapatalk plugin directory',
-            'description'   => 'Never change it if you did not rename the Tapatalk plugin directory. And the default value is \'mobiquo\'. If you renamed the Tapatalk plugin directory, you also need to update the same setting for this forum in tapatalk forum owner area.£¨http://tapatalk.com/forum_owner.php£©',
+            'description'   => 'Never change it if you did not rename the Tapatalk plugin directory. And the default value is \'mobiquo\'. If you renamed the Tapatalk plugin directory, you also need to update the same setting for this forum in tapatalk forum owner area.ï¿½ï¿½http://tapatalk.com/forum_owner.phpï¿½ï¿½',
             'optionscode'   => 'text',
             'value'         => 'mobiquo'
         ),
@@ -138,6 +138,60 @@ function tapatalk_install()
         	'description'   => 'A push_key to verify your forum push certification, you can fill here with the push key you registered in Tapatalk.com. This is not mandatory but if you enter this key, it will make push feature perfect .',
         	'optionscode'   => 'text',
             'value'         => ''
+        ),
+        'forum_read_only' => array(
+            'title'         => 'Disable New Topic',
+            'description'   => "Prevent Tapatalk users to create new topic in the selected sub-forums. This feature is useful if certain forums requires additional topic fields or permission that Tapatalk does not support.",
+            'optionscode'   => 'text',
+            'value'         => ''
+        ),
+        'ipad_msg' => array(
+            'title'			=> 'iPad Product Message',
+        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Apple App Store.',
+        	'optionscode'   => 'text',
+        	'value'         => 'This forum has an app for iPad! Click OK to learn more about Tapatalk.',
+        ),
+        'ipad_url' => array(
+            'title'			=> 'iPad Product URL',
+        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Apple App Store',
+        	'optionscode'   => 'text',
+        	'value'         => 'http://itunes.apple.com/us/app/tapatalk-hd-for-ipad/id481579541?mt=8',
+        ),
+        'iphone_msg' => array(
+            'title'			=> 'iPhone Product Message',
+        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Apple App Store.',
+        	'optionscode'   => 'text',
+        	'value'         => 'This forum has an app for iPhone! Click OK to learn more about Tapatalk.',
+        ),
+        'iphone_url' => array(
+            'title'			=> 'iPad Product URL',
+        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Apple App Store.',
+        	'optionscode'   => 'text',
+        	'value'         => 'Thttp://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8',
+        ),
+        'android_msg' => array(
+            'title'			=> 'Android Product Message',
+        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Google Play.',
+        	'optionscode'   => 'text',
+        	'value'         => 'This forum has an app for Android. Click OK to learn more about Tapatalk.',
+        ),
+        'android_url' => array(
+            'title'			=> 'Android Product URL',
+        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Google Play.',
+        	'optionscode'   => 'text',
+        	'value'         => 'market://details?id=com.quoord.tapatalkpro.activity',
+        ),
+        'kindle_msg' => array(
+            'title'			=> 'Kindle Fire Product Message',
+        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Amazon App Store.',
+        	'optionscode'   => 'text',
+        	'value'         => 'This forum has an app for Kindle Fire! Click OK to learn more about Tapatalk.',
+        ),
+        'kindle_url' => array(
+            'title'			=> 'Kindle Fire Product URL',
+        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Amazon App Store.',
+        	'optionscode'   => 'text',
+        	'value'         => 'http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity',
         ),
     );
 
@@ -303,9 +357,21 @@ function tapatalk_pre_output_page(&$page)
 {
     global $mybb;
     
-    $tapatalk_detect_js_name = $mybb->settings['tapatalk_chrome_notifier'] == 1 ? 'tapatalkdetect.js' : 'tapatalkdetect-nochrome.js';
-    
-    $page = str_ireplace("</head>", "<script type='text/javascript' src='{$mybb->settings['bburl']}/{$mybb->settings['tapatalk_directory']}/{$tapatalk_detect_js_name}'></script></head>", $page);
+    $tapatalk_detect_js_name = 'tapatalkdetect.js';
+    $settings = $mybb->settings;
+    $str = "<script type='text/javascript'> 
+    	var tapatalk_ipad_msg = '{$settings['tapatalk_ipad_msg']}';
+        var tapatalk_ipad_url  = '{$settings['tapatalk_ipad_url']}';
+        var tapatalk_iphone_msg = '{$settings['tapatalk_iphone_msg']}';
+        var tapatalk_iphone_url  = '{$settings['tapatalk_iphone_url']}';
+        var tapatalk_android_msg = '{$settings['tapatalk_android_msg']}';
+        var tapatalk_android_url  = '{$settings['tapatalk_android_url']}';
+        var tapatalk_kindle_msg = '{$settings['tapatalk_kindle_msg']}';
+        var tapatalk_kindle_url  = '{$settings['tapatalk_kindle_url']}';
+        var tapatalkdir = '{$settings['tapatalk_directory']}';
+        var tapatalk_chrome_enable = '{$settings['tapatalk_chrome_notifier']}';
+</script>";
+    $page = str_ireplace("</head>", $str . "\n<script type='text/javascript' src='{$mybb->settings['bburl']}/{$mybb->settings['tapatalk_directory']}/{$tapatalk_detect_js_name}'></script></head>", $page);
 }
 
 // push related functions
@@ -388,6 +454,10 @@ function tapatalk_push_pm()
 function tt_do_post_request($data,$pushTest = false)
 {
 	global $mybb;
+	if(empty($data['data']))
+	{
+		return ;
+	}
 	if(!empty($mybb->settings['tapatalk_push_key']) && !$pushTest)
 	{
 		$data['key'] = $mybb->settings['tapatalk_push_key'];

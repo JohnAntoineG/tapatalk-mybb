@@ -32,7 +32,7 @@ function search_func()
                 
                 // compatibility data
                 'last_reply_author_id'  => new xmlrpcval($lastpost ? $lastpost['uid'] : $item['lastposteruid'], 'string'),
-              'last_reply_author_name'  => new xmlrpcval(basic_clean($lastpost ? $lastpost['username'] : $item['lastposter']), 'base64'),
+                'last_reply_author_name'  => new xmlrpcval(basic_clean($lastpost ? $lastpost['username'] : $item['lastposter']), 'base64'),
                 'post_time'             => new xmlrpcval(mobiquo_iso8601_encode($lastpost ? $lastpost['dateline'] : $item['lastpost']), 'dateTime.iso8601'),
                 
                 'reply_number'          => new xmlrpcval($item['replies'], 'int'),
@@ -149,4 +149,34 @@ function get_alert_func()
 		'items' => new xmlrpcval($return_array,'array'),
 	),'struct');
 	return $result;
+}
+
+function register_func()
+{
+	 global $result, $result_text;
+	 $response = new xmlrpcval(array(
+        'result'            => new xmlrpcval($result, 'boolean'),
+        'result_text'       => new xmlrpcval($result_text, 'base64'),
+	 ), 'struct');
+	 return new xmlrpcresp($response);
+}
+function update_password_func()
+{
+	 global $result , $result_text;
+	 $response = new xmlrpcval(array(
+        'result'            => new xmlrpcval($result, 'boolean'),
+        'result_text'       => new xmlrpcval($result_text, 'base64'),
+	 ), 'struct');
+	 return new xmlrpcresp($response);
+}
+
+function forget_password_func()
+{
+	 global $result , $result_text ,$verified;
+	 $response = new xmlrpcval(array(
+        'result'            => new xmlrpcval($result, 'boolean'),
+        'result_text'       => new xmlrpcval($result_text, 'base64'),
+	 	'verified'          => new xmlrpcval($verified, 'boolean'),
+	 ), 'struct');
+	 return new xmlrpcresp($response);
 }
