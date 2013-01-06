@@ -334,8 +334,8 @@ function get_thread_func($xmlrpc_params)
                 }
                 else if ($mybb->settings[$thlprefix.'thankslike'] == "thanks")
                 {
-                    if (strpos($post['button_tyl'], 'thankyoulike_button_add')) $post_xmlrpc['can_thank'] = new xmlrpcval(true, 'boolean');
-                    if (strpos($post['button_tyl'], 'thankyoulike_button_del')) $post_xmlrpc['can_remove_thank'] = new xmlrpcval(true, 'boolean');
+                    if ($post['button_tyl']) $post_xmlrpc['can_thank'] = new xmlrpcval(true, 'boolean');
+                    if ($mybb->settings[$thlprefix.'removing'] == 1) $post_xmlrpc['can_remove_thank'] = new xmlrpcval(true, 'boolean');
                     if ($tyled) $post_xmlrpc['is_thanked'] = new xmlrpcval(true, 'boolean');
                     if ($tyl_list) $post_xmlrpc['thanks_info'] = new xmlrpcval($tyl_list, 'array');
                 }
