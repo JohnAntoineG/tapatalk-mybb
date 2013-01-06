@@ -173,6 +173,8 @@ function reply_post_func($xmlrpc_params)
 		$pid = $postinfo['pid'];
 		$visible = $postinfo['visible'];
         tapatalk_push_reply();
+        tapatalk_push_quote();
+        tapatalk_push_tag();
 		// Deciding the fate
 		if($visible == -2)
 		{

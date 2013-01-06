@@ -33,4 +33,7 @@ subscribe_load = 1
 user_id = 1
 anonymous = 1
 get_alert = 1
+alert = 1
+register = 1
 thlprefix = g33k_thankyoulike_
+push_type = pm,subscribe,newtopic,tag,quote

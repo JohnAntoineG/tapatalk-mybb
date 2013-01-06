@@ -14,8 +14,12 @@ $plugins->add_hook('pre_output_page', 'tapatalk_pre_output_page');
 
 // hook for push
 $plugins->add_hook('newreply_do_newreply_end', 'tapatalk_push_reply');
+$plugins->add_hook('newreply_do_newreply_end', 'tapatalk_push_quote');
+$plugins->add_hook('newreply_do_newreply_end', 'tapatalk_push_tag');
 $plugins->add_hook('private_do_send_end', 'tapatalk_push_pm');
-
+$plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_newtopic');
+$plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_quote');
+$plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_tag');
 function tapatalk_info()
 {
     /**
@@ -55,6 +59,9 @@ function tapatalk_install()
               announcement smallint(5) NOT NULL DEFAULT '1',
               pm smallint(5) NOT NULL DEFAULT '1',
               subscribe smallint(5) NOT NULL DEFAULT '1',
+              newtopic smallint(5) NOT NULL DEFAULT '1',
+              quote smallint(5) NOT NULL DEFAULT '1',
+              tag smallint(5) NOT NULL DEFAULT '1',
               updated timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
               PRIMARY KEY (userid)
             )
@@ -227,18 +234,21 @@ function tapatalk_is_installed()
 function tapatalk_uninstall()
 {
     global $mybb, $db;
-
-    if($mybb->settings['tapatalk_datakeep'] == 'delete')
+    if($db->table_exists('tapatalk_push_data'))
+    {
+        $db->drop_table('tapatalk_push_data');
+    }
+	if($db->table_exists('tapatalk_users'))
+    {
+        $db->drop_table('tapatalk_users');
+    }
+    /*if($mybb->settings['tapatalk_datakeep'] == 'delete')
     {
         if($db->table_exists('tapatalk_users'))
         {
             $db->drop_table('tapatalk_users');
         }
-    	if($db->table_exists('tapatalk_push_data'))
-        {
-            $db->drop_table('tapatalk_push_data');
-        }
-    }
+    }*/
 
     // Remove settings
     $result = $db->simple_select('settinggroups', 'gid', "name = 'tapatalk'", array('limit' => 1));
@@ -377,74 +387,277 @@ function tapatalk_pre_output_page(&$page)
 // push related functions
 function tapatalk_push_reply()
 {
-    global $mybb, $db, $tid, $pid, $visible, $thread;
-    
-    if ($tid && $pid && $visible == 1 && $mybb->settings['tapatalk_push'] && $db->table_exists('tapatalk_users'))
+	global $mybb, $db, $tid, $pid, $visible, $thread;
+	if(!($tid && $pid && $visible == 1 && $db->table_exists('tapatalk_users')) )
+	{
+		return false;
+	}
+	$query = $db->query("
+    	SELECT ts.uid,tu.subscribe as sub
+        FROM ".TABLE_PREFIX."threadsubscriptions ts
+        RIGHT JOIN ".TABLE_PREFIX."tapatalk_users tu ON (ts.uid=tu.userid)
+        WHERE ts.tid = '$tid'
+    ");
+        
+    $ttp_push_data = array();
+    while($user = $db->fetch_array($query))
     {
-        $query = $db->query("
-            SELECT ts.uid
-            FROM ".TABLE_PREFIX."threadsubscriptions ts
-            LEFT JOIN ".TABLE_PREFIX."tapatalk_users tu ON (ts.uid=tu.userid)
-            WHERE ts.tid = '$tid' AND tu.subscribe=1
-        ");
-        
-        $ttp_data = array();
-        while($user = $db->fetch_array($query))
+        if ($user['uid'] == $mybb->user['uid']) continue;
+        $ttp_data[] = array(
+            'userid'    => $user['uid'],
+            'type'      => 'sub',
+            'id'        => $tid,
+            'subid'     => $pid,
+            'title'     => tt_push_clean($thread['subject']),
+            'author'    => tt_push_clean($mybb->user['username']),
+            'dateline'  => TIME_NOW,
+        );
+        tt_insert_push_data($ttp_data[count($ttp_data)-1]);
+        if($user['sub'] == 1)
         {
-            if ($user['uid'] == $mybb->user['uid']) continue;
-            
-            $ttp_data[] = array(
-                'userid'    => $user['uid'],
-                'type'      => 'sub',
-                'id'        => $tid,
-                'subid'     => $pid,
-                'title'     => tt_push_clean($thread['subject']),
-                'author'    => tt_push_clean($mybb->user['username']),
-                'dateline'  => TIME_NOW,
-            );
-            tt_insert_push_data($ttp_data[count($ttp_data)-1]);
+        	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
         }
-        
-        $ttp_post_data = array(
+    }
+    if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+    {
+    	$ttp_post_data = array(
             'url'  => $mybb->settings['bburl'],
-            'data' => base64_encode(serialize($ttp_data)),
+            'data' => base64_encode(serialize($ttp_push_data)),
         );
         
         $return_status = tt_do_post_request($ttp_post_data);
+        return true;
     }
+    return false;
+}
+
+function tapatalk_push_quote()
+{
+	global $mybb, $db, $tid, $pid, $visible, $thread ,$post,$thread_info,$new_thread;
+	if(!empty($new_thread))
+	{
+		$pid = $thread_info['pid'];
+	    $thread = $new_thread;
+	    $post = $new_thread;
+	}
+	if(!($tid && $pid && $visible == 1 && $db->table_exists('tapatalk_users')) )
+	{
+		return false;
+	}
+	if(!empty($post['message']))
+	{
+		$matches = array();
+		preg_match_all('/\[quote=\'(.*)\' pid=\'(.*)\' dateline=\'(.*)\'\]/', $post['message'] , $matches);
+		$matches = array_unique($matches[1]);
+		foreach ($matches as $username)
+		{
+			$query = $db->query("SELECT tu.*,u.uid FROM " . TABLE_PREFIX . "tapatalk_users AS tu LEFT JOIN 
+			" . TABLE_PREFIX ."users AS u ON tu.userid = u.uid  WHERE u.username = '$username'");
+			$user = $db->fetch_array($query);
+			if(empty($user) || !tapatalk_double_push_check($user['uid'],$pid))
+			{
+				return false;
+			}
+			if ($user['uid'] == $mybb->user['uid']) continue;
+			$ttp_push_data = array();
+	        $ttp_data[] = array(
+	            'userid'    => $user['uid'],
+	            'type'      => 'quote',
+	            'id'        => $tid,
+	            'subid'     => $pid,
+	            'title'     => tt_push_clean($thread['subject']),
+	            'author'    => tt_push_clean($mybb->user['username']),
+	            'dateline'  => TIME_NOW,
+	        );
+	        tt_insert_push_data($ttp_data[count($ttp_data)-1]);
+	        if($user['quote'] == 1)
+	        {
+	        	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
+	        }
+		}
+	 	if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+	    {
+	    	$ttp_post_data = array(
+	            'url'  => $mybb->settings['bburl'],
+	            'data' => base64_encode(serialize($ttp_push_data)),
+	        );
+	        
+	        $return_status = tt_do_post_request($ttp_post_data);
+	        return true;
+	    }
+		
+	}
+	return false;
+}
+
+function tapatalk_push_tag()
+{
+	global $mybb, $db, $tid, $pid, $visible, $thread ,$post,$thread_info,$new_thread;
+    if(!empty($new_thread))
+	{
+		$pid = $thread_info['pid'];
+	    $thread = $new_thread;
+	    $post = $new_thread;
+	}
+	if(!($tid && $pid && $visible == 1 && $db->table_exists('tapatalk_users')) )
+	{
+		return false;
+	}
+	if(!empty($post['message']))
+	{
+		$matches = array();
+		$matches = tt_get_tag_list($_POST['message']);
+		foreach ($matches as $username)
+		{
+			$query = $db->query("SELECT tu.*,u.uid FROM " . TABLE_PREFIX . "tapatalk_users AS tu LEFT JOIN 
+			" . TABLE_PREFIX ."users AS u ON tu.userid = u.uid  WHERE u.username = '$username'");
+			$user = $db->fetch_array($query);
+			if(empty($user) || !tapatalk_double_push_check($user['uid'],$pid))
+			{
+				return false;
+			}
+			if ($user['uid'] == $mybb->user['uid']) continue;
+			$ttp_push_data = array();
+	        $ttp_data[] = array(
+	            'userid'    => $user['uid'],
+	            'type'      => 'tag',
+	            'id'        => $tid,
+	            'subid'     => $pid,
+	            'title'     => tt_push_clean($thread['subject']),
+	            'author'    => tt_push_clean($mybb->user['username']),
+	            'dateline'  => TIME_NOW,
+	        );
+	        tt_insert_push_data($ttp_data[count($ttp_data)-1]);
+	        if($user['quote'] == 1)
+	        {
+	        	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
+	        }
+		}
+	 	if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+	    {
+	    	$ttp_post_data = array(
+	            'url'  => $mybb->settings['bburl'],
+	            'data' => base64_encode(serialize($ttp_push_data)),
+	        );
+	        
+	        $return_status = tt_do_post_request($ttp_post_data);
+	        return true;
+	    }
+		
+	}
+	return false;
+}
+function tapatalk_push_newtopic()
+{
+	global $mybb, $db, $tid,$visible, $thread_info,$fid,$new_thread;
+	$pid = $thread_info['pid'];
+	if(!($tid && $fid && $pid && $visible == 1 && $db->table_exists('tapatalk_users')) )
+	{
+		return false;
+	}
+	$query = $db->query("
+    	SELECT ts.uid,tu.newtopic as sub
+        FROM ".TABLE_PREFIX."forumsubscriptions ts
+        RIGHT JOIN ".TABLE_PREFIX."tapatalk_users tu ON (ts.uid=tu.userid)
+        WHERE ts.fid = '$fid'
+    ");
+        
+    $ttp_push_data = array();
+    while($user = $db->fetch_array($query))
+    {
+        if ($user['uid'] == $mybb->user['uid']) continue;
+        $ttp_data[] = array(
+            'userid'    => $user['uid'],
+            'type'      => 'newtopic',
+            'id'        => $tid,
+            'subid'     => $pid,
+            'title'     => tt_push_clean($new_thread['subject']),
+            'author'    => tt_push_clean($mybb->user['username']),
+            'dateline'  => TIME_NOW,
+        );
+        tt_insert_push_data($ttp_data[count($ttp_data)-1]);
+        if($user['newtopic'] == 1)
+        {
+        	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
+        }
+    }
+    if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+    {
+    	$ttp_post_data = array(
+            'url'  => $mybb->settings['bburl'],
+            'data' => base64_encode(serialize($ttp_push_data)),
+        );
+        
+        $return_status = tt_do_post_request($ttp_post_data);
+        return true;
+    }
+    return false;
+}
+function tapatalk_double_push_check($userid,$pid)
+{
+	global $db;
+	$query = $db->query("SELECT * FROM " . TABLE_PREFIX ."tapatalk_push_data WHERE user_id = '$userid' AND data_id = '$pid'");
+	$row = $db->fetch_array($query);
+	if(empty($row))
+	{
+		return true;
+	}
+	return false;
+}
+
+function tt_get_tag_list($str)
+{
+    if ( preg_match_all( '/(?<=^@|\s@)(#(.{1,50})#|\S{1,50}(?=[,\.;!\?]|\s|$))/U', $str, $tags ) )
+    {
+        foreach ($tags[2] as $index => $tag)
+        {
+            if ($tag) $tags[1][$index] = $tag;
+        }
+        
+        return array_unique($tags[1]);
+    }
+    
+    return array();
 }
 
 function tapatalk_push_pm()
 {
     global $mybb, $db, $pm, $pminfo;
-    
-    if ($pminfo['messagesent'] && $mybb->settings['tapatalk_push'] && $db->table_exists('tapatalk_users'))
+    if(!($pminfo['messagesent'] &&$db->table_exists('tapatalk_users')))
     {
-        $query = $db->query("
-            SELECT p.pmid, p.toid
-            FROM ".TABLE_PREFIX."privatemessages p
-            LEFT JOIN ".TABLE_PREFIX."tapatalk_users tu ON (p.toid=tu.userid)
-            WHERE p.fromid = '{$mybb->user['uid']}' and p.dateline = " . TIME_NOW . " AND p.folder = 1 AND tu.pm=1
-        ");
+    	return false;
+    }
+    $query = $db->query("
+        SELECT p.pmid, p.toid ,tu.pm
+        FROM ".TABLE_PREFIX."privatemessages p
+        LEFT JOIN ".TABLE_PREFIX."tapatalk_users tu ON (p.toid=tu.userid)
+        WHERE p.fromid = '{$mybb->user['uid']}' and p.dateline = " . TIME_NOW . " AND p.folder = 1
+    ");
         
-        $ttp_data = array();
-        while($user = $db->fetch_array($query))
-        {
-            if ($user['toid'] == $mybb->user['uid']) continue;
+    $ttp_push_data = array();
+    while($user = $db->fetch_array($query))
+    {
+        if ($user['toid'] == $mybb->user['uid']) continue;
             
-            $ttp_data[] = array(
-                'userid'    => $user['toid'],
-                'type'      => 'pm',
-                'id'        => $user['pmid'],
-                'title'     => tt_push_clean($pm['subject']),
-                'author'    => tt_push_clean($mybb->user['username']),
-                'dateline'  => TIME_NOW,
-            );
-            tt_insert_push_data($ttp_data[count($ttp_data)-1]);
+        $ttp_data[] = array(
+            'userid'    => $user['toid'],
+            'type'      => 'pm',
+            'id'        => $user['pmid'],
+            'title'     => tt_push_clean($pm['subject']),
+            'author'    => tt_push_clean($mybb->user['username']),
+            'dateline'  => TIME_NOW,
+        );
+        tt_insert_push_data($ttp_data[count($ttp_data)-1]);
+        if($user['pm'] == 1)
+        {
+        	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
         }
+    }
+    if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+    {
         $ttp_post_data = array(
             'url'  => $mybb->settings['bburl'],
-            'data' => base64_encode(serialize($ttp_data)),
+            'data' => base64_encode(serialize($ttp_push_data)),
         );
         
         $return_status = tt_do_post_request($ttp_post_data);
@@ -528,6 +741,10 @@ function tt_insert_push_data($data)
 	if(!$db->table_exists("tapatalk_push_data"))
 	{
 		return ;
+	}
+	if($data['type'] == 'pm')
+	{
+		$data['subid'] = $data['id'];
 	}
 	$sql_data = array(
         'author' => $data['author'],

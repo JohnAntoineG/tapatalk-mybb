@@ -131,7 +131,9 @@ function new_topic_func($xmlrpc_params)
 	{
 		$db->update_query("attachments", array("pid" => intval($pid)), "posthash='{$input['group_id_esc']}'");
 	}
-
+	tapatalk_push_newtopic();
+	tapatalk_push_quote();
+	tapatalk_push_tag();
 	// Mark thread as read
 	require_once MYBB_ROOT."inc/functions_indicators.php";
 	mark_thread_read($tid, $fid);

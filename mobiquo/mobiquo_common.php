@@ -915,13 +915,10 @@ function tt_register_verify($tt_token,$tt_code)
 
 function tt_get_user_push_type($userid)
 {
-	global $table_prefix,$db;
-	if(!check_push())
-	{
-		return array();
-	}
-	$sql = "SELECT pm,subscribe as sub,quote,newtopic,tag FROM " . $table_prefix . "tapatalk_users WHERE userid = '".$userid."'";
-    $result = $db->sql_query($sql);
-    $row = $db->sql_fetchrow($result);
+    global $db;
+    if(!$db->table_exists('tapatalk_users')) return array();
+    $sql = "SELECT pm,subscribe as sub,newtopic,quote,tag FROM " . TABLE_PREFIX . "tapatalk_users WHERE userid = '".$userid."'";
+    $result = $db->query($sql);
+    $row = $db->fetch_array($result);
     return $row;
 }

@@ -97,7 +97,7 @@ function get_online_users_func()
 					// Append an invisible mark if the user is invisible
 					if($user['invisible'] == 1)
 					{
-						$invisible_mark = "*";
+						$invisible_mark = "(*)";
 					}
 					else
 					{
@@ -106,7 +106,7 @@ function get_online_users_func()
 
 					//$user['username'] = format_name($user['username'], $user['usergroup'], $user['displaygroup']);
 					//$online_name = build_profile_link($user['username'], $user['uid']).$invisible_mark;
-					$online_name = $user['username'].$invisible_mark;
+					$online_name = $user['username'];
 				}
 			}
 			// We have a bot
@@ -123,7 +123,7 @@ function get_online_users_func()
 			}
 			
 			// Fetch the location name for this users activity
-			$location = strip_tags(build_friendly_wol_location($user['activity']));			
+			$location = $invisible_mark.strip_tags(build_friendly_wol_location($user['activity']));			
 	
 			$user_lists[] = new xmlrpcval(array(
 				'user_name'     => new xmlrpcval($online_name, 'base64'),
