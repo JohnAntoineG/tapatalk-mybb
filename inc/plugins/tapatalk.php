@@ -148,7 +148,7 @@ function tapatalk_install()
         ),
         'forum_read_only' => array(
             'title'         => 'Disable New Topic',
-            'description'   => "Prevent Tapatalk users to create new topic in the selected sub-forums. This feature is useful if certain forums requires additional topic fields or permission that Tapatalk does not support.",
+            'description'   => "Prevent Tapatalk users to create new topic in the selected sub-forums. This feature is useful if certain forums requires additional topic fields or permission that Tapatalk does not support,Separate multiple entries with a coma.",
             'optionscode'   => 'text',
             'value'         => ''
         ),
