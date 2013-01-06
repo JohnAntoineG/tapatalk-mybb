@@ -101,7 +101,7 @@ function login_func($xmlrpc_params)
         foreach($groups as $group){
             $xmlgroups[] = new xmlrpcval($group, "string");
         }
-
+		update_push();
         if ($settings['maxattachments'] == 0) $settings['maxattachments'] = 100;
 	    $push_type = array();
 	    $userPushType = tt_get_user_push_type($mybb->user['uid']);
@@ -132,7 +132,7 @@ function login_func($xmlrpc_params)
         	'push_type'         => new xmlrpcval($push_type, 'array'),
         );
         
-        update_push();
+        
         
         return new xmlrpcresp(new xmlrpcval($result, 'struct'));
     }
