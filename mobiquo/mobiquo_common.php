@@ -407,6 +407,10 @@ function tt_check_image($url)
 	{
 		return '[url]'. $url .'[/url]';
 	}
+	else 
+	{
+		return '[img]'. $url .'[/img]';
+	}
 }
 function process_page($start_num, $end)
 {
