@@ -9,7 +9,7 @@ require_once MYBB_ROOT."inc/class_parser.php";
 
 function reply_post_func($xmlrpc_params)
 {
-	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups,$tid, $pid, $visible, $thread;
+	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups,$tid, $pid, $visible, $thread,$post;
 
 	$input = Tapatalk_Input::filterXmlInput(array(
 			'forum_id' => Tapatalk_Input::INT,

@@ -7,7 +7,7 @@ require_once MYBB_ROOT."inc/functions_user.php";
 
 function new_topic_func($xmlrpc_params)
 {
-	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups;
+	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups,$thread_info,$pid,$tid,$visible,$fid,$new_thread;
 	
 	$lang->load("newthread"); 
 	

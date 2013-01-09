@@ -174,7 +174,7 @@ function tapatalk_install()
             'title'			=> 'iPad Product URL',
         	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Apple App Store.',
         	'optionscode'   => 'text',
-        	'value'         => 'Thttp://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8',
+        	'value'         => 'http://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8',
         ),
         'android_msg' => array(
             'title'			=> 'Android Product Message',
@@ -505,8 +505,7 @@ function tapatalk_push_tag()
 	}
 	if(!empty($post['message']))
 	{
-		$matches = array();
-		$matches = tt_get_tag_list($_POST['message']);
+		$matches = tt_get_tag_list($post['message']);
 		foreach ($matches as $username)
 		{
 			$query = $db->query("SELECT tu.*,u.uid FROM " . TABLE_PREFIX . "tapatalk_users AS tu LEFT JOIN 
