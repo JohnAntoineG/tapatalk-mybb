@@ -8,7 +8,7 @@ function upload_avatar_func($xmlrpc_params)
 {
 	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups;
 	
-	chdir("../");
+	//chdir("../");
 	
 	$input = Tapatalk_Input::filterXmlInput(array(
 			'content' => Tapatalk_Input::STRING,
