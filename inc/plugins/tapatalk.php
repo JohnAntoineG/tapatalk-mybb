@@ -124,7 +124,7 @@ function tapatalk_install()
         ),
         'directory' => array(
             'title'         => 'Tapatalk plugin directory',
-            'description'   => 'Never change it if you did not rename the Tapatalk plugin directory. And the default value is \'mobiquo\'. If you renamed the Tapatalk plugin directory, you also need to update the same setting for this forum in tapatalk forum owner area.��http://tapatalk.com/forum_owner.php��',
+            'description'   => 'Never change it if you did not rename the Tapatalk plugin directory. And the default value is \'mobiquo\'. If you renamed the Tapatalk plugin directory, you also need to update the same setting for this forum in tapatalk forum owner area.(http://tapatalk.com/forum_owner.php)',
             'optionscode'   => 'text',
             'value'         => 'mobiquo'
         ),
