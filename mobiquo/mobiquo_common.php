@@ -394,23 +394,7 @@ function process_post($post, $returnHtml = false)
     $post = trim($post);
     // remove link on img
     $post = preg_replace('/\[url=[^\]]*?\]\s*(\[img\].*?\[\/img\])\s*\[\/url\]/si', '$1', $post);
-    $post = preg_replace('/\[img\](.*?)\[\/img\]/sei', "tt_check_image('$1')", $post);
-
     return $post;
-}
-function tt_check_image($url)
-{
-	$path = parse_url($url);
-	$file_info = pathinfo($path['path']);
-	$ext = $file_info['extension'];
-	if($ext == 'gif' )
-	{
-		return '[url]'. $url .'[/url]';
-	}
-	else 
-	{
-		return '[img]'. $url .'[/img]';
-	}
 }
 function process_page($start_num, $end)
 {
