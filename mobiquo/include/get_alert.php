@@ -24,12 +24,17 @@ function getAlert()
     $startNum = ($page-1) * $per_page; 
     $sql = 'DELETE FROM ' . $push_table . ' WHERE create_time < ' . $preMonthtime . ' and user_id = ' . $mybb->user['uid'];
     $db->query($sql);
-    $sql_select = "SELECT p.*,u.uid as author_id FROM ". $push_table . " p 
+    $sql_select = "SELECT p.*,u.uid as author_id,u.avatar  FROM ". $push_table . " p 
     LEFT JOIN " . TABLE_PREFIX . "users u ON p.author = u.username WHERE p.user_id = " . $mybb->user['uid'] . "
     ORDER BY create_time DESC LIMIT $startNum,$per_page ";
     $query = $db->query($sql_select);
     while($data = $db->fetch_array($query))
     {
+    	if(!empty($data['avatar']))
+    	{
+    		$data['avatar'] = str_replace('./', '/', $data['avatar']);
+    		$data['icon_url'] = $mybb->settings['bburl'].$data['avatar'];
+    	}
     	switch ($data['data_type'])
 		{
 			case 'sub':

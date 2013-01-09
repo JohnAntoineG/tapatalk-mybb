@@ -57,6 +57,9 @@ function update_push_status_func($xmlrpc_params)
                 $update_params[] = 'announcement='.($input['settings']['all'] ? 1 : 0);
                 $update_params[] = 'pm='.($input['settings']['all'] ? 1 : 0);
                 $update_params[] = 'subscribe='.($input['settings']['all'] ? 1 : 0);
+                $update_params[] = 'newtopic='.($input['settings']['all'] ? 1 : 0);
+                $update_params[] = 'quote='.($input['settings']['all'] ? 1 : 0);
+                $update_params[] = 'tag='.($input['settings']['all'] ? 1 : 0);
             }
             else
             {
@@ -68,6 +71,12 @@ function update_push_status_func($xmlrpc_params)
                 
                 if (isset($input['settings']['sub']))
                     $update_params[] = 'subscribe='.($input['settings']['sub'] ? 1 : 0);
+                if (isset($input['settings']['newtopic']))
+                    $update_params[] = 'newtopic='.($input['settings']['newtopic'] ? 1 : 0);
+                if (isset($input['settings']['quote']))
+                    $update_params[] = 'quote='.($input['settings']['quote'] ? 1 : 0);
+                if (isset($input['settings']['newtopic']))
+                    $update_params[] = 'tag='.($input['settings']['tag'] ? 1 : 0);
             }
             
             if ($update_params)
