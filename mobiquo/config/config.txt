@@ -35,4 +35,4 @@ anonymous = 1
 alert = 1
 register = 0
 thlprefix = g33k_thankyoulike_
-push_type = pm,subscribe,newtopic,tag,quote
+push_type = pm,sub,newtopic,tag,quote
