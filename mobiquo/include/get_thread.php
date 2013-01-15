@@ -21,7 +21,7 @@ function get_thread_func($xmlrpc_params)
     ), $xmlrpc_params);
 
     $lang->load("showthread");
-
+	global $parser;
     $parser = new Tapatalk_Parser;
 
     // Get the thread details from the database.
@@ -274,8 +274,6 @@ function get_thread_func($xmlrpc_params)
         $post['message'] = $parser->parse_message($post['message'], $parser_options);
         $attachment_list = process_post_attachments($post['pid'], $post);
         // add for thank/like support
-        global $parser;
-        $parser = new postParser;
         $post = $plugins->run_hooks("postbit", $post);
 
         if(is_array($ignored_users) && $post['uid'] != 0 && $ignored_users[$post['uid']] == 1){

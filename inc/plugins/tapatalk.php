@@ -757,7 +757,9 @@ function tt_insert_push_data($data)
 }
 function tt_push_clean($str)
 {
+	global $db;
     $str = strip_tags($str);
     $str = trim($str);
+    $str = $db->escape_string($str);
     return html_entity_decode($str, ENT_QUOTES, 'UTF-8');
 }
