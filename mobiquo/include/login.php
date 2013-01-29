@@ -117,6 +117,7 @@ function login_func($xmlrpc_params)
             'result_text'       => new xmlrpcval('', 'base64'),
             'user_id'           => new xmlrpcval($mybb->user['uid'], 'string'),
             'username'          => new xmlrpcval(basic_clean($mybb->user['username']), 'base64'),
+        	'email'             => new xmlrpcval(basic_clean($mybb->user['email']), 'base64'),
             'icon_url'          => new xmlrpcval(absolute_url($mybb->user['avatar']), 'string'),
             'post_count'        => new xmlrpcval(intval($mybb->user['postnum']), 'int'),
             'usergroup_id'      => new xmlrpcval($xmlgroups, 'array'),

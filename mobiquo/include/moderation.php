@@ -465,7 +465,100 @@ function m_approve_topic_func($xmlrpc_params)
 
 function m_rename_topic_func($xmlrpc_params)
 {
-    return xmlrespfalse("Please edit the first post subject to change the thread title");
+    global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups;
+		
+	$lang->load("editpost");
+
+	$input = Tapatalk_Input::filterXmlInput(array(
+		'topic_id' => Tapatalk_Input::INT,
+		'title' => Tapatalk_Input::STRING
+	), $xmlrpc_params);  
+
+	$parser = new postParser;
+
+	// Get post info
+	$thread = get_thread($input['topic_id']);
+
+	if(!$thread['tid'])
+	{
+		return xmlrespfalse($lang->error_invalidthread);
+	}
+
+	$forumpermissions = forum_permissions($thread['fid']);
+	// No permission for guests
+	if($mybb->user['uid'] == 0)
+	{
+		return tt_no_permission();
+	}
+	// Get forum info
+	$fid = $thread['fid'];
+	$forum = get_forum($fid);
+	if(!$forum || $forum['type'] != "f")
+	{
+		return xmlrespfalse($lang->error_closedinvalidforum);
+	}
+	if($forum['open'] == 0 || $mybb->user['suspendposting'] == 1)
+	{
+		return tt_no_permission();
+	}
+
+	if(!is_moderator($fid, "caneditposts"))
+	{
+		if($thread['closed'] == 1)
+		{
+			return xmlrespfalse($lang->redirect_threadclosed);
+		}
+		if($forumpermissions['caneditposts'] == 0)
+		{
+			return tt_no_permission();
+		}
+		if($mybb->user['uid'] != $thread['uid'])
+		{
+			return tt_no_permission();
+		}
+		// Edit time limit
+		$time = TIME_NOW;
+		if($mybb->settings['edittimelimit'] != 0 && $thread['dateline'] < ($time-($mybb->settings['edittimelimit']*60)))
+		{
+			$lang->edit_time_limit = $lang->sprintf($lang->edit_time_limit, $mybb->settings['edittimelimit']);
+			return xmlrespfalse($lang->edit_time_limit);
+		}
+	}
+		
+	// Check if this forum is password protected and we have a valid password
+	tt_check_forum_password($forum['fid']);
+
+	// Set up posthandler.
+	require_once MYBB_ROOT."inc/datahandlers/post.php";
+	$posthandler = new PostDataHandler("update");
+	$posthandler->action = "post";
+	// Set the post data that came from the input to the $post array.
+	$post = array(
+		"pid" => $thread['firstpost'],
+		"subject" => $input['title'],
+	);
+	
+	$posthandler->set_data($post);
+
+	// Now let the post handler do all the hard work.
+	if(!$posthandler->validate_post())
+	{
+		$post_errors = $posthandler->get_friendly_errors();		
+		return xmlrespfalse(implode(" :: ", $post_errors));
+	}
+	// No errors were found, we can call the update method.
+	else
+	{
+		$postinfo = $posthandler->update_post();
+		$response = new xmlrpcval(array(
+        'result'        => new xmlrpcval(true, 'boolean'),
+        'is_login_mod'  => new xmlrpcval(true, 'boolean'),
+        'result_text'   => new xmlrpcval("", 'base64')
+   		), 'struct');
+
+        return new xmlrpcresp($response);
+	}
+	
 }
 
 // POST ACTION

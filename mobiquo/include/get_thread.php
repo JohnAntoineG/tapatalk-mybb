@@ -204,6 +204,9 @@ function get_thread_func($xmlrpc_params)
         WHERE $pids
         ORDER BY p.dateline
     ");
+    
+	//can_rename topic
+    $can_rename = (is_moderator($fid, "caneditposts") || ($forumpermissions['caneditposts'] == 1 && $mybb->user['uid'] == $thread['uid'])) && $mybb->user['uid'] != 0;
 
     while($post = $db->fetch_array($query))
     {
@@ -403,7 +406,7 @@ function get_thread_func($xmlrpc_params)
     if (is_moderator($fid, "canmanagethreads"))     $result['can_stick']    = new xmlrpcval(true, 'boolean');
     if (is_moderator($fid, "canmanagethreads"))     $result['can_move']     = new xmlrpcval(true, 'boolean');
     if (is_moderator($fid, "canopenclosethreads"))  $result['can_approve']  = new xmlrpcval(true, 'boolean');
-    if (is_moderator($fid, "caneditposts"))         $result['can_rename']   = new xmlrpcval(true, 'boolean');
+    if ($can_rename)         $result['can_rename']   = new xmlrpcval(true, 'boolean');
     if ($mybb->usergroup['canmodcp'] == 1)          $result['can_ban']      = new xmlrpcval(true, 'boolean');
     if (!empty($breadcrumb))
     {

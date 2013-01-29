@@ -279,8 +279,6 @@ switch ($request_method)
     	$_POST['action'] = 'do_register';
     	$_POST['allownotices'] = 1;
     	$_POST['dstcorrection'] = 2;
-    	$_POST['tt_token'] = $request_params[2];
-    	$_POST['tt_code'] = $request_params[3];
     	$_POST['password'] = $request_params[1];
     	$_POST['password2'] = $request_params[1];
     	$_POST['pmnotice'] = 1;
@@ -289,8 +287,15 @@ switch ($request_method)
     	$_POST['regcheck1'] = '';
     	$_POST['regcheck2'] = 'true';
     	$_POST['username'] = $request_params[0];
+    	$_POST['email'] = $request_params[2];
+    	$_POST['email2'] = $request_params[2];
     	$_POST['step'] = 'registration';
     	$_POST['subscriptionmethod'] = 0;
+        if(count($request_params) == 5)
+    	{
+            $_POST['tt_token'] = $request_params[3];
+    	    $_POST['tt_code'] = $request_params[4];
+    	}
     	break;
     case 'forget_password':
     	$_POST['action'] = 'do_lostpw';
@@ -323,8 +328,11 @@ switch ($request_method)
 error_reporting(MOBIQUO_DEBUG);
 restore_error_handler();
 register_shutdown_function('shutdown');
-
-
+if(empty($request_params))
+{
+	$request_params[0]='';
+}
+$_SERVER['QUERY_STRING'] = 'method='.$request_method.'&params='.$request_params[0];
 define("IN_MYBB", 1);
 require_once './global.php';
 

@@ -396,6 +396,9 @@ function get_topic_func($xmlrpc_params)
 			{
 				$new_topic['can_subscribe']  = new xmlrpcval(true, 'boolean');
 			}
+			//can_rename topic
+   			$can_rename = (is_moderator($fid, "caneditposts") || ($forumpermissions['caneditposts'] == 1 && $mybb->user['uid'] == $thread['uid'])) && $mybb->user['uid'] != 0;
+			
             if ($unreadpost)                                $new_topic['new_post']       = new xmlrpcval(true, 'boolean');
             if ($thread['sticky'])                          $new_topic['is_sticky']      = new xmlrpcval(true, 'boolean');
             if ($thread['subscribed'])                      $new_topic['is_subscribed']  = new xmlrpcval(true, 'boolean');
@@ -408,7 +411,7 @@ function get_topic_func($xmlrpc_params)
             if (is_moderator($fid, "candeleteposts"))       $new_topic['can_delete']     = new xmlrpcval(true, 'boolean');
             if (is_moderator($fid, "canmanagethreads"))     $new_topic['can_stick']      = new xmlrpcval(true, 'boolean');
             if (is_moderator($fid, "canopenclosethreads"))  $new_topic['can_approve']    = new xmlrpcval(true, 'boolean');
-            if (is_moderator($fid, "caneditposts"))         $new_topic['can_rename']     = new xmlrpcval(true, 'boolean');
+            if ($can_rename)         $new_topic['can_rename']     = new xmlrpcval(true, 'boolean');
             
             $topic_list[] = new xmlrpcval($new_topic, 'struct');
         }

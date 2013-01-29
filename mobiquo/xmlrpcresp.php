@@ -153,18 +153,18 @@ function get_alert_func()
 
 function register_func()
 {
-	 global $result, $result_text;
+	 global $verify_result, $result_text;
 	 $response = new xmlrpcval(array(
-        'result'            => new xmlrpcval($result, 'boolean'),
+        'result'            => new xmlrpcval($verify_result, 'boolean'),
         'result_text'       => new xmlrpcval($result_text, 'base64'),
 	 ), 'struct');
 	 return new xmlrpcresp($response);
 }
 function update_password_func()
 {
-	 global $result , $result_text;
+	 global $verify_result , $result_text;
 	 $response = new xmlrpcval(array(
-        'result'            => new xmlrpcval($result, 'boolean'),
+        'result'            => new xmlrpcval($verify_result, 'boolean'),
         'result_text'       => new xmlrpcval($result_text, 'base64'),
 	 ), 'struct');
 	 return new xmlrpcresp($response);
@@ -172,9 +172,9 @@ function update_password_func()
 
 function forget_password_func()
 {
-	 global $result , $result_text ,$verified;
+	 global $verify_result , $result_text ,$verified;
 	 $response = new xmlrpcval(array(
-        'result'            => new xmlrpcval($result, 'boolean'),
+        'result'            => new xmlrpcval($verify_result, 'boolean'),
         'result_text'       => new xmlrpcval($result_text, 'base64'),
 	 	'verified'          => new xmlrpcval($verified, 'boolean'),
 	 ), 'struct');

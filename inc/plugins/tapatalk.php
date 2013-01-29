@@ -9,7 +9,6 @@ $plugins->add_hook('error', 'tapatalk_error');
 $plugins->add_hook('redirect', 'tapatalk_redirect');
 $plugins->add_hook('global_start', 'tapatalk_global_start');
 $plugins->add_hook('fetch_wol_activity_end', 'tapatalk_fetch_wol_activity_end');
-$plugins->add_hook('build_friendly_wol_location_end', 'tapatalk_build_friendly_wol_location_end');
 $plugins->add_hook('pre_output_page', 'tapatalk_pre_output_page');
 
 // hook for push
@@ -20,6 +19,8 @@ $plugins->add_hook('private_do_send_end', 'tapatalk_push_pm');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_newtopic');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_quote');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_tag');
+$plugins->add_hook('online_user','tapatalk_online_user');
+$plugins->add_hook('online_end','tapatalk_online_end');
 function tapatalk_info()
 {
     /**
@@ -39,7 +40,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.2.1",
+        "version"       => "3.3.0",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -151,6 +152,12 @@ function tapatalk_install()
             'description'   => "Prevent Tapatalk users to create new topic in the selected sub-forums. This feature is useful if certain forums requires additional topic fields or permission that Tapatalk does not support,Separate multiple entries with a coma.",
             'optionscode'   => 'text',
             'value'         => ''
+        ),
+        'custom_replace'    => array(
+        	'title'         => 'Custom replacement',
+        	'description'   => '',
+        	'optionscode'	=> 'textarea',
+        	'value'         => ''
         ),
         'ipad_msg' => array(
             'title'			=> 'iPad Product Message',
@@ -349,27 +356,158 @@ function tapatalk_global_start()
 
 function tapatalk_fetch_wol_activity_end(&$user_activity)
 {
+	global $uid_list, $aid_list, $pid_list, $tid_list, $fid_list, $ann_list, $eid_list, $plugins, $user, $parameters;
     if($user_activity['activity'] == 'unknown' && strpos($user_activity['location'], 'mobiquo') !== false)
     {
-        $user_activity['activity'] = 'tapatalk';
+        //$user_activity['activity'] = 'tapatalk';
+        $method = 'unknown';
+    	$path_arr = parse_url($user_activity['location']);
+    	$param = -2;
+    	$unviewableforums = get_unviewable_forums();
+   	 	if(!empty($path_arr['query']))
+    	{
+    		$param_arr = explode('&amp;', $path_arr['query']);
+    		$method = str_replace('method=', '', $param_arr[0]);
+    		$param = str_replace('params=', '', $param_arr[1]);
+    	}
+    	switch ($method)
+    	{
+    		case 'get_config':
+    		case 'get_forum':
+    		case 'get_participated_forum':
+    		case 'login_forum':
+    		case 'get_forum_status':
+    		case 'get_topic':
+    			if(is_numeric($param))
+				{
+					$fid_list[] = $param;
+				}
+				$user_activity['activity'] = "forumdisplay";
+				$user_activity['fid'] =  $param;
+				break;
+    		case 'logout_user':
+    			$user_activity['activity'] = "member_logout";
+    			break;
+    		case 'get_user_info':
+    			$user_activity['activity'] = "member_profile";
+    			break;
+    		case 'register':
+    			$user_activity['activity'] = "member_register";
+    			break;
+    		case 'forget_password':
+    			$user_activity['activity'] = "member_lostpw";
+    			break;
+			case 'login':
+				$user_activity['activity'] = "member_login";
+				break;
+			case 'get_online_users':
+	    		$user_activity['activity'] = "woltoday";
+	    		break;
+			case 'get_user_topic':
+			case 'get_user_reply_post':
+				$user_activity['activity'] = "usercp";
+				break;
+			case 'new_topic':
+				if(is_numeric($param))
+				{
+					$fid_list[] = $param;
+				}
+				$user_activity['activity'] = "newthread";
+				$user_activity['fid'] = $param;
+				break;
+			case 'search':
+			case 'search_topic':
+			case 'search_post':
+			case 'get_unread_topic':
+			case 'get_participated_topic':
+			case 'get_latest_topic':
+				$user_activity['activity'] = "search";
+				break;
+			case 'get_thread':
+				if(is_numeric($param))
+				{
+					$tid_list[] = $param;
+				}
+				$user_activity['activity'] = "showthread";
+				$user_activity['tid'] = $param;
+				break;
+			case 'get_thread_by_post':
+    	        if(is_numeric($param))
+				{
+					$pid_list[] = $param;
+					$user_activity['activity'] = "showpost";
+					$user_activity['pid'] = $param;
+				}
+				break;
+			case 'create_message':
+			case 'get_box_info':
+            case 'get_box':
+            case 'get_quote_pm':
+            case 'delete_message':
+            case 'mark_pm_unread':
+				$user_activity['activity'] = "private";
+				break;
+            case 'get_message':
+            	$user_activity['activity'] = "private_read";
+            	break;			
+			default:
+				if(strpos($method, 'm_') === 0)
+				{
+					$user_activity['activity'] = "moderation";
+				}
+				else if(strstr($method,'_post'))
+				{
+					$user_activity['activity'] = "showpost";
+				}
+				if($user_activity['activity'] == 'unknown' && strpos($user_activity['location'], 'mobiquo') !== false)
+				{
+					$user_activity['activity'] = "index";
+				}
+				break;
+    	}
+    	
     }
 }
 
-function tapatalk_build_friendly_wol_location_end($plugin_array)
+function tapatalk_online_user()
 {
-    if($plugin_array['user_activity']['activity'] == 'tapatalk')
-    {
-        $plugin_array['location_name'] = 'via Tapatalk';
-    }
+	global $user,$mybb,$db;
+	$sql = "SELECT useragent FROM ".TABLE_PREFIX."sessions WHERE uid = '".$user['uid']."' ORDER BY time DESC";
+	$query = $db->query($sql);	
+	$row = $db->fetch_array($query);
+	if(strpos($user['location'], 'mobiquo') !== false)
+	{
+		$user['username'] = $user['username'] . '[tapatalk_user]';
+	}
+	else if(strpos($row['useragent'],'Android') !== false || strpos($row['useragent'],'iPhone') !== false || 
+	strpos($row['useragent'],'BlackBerry') !== false)
+	{
+		$user['username'] = $user['username'] . '[mobile_user]';
+	}
+	
 }
-
+function tapatalk_online_end()
+{
+	global $online_rows,$mybb;
+	$str = '&nbsp;<a title="Using Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
+	$online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](.*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
+	$online_rows = preg_replace('/<a href="(.*)">(.*)\[mobile_user\](.*)<\/a>/Usi', '<a href="$1">$2$3</a> <strong>[mobile]</strong>', $online_rows);
+}
 function tapatalk_pre_output_page(&$page)
 {
     global $mybb;
     
+	$url = tapatalk_get_url();
+	$forumname = $mybb->settings['homename'];
     $tapatalk_detect_js_name = 'tapatalkdetect.js';
     $settings = $mybb->settings;
-    $str = "<script type='text/javascript'> 
+    $str = '<!-- Tapatalk smart banner head start --> 
+<meta name="apple-itune-app" content="app-id=307880732"> 
+<meta name="google-play-app" content="app-id=com.quoord.tapatalkpro.activity"> 
+<link rel="stylesheet" href="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery.smartbanner.css" type="text/css" media="screen"> 
+<!-- Tapatalk smart banner head end-->'.
+"
+<script type='text/javascript'> 
     	var tapatalk_ipad_msg = '{$settings['tapatalk_ipad_msg']}';
         var tapatalk_ipad_url  = '{$settings['tapatalk_ipad_url']}';
         var tapatalk_iphone_msg = '{$settings['tapatalk_iphone_msg']}';
@@ -380,10 +518,113 @@ function tapatalk_pre_output_page(&$page)
         var tapatalk_kindle_url  = '{$settings['tapatalk_kindle_url']}';
         var tapatalkdir = '{$settings['tapatalk_directory']}';
         var tapatalk_chrome_enable = '{$settings['tapatalk_chrome_notifier']}';
-</script>";
+</script>\n";
+    $tapatalk_smart_banner_body = ' 
+    <!-- Tapatalk smart banner body start --> 
+    '."<script type='text/javascript' src='{$mybb->settings['bburl']}/{$mybb->settings['tapatalk_directory']}/tapatalkdetect/jquery-1.7.min.js'></script>\n".
+    '<script type=\'text/javascript\'>jQuery.noConflict();</script>
+    <script src="mobiquo/smartbanner/jquery.smartbanner.js"></script> 
+    <script type="text/javascript"> 
+    if(navigator.userAgent.match(/Android/i) && !navigator.userAgent.match(/mobile/i))
+    {
+      jQuery.smartbanner({ 
+        title: "Tapatalk HD for Android Tablet", 
+        author: "'.$forumname.' is now on Tapatalk Forum App", 
+        icon: "https://lh4.ggpht.com/WuVAUAFQKe6hO35PBhxHQTT7IlkTJS2jM3ZAn6PnYCBxr1K8NDpKcIo_xy0YzeKhcdA=w124", 
+        url: "'.$url.'", 
+        iconGloss: 0, 
+        daysHidden: 30, 
+        daysReminder: 0,
+        force:"android",
+      }); 
+    }
+    </script> 
+    <!-- Tapatalk smart banner body end --> ';
     $page = str_ireplace("</head>", $str . "\n<script type='text/javascript' src='{$mybb->settings['bburl']}/{$mybb->settings['tapatalk_directory']}/{$tapatalk_detect_js_name}'></script></head>", $page);
+    $page = str_ireplace("<body>", "<body>\n".$tapatalk_smart_banner_body, $page);
 }
-
+function tapatalk_get_url()
+{
+	global $mybb;
+	$location = get_current_location();
+	$split_loc = explode(".php", $location);
+	$parameters = $param_arr = array();
+	if($split_loc[0] == $location)
+	{
+		$filename = '';
+	}
+	else
+	{
+		$filename = my_substr($split_loc[0], -my_strpos(strrev($split_loc[0]), "/"));
+	}
+	if($split_loc[1])
+	{
+		$temp = explode("&amp;", my_substr($split_loc[1], 1));
+		foreach($temp as $param)
+		{
+			$temp2 = explode("=", $param, 2);
+			$parameters[$temp2[0]] = $temp2[1];
+		}
+	}
+	switch ($filename)
+	{
+		case "forumdisplay":
+			$param_arr['fid'] = $parameters['fid'];
+			$param_arr['location'] = 'forum';
+			break;
+		case "index":
+		case '':
+			$param_arr['location'] = 'index';
+			break;	
+		case "private":
+			if($parameters['action'] == "read")
+			{
+				$param_arr['location'] = 'message';
+				$param_arr['mid'] = $parameters['pmid'];
+			}
+			break;
+		case "search":
+			$param_arr['location'] = "search";
+			break;
+		case "showthread":
+			if(!empty($parameters['pid']))
+			{
+				//$param_arr['fid'] = $parameters['fid'];
+				$param_arr['location'] = 'post';
+				$param_arr['tid'] = $parameters['tid'];
+				$param_arr['pid'] = $parameters['pid'];
+			}
+			else 
+			{
+				//$param_arr['fid'] = $parameters['fid'];
+				$param_arr['location'] = 'topic';
+				$param_arr['tid'] = $parameters['tid'];
+			}
+			break;
+		case "member":
+			if($parameters['action'] == "login" || $parameters['action'] == "do_login")
+			{
+				$param_arr['location'] = 'login';
+			}
+			elseif($parameters['action'] == "profile")
+			{
+				$param_arr['location'] = 'profile';
+				$param_arr['uid'] = $parameters['uid'];
+			}
+			
+			break;
+		case "online":
+			$param_arr['location'] = 'online';
+			break;
+		default:
+			$param_arr['location'] = 'index';
+			break;
+	}
+	$queryString = http_build_query($param_arr);
+	$url = $mybb->settings['bburl'] . '/?' .$queryString;
+	$url = preg_replace('/^(http|https)/isU', 'tapatalk', $url);
+	return $url;
+}
 // push related functions
 function tapatalk_push_reply()
 {

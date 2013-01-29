@@ -5,17 +5,25 @@ require_once MYBB_ROOT."inc/functions_post.php";
 require_once MYBB_ROOT."inc/functions_user.php";
 require_once MYBB_ROOT."inc/class_parser.php";
 $parser = new postParser;
-$result = false;
+$verify_result = false;
 $result_text = '';
 // Load global language phrases
 $lang->load("usercp");
-if(isset($_POST['tt_token']) && isset($_POST['tt_code']))
+if(!empty($_POST['tt_token']) && !empty($_POST['tt_code']) && empty($mybb->user['uid']))
 {
-	$result_email = tt_register_verify($_POST['tt_token'], $_POST['tt_code']); 
-	$query = $db->simple_select("users", "*", "email='".$result_email."'");
-	$user = $db->fetch_array($query);
-	$mybb->user = $user;
+	$result = tt_register_verify($_POST['tt_token'], $_POST['tt_code']); 
+	if($result->result && $result->email)
+	{
+		$query = $db->simple_select("users", "*", "email='".$result->email."'");
+		$user = $db->fetch_array($query);
+		$mybb->user = $user;
+	}
+	else
+	{
+		error($result->result_text);
+	}
 }
+
 if(!$mybb->user['pmfolders'])
 {
 	$mybb->user['pmfolders'] = "1**".$lang->folder_inbox."$%%$2**".$lang->folder_sent_items."$%%$3**".$lang->folder_drafts."$%%$4**".$lang->folder_trash;
@@ -84,14 +92,14 @@ if($mybb->input['action'] == "do_email" && $mybb->request_method == "post")
 
 				$plugins->run_hooks("usercp_do_email_verify");
 				$result_text = $lang->redirect_changeemail_activation;
-				$result = true;
+				$verify_result = true;
 			}
 			else
 			{
 				$userhandler->update_user();
 				$plugins->run_hooks("usercp_do_email_changed");
 				$result_text = $lang->redirect_emailupdated;
-				$result = true;
+				$verify_result = true;
 			}
 		}
 	}
@@ -108,7 +116,7 @@ if($mybb->input['action'] == "do_password" && $mybb->request_method == "post")
 	$errors = array();
 
 	$plugins->run_hooks("usercp_do_password_start");
-	if(validate_password_from_uid($mybb->user['uid'], $mybb->input['oldpassword']) == false)
+	if(!$verify_result && !validate_password_from_uid($mybb->user['uid'], $mybb->input['oldpassword']))
 	{
 		$errors[] = $lang->error_invalidpassword;
 	}
@@ -135,7 +143,7 @@ if($mybb->input['action'] == "do_password" && $mybb->request_method == "post")
 			$userhandler->update_user();
 			my_setcookie("mybbuser", $mybb->user['uid']."_".$userhandler->data['loginkey']);
 			$plugins->run_hooks("usercp_do_password_end");
-			$result = true;
+			$verify_result = true;
 		}
 	}
 	if(count($errors) > 0)

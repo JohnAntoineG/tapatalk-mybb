@@ -462,7 +462,7 @@ $server_param = array(
     
     'm_rename_topic' => array(
         'function'  => 'm_rename_topic_func',
-        'signature' => array(array($xmlrpcArray, $xmlrpcString, $xmlrpcString)),
+        'signature' => array(array($xmlrpcArray, $xmlrpcString, $xmlrpcBase64)),
         'docstring' => '',
     ),
 
@@ -530,7 +530,8 @@ $server_param = array(
     'register' => array (
     	'function' => 'register_func',
     	'signature' => array(array($xmlrpcStruct),
-    						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcBase64,$xmlrpcString,$xmlrpcString),
+                             array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcBase64,$xmlrpcBase64),
+    						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcBase64,$xmlrpcBase64,$xmlrpcString,$xmlrpcString),
     						 ),
     ),
     
@@ -552,6 +553,7 @@ $server_param = array(
     'forget_password' => array (
     	'function' => 'forget_password_func',
     	'signature' => array(array($xmlrpcStruct),
+    						 array($xmlrpcStruct, $xmlrpcBase64 ),
     						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcString ,$xmlrpcString),
     						 ),
     ),

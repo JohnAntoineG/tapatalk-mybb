@@ -35,7 +35,7 @@ function get_online_users_func()
 		
 	// Query for active sessions
 	$query = $db->query("
-		SELECT DISTINCT s.sid, s.ip, s.uid, s.time, s.location, u.username, s.nopermission, u.invisible, u.usergroup, u.displaygroup, u.avatar
+		SELECT DISTINCT s.sid, s.ip, s.uid, s.time, s.location, u.username, s.nopermission,s.useragent,u.invisible, u.usergroup, u.displaygroup, u.avatar
 		FROM ".TABLE_PREFIX."sessions s
 		LEFT JOIN ".TABLE_PREFIX."users u ON (s.uid=u.uid)
 		WHERE s.time>'$timesearch'
@@ -49,7 +49,16 @@ function get_online_users_func()
 	{
 		// Fetch the WOL activity
 		$user['activity'] = fetch_wol_activity($user['location'], $user['nopermission']);
-		
+		$user['from'] = 'broswer';
+		if(strpos($user['useragent'],'Android') !== false || strpos($user['useragent'],'iPhone') !== false || 
+		strpos($user['useragent'],'BlackBerry') !== false)
+		{
+			$user['from'] = 'mobile';
+		}
+		if(strpos($user['location'], 'mobiquo') !== false)
+		{
+			$user['from'] = 'tapatalk';
+		}
 		// Stop links etc. 
 		unset($user['activity']['tid']);
 		unset($user['activity']['fid']);
@@ -131,6 +140,7 @@ function get_online_users_func()
 				'user_id'       => new xmlrpcval($user['uid'], 'string'),
 				'display_text'  => new xmlrpcval($location, 'base64'),
 				'icon_url'      => new xmlrpcval(absolute_url($user['avatar']), 'string'),
+				'from'          => new xmlrpcval($user['from'], 'string'),
 			), 'struct');
 		
 		}

@@ -4,7 +4,7 @@ require_once MYBB_ROOT."inc/functions_post.php";
 require_once MYBB_ROOT."inc/functions_user.php";
 require_once MYBB_ROOT."inc/class_parser.php";
 $parser = new postParser;
-$result = false;
+$verify_result = false;
 $result_text = '';
 // Load global language phrases
 $lang->load("member");
@@ -52,22 +52,44 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 		$mybb->input['password'] = random_str();
 		$mybb->input['password2'] = $mybb->input['password'];
 	}
-	$usergroup = 2;
 	// Set up user handler.
 	require_once MYBB_ROOT."inc/datahandlers/user.php";
 	$userhandler = new UserDataHandler("insert");
-	$result_email = tt_register_verify($_POST['tt_token'], $_POST['tt_code']);   	
-	if($result_email == false)
+	if(isset($_POST['tt_token']) && isset($_POST['tt_code']))
 	{
-		error("Verify the tapatalk accounts fail,make sure you have loged in tapatalk !");
+		$result = tt_register_verify($_POST['tt_token'], $_POST['tt_code']);   	
+		if($result->result && !empty($result->email) && (empty($mybb->input['email']) || strtolower($mybb->input['email'] == strtolower($result->email))))
+		{
+			$verify_result = $result->result;
+			$mybb->input['email'] = $result->email;
+			$mybb->input['email2'] = $result->email;
+		}
+		else if(!$result->result && empty($mybb->input['email']) && !empty($result->email))
+		{
+			$mybb->input['email'] = $result->email;
+			$mybb->input['email2'] = $result->email;
+		}			
+	}
+    
+	if($verify_result)
+	{
+		$usergroup = 2;
+	}
+        else if($mybb->settings['regtype'] == "verify" || $mybb->settings['regtype'] == "admin" || $mybb->input['coppa'] == 1)
+	{
+		$usergroup = 5;
+	}
+	else 
+	{
+		$usergroup = 2;
 	}
 	// Set the data for the new user.
 	$user = array(
 		"username" => $mybb->input['username'],
 		"password" => $mybb->input['password'],
 		"password2" => $mybb->input['password2'],
-		"email" => $result_email,
-		"email2" => $result_email,
+		"email" => $mybb->input['email'],
+		"email2" => $mybb->input['email2'],
 		"usergroup" => $usergroup,
 		"referrer" => $mybb->input['referrername'],
 		"timezone" => $mybb->settings['timezoneoffset'],
@@ -143,7 +165,42 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 
 			$plugins->run_hooks("member_do_register_end");
 
-			error($lang->redirect_registered_passwordsent);
+			$result_text = $lang->redirect_registered_passwordsent;
+		}
+		else if($mybb->settings['regtype'] == "verify" && !$verify_result)
+		{
+			$activationcode = random_str();
+			$now = TIME_NOW;
+			$activationarray = array(
+				"uid" => $user_info['uid'],
+				"dateline" => TIME_NOW,
+				"code" => $activationcode,
+				"type" => "r"
+			);
+			$db->insert_query("awaitingactivation", $activationarray);
+			$emailsubject = $lang->sprintf($lang->emailsubject_activateaccount, $mybb->settings['bbname']);
+			switch($mybb->settings['username_method'])
+			{
+				case 0:
+					$emailmessage = $lang->sprintf($lang->email_activateaccount, $user_info['username'], $mybb->settings['bbname'], $mybb->settings['bburl'], $user_info['uid'], $activationcode);
+					break;
+				case 1:
+					$emailmessage = $lang->sprintf($lang->email_activateaccount1, $user_info['username'], $mybb->settings['bbname'], $mybb->settings['bburl'], $user_info['uid'], $activationcode);
+					break;
+				case 2:
+					$emailmessage = $lang->sprintf($lang->email_activateaccount2, $user_info['username'], $mybb->settings['bbname'], $mybb->settings['bburl'], $user_info['uid'], $activationcode);
+					break;
+				default:
+					$emailmessage = $lang->sprintf($lang->email_activateaccount, $user_info['username'], $mybb->settings['bbname'], $mybb->settings['bburl'], $user_info['uid'], $activationcode);
+					break;
+			}
+			my_mail($user_info['email'], $emailsubject, $emailmessage);
+			
+			$lang->redirect_registered_activation = $lang->sprintf($lang->redirect_registered_activation, $mybb->settings['bbname'], $user_info['username']);
+
+			$plugins->run_hooks("member_do_register_end");
+
+			$result_text = $lang->redirect_registered_activation;
 		}
 		else if($mybb->settings['regtype'] == "admin")
 		{
@@ -151,14 +208,15 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 
 			$plugins->run_hooks("member_do_register_end");
 
-			error($lang->redirect_registered_admin_activate);
+			$result_text = $lang->redirect_registered_admin_activate;
 		}
 		if(!empty($user_info['uid']))
 		{
-			$result = true;
+			$verify_result = true;
 		}
 		else 
 		{
+			$verify_result = false;
 			$result_text = "Register fail";
 		}
 	}
@@ -168,7 +226,7 @@ if($mybb->input['action'] == "do_lostpw" && $mybb->request_method == "post")
 {
 	$plugins->run_hooks("member_do_lostpw_start");
 
-	$username = $db->escape_string($_POST['username']);
+	$username = $db->escape_string(trim($_POST['username']));
 	$query = $db->simple_select("users", "*", "username='".$username."'");
 	$user = $db->fetch_array($query);
 	if(empty($user))
@@ -177,15 +235,15 @@ if($mybb->input['action'] == "do_lostpw" && $mybb->request_method == "post")
 	}
 	else
 	{
-		$result_email = tt_register_verify($_POST['tt_token'], $_POST['tt_code']);   	
-		if(($result_email == $user) && ($user['email'] == $result_email))
+		$result = tt_register_verify($_POST['tt_token'], $_POST['tt_code']);   	
+		if($result->result && ($user['email'] == $result->email))
 		{
-			$result = true;
+			$verify_result = true;
 			$verified = true;
 		}
 		else 
 		{
-			$result = true;
+			$verify_result = true;
 			$verified = false;
 			
 			$db->delete_query("awaitingactivation", "uid='{$user['uid']}' AND type='p'");

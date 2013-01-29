@@ -377,6 +377,7 @@ function process_short_content($post_text, $parser = null, $length = 200)
 
 function process_post($post, $returnHtml = false)
 {
+	global $mybb;
     if($returnHtml){
         //$post = str_replace("&", '&amp;', $post);
         //$post = str_replace("<", '&lt;', $post);
@@ -390,7 +391,25 @@ function process_post($post, $returnHtml = false)
         $post = html_entity_decode($post, ENT_QUOTES, 'UTF-8');
         $post = str_replace('[hr]', "\n____________________________________\n", $post);
     }
-
+	if(!empty($mybb->settings['tapatalk_custom_replace']))
+	{
+		$replace_arr = explode("\n", $mybb->settings['tapatalk_custom_replace']);
+		foreach ($replace_arr as $replace)
+		{
+			$preg_arr = explode('->', $replace);
+			if(count($preg_arr) != 2)
+			{
+				continue;
+			}
+			$preg = trim($preg_arr[0]);
+			$replace_content = trim($preg_arr[1]);
+			$temp_post = $post;
+			if(!empty($preg))
+			{
+				$post = @preg_replace('#'.$preg.'#', $replace_content, $post);
+			}
+		}
+	}
     $post = trim($post);
     // remove link on img
     $post = preg_replace('/\[url=[^\]]*?\]\s*(\[img\].*?\[\/img\])\s*\[\/url\]/si', '$1', $post);
@@ -883,32 +902,24 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
 
 function tt_register_verify($tt_token,$tt_code)
 {
-	global $settings;
-	if(empty($settings['tapatalk_push_key']))
+	global $mybb;
+	if(empty($mybb->settings['tapatalk_push_key']))
 	{
-		return false;
+		$mybb->settings['tapatalk_push_key'] = '';
 	}
 	$url = "http://directory.tapatalk.com/au_reg_verify.php?token=".$tt_token."&code=".$tt_code."&key=" . $settings['tapatalk_push_key'];
 	$error_msg = '';
 	$response = getContentFromRemoteServer($url, 10 , $error_msg);
 	if(!empty($error_msg))
 	{
-		get_error($error_msg);
+		$response = '{"result":false,"result_text":"Contect timeout , please try again"}';
 	}
 	if(empty($response))
 	{
-		get_error("Contect timeout , please try again");
+		$response = '{"result":false,"result_text":"Contect timeout , please try again"}';
 	}
 	$result = json_decode($response);
-	if($result->result === false)
-	{
-		return false;
-	}
-	if(!empty($result->email))
-	{
-		return $result->email;
-	}
-	return false;
+	return $result;
 }
 
 function tt_get_user_push_type($userid)
