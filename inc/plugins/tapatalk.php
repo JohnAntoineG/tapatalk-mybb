@@ -241,21 +241,14 @@ function tapatalk_is_installed()
 function tapatalk_uninstall()
 {
     global $mybb, $db;
-    if($db->table_exists('tapatalk_push_data'))
+    if(($mybb->settings['tapatalk_datakeep'] == 'delete') && $db->table_exists('tapatalk_push_data'))
     {
         $db->drop_table('tapatalk_push_data');
     }
-	if($db->table_exists('tapatalk_users'))
+	if(($mybb->settings['tapatalk_datakeep'] == 'delete' || !$db->field_exists('tag', 'tapatalk_users')) && $db->table_exists('tapatalk_users'))
     {
         $db->drop_table('tapatalk_users');
     }
-    /*if($mybb->settings['tapatalk_datakeep'] == 'delete')
-    {
-        if($db->table_exists('tapatalk_users'))
-        {
-            $db->drop_table('tapatalk_users');
-        }
-    }*/
 
     // Remove settings
     $result = $db->simple_select('settinggroups', 'gid', "name = 'tapatalk'", array('limit' => 1));
