@@ -31,7 +31,10 @@ function get_config_func()
     {
         $config_list['reg_url'] = new xmlrpcval(basic_clean($mybb->settings['tapatalk_reg_url']), 'string');
     }
-    
+    if($mybb->version >= '1.6.9')
+    {
+    	$config_list['inappreg'] = 1;
+    }
     
     foreach($mobiquo_config as $key => $value){
         if(!array_key_exists($key, $config_list) && $key != 'thlprefix'){
