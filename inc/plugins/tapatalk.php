@@ -416,6 +416,10 @@ function tapatalk_fetch_wol_activity_end(&$user_activity)
 			case 'get_latest_topic':
 				$user_activity['activity'] = "search";
 				break;
+			case 'get_quote_post':
+			case 'reply_post':
+				$user_activity['activity'] = "newreply";
+				break;
 			case 'get_thread':
 				if(is_numeric($param))
 				{
@@ -452,7 +456,7 @@ function tapatalk_fetch_wol_activity_end(&$user_activity)
 				{
 					$user_activity['activity'] = "showpost";
 				}
-				if($user_activity['activity'] == 'unknown' && strpos($user_activity['location'], 'mobiquo') !== false)
+				else if(strpos($user_activity['location'], 'mobiquo') !== false)
 				{
 					$user_activity['activity'] = "index";
 				}
