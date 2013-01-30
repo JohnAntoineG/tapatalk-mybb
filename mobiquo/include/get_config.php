@@ -14,12 +14,12 @@ function get_config_func()
     );
     if(!isset($cache->cache['plugins']['active']['tapatalk']) || !$mybb->settings['tapatalk_enable'])
     {
-    	$config_list['is_open'] = false;
+    	$config_list['is_open'] = new xmlrpcval(false,'boolean');
         $config_list['result_text'] = new xmlrpcval(basic_clean('Tapatalk is disabled'), 'base64');
     }
     if ($mybb->settings['boardclosed'])
     {
-    	$config_list['is_open'] = false;
+    	$config_list['is_open'] = new xmlrpcval(false,'boolean');
         $config_list['result_text'] = new xmlrpcval(basic_clean($mybb->settings['boardclosed_reason']), 'base64');
     }
     if ($mybb->settings['tapatalk_push'])
@@ -33,7 +33,7 @@ function get_config_func()
     }
     if($mybb->version >= '1.6.9')
     {
-    	$config_list['inappreg'] = 1;
+    	$config_list['inappreg'] = new xmlrpcval(1, 'string');
     }
     
     foreach($mobiquo_config as $key => $value){
