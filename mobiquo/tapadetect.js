@@ -11,8 +11,10 @@ function detectTapatalk() {
                     window.location = tapatalk_ipad_url;
             } else if(navigator.userAgent.match(/Kindle Fire/i)) {
                 setTapatalkCookies();
-                if ((tapatalk_kindle_msg != '') && confirm(tapatalk_kindle_msg))
+                if ((tapatalk_kindle_msg != '') && confirm(tapatalk_kindle_msg) && navigator.userAgent.match(/Android 2.3.4/i))
                     window.location = tapatalk_kindle_url;
+                else if((tapatalk_kindle_msg != '') && confirm(tapatalk_kindle_msg))
+                	window.location = "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkHD";
             } else if(navigator.userAgent.match(/Android/i)) {
             	if(navigator.userAgent.match(/mobile/i))
             	{

@@ -477,7 +477,7 @@ function tapatalk_online_user()
 		$user['username'] = $user['username'] . '[tapatalk_user]';
 	}
 	else if(strpos($row['useragent'],'Android') !== false || strpos($row['useragent'],'iPhone') !== false || 
-	strpos($row['useragent'],'BlackBerry') !== false)
+	strpos($row['useragent'],'BlackBerry') !== false || strpos($row['useragent'], 'Kindle Fire'))
 	{
 		$user['username'] = $user['username'] . '[mobile_user]';
 	}
@@ -495,8 +495,9 @@ function tapatalk_pre_output_page(&$page)
     global $mybb;
     
 	$url = tapatalk_get_url();
+	$icon_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk57x57.png';
 	$forumname = $mybb->settings['homename'];
-    $tapatalk_detect_js_name = 'tapatalkdetect.js';
+    $tapatalk_detect_js_name = 'tapadetect.js';
     $settings = $mybb->settings;
     $str = '<!-- Tapatalk smart banner head start --> 
 <meta name="apple-itune-app" content="app-id=307880732"> 
@@ -527,7 +528,7 @@ function tapatalk_pre_output_page(&$page)
       jQuery.smartbanner({ 
         title: "Tapatalk HD for Android Tablet", 
         author: "'.$forumname.' is now on Tapatalk Forum App", 
-        icon: "https://lh4.ggpht.com/WuVAUAFQKe6hO35PBhxHQTT7IlkTJS2jM3ZAn6PnYCBxr1K8NDpKcIo_xy0YzeKhcdA=w124", 
+        icon: "'.$icon_url.'", 
         url: "'.$url.'", 
         iconGloss: 0, 
         daysHidden: 30, 

@@ -462,7 +462,10 @@ $server_param = array(
     
     'm_rename_topic' => array(
         'function'  => 'm_rename_topic_func',
-        'signature' => array(array($xmlrpcArray, $xmlrpcString, $xmlrpcBase64)),
+        'signature' => array(
+    						array($xmlrpcArray,$xmlrpcString,$xmlrpcBase64),
+    						array($xmlrpcArray,$xmlrpcString,$xmlrpcBase64,$xmlrpcString),
+    						),
         'docstring' => '',
     ),
 

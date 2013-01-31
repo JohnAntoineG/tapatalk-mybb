@@ -471,9 +471,10 @@ function m_rename_topic_func($xmlrpc_params)
 
 	$input = Tapatalk_Input::filterXmlInput(array(
 		'topic_id' => Tapatalk_Input::INT,
-		'title' => Tapatalk_Input::STRING
+		'title' => Tapatalk_Input::STRING,
+		'prefix' => Tapatalk_Input::INT,
 	), $xmlrpc_params);  
-
+	
 	$parser = new postParser;
 
 	// Get post info
@@ -536,6 +537,7 @@ function m_rename_topic_func($xmlrpc_params)
 	$post = array(
 		"pid" => $thread['firstpost'],
 		"subject" => $input['title'],
+	    "prefix" => $input['prefix']
 	);
 	
 	$posthandler->set_data($post);
