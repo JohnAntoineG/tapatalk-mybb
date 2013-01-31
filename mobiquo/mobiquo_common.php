@@ -396,17 +396,17 @@ function process_post($post, $returnHtml = false)
 		$replace_arr = explode("\n", $mybb->settings['tapatalk_custom_replace']);
 		foreach ($replace_arr as $replace)
 		{
-			$preg_arr = explode('->', $replace);
+			$preg_arr = explode('->', $replace ,2);
 			if(count($preg_arr) != 2)
 			{
 				continue;
 			}
 			$preg = trim($preg_arr[0]);
-			$replace_content = trim($preg_arr[1]);
+			$replace_content = $preg_arr[1];
 			$temp_post = $post;
 			if(!empty($preg))
 			{
-				$post = @preg_replace('#'.$preg.'#', $replace_content, $post);
+				$post = @preg_replace($preg,$replace_content, $post);
 			}
 		}
 	}
