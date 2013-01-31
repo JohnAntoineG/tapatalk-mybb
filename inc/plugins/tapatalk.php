@@ -105,12 +105,6 @@ function tapatalk_install()
             'optionscode'   => 'onoff',
             'value'         => '1'
         ),
-        'chrome_notifier' => array(
-            'title'         => 'Enable Tapatalk Notifier in Chrome',
-            'description'   => "Users of your forum on Chome will be notified with 'Tapatalk Notifier'. Tapatalk Notifier for Chrome is a web browser extension that notify you with a small alert when you received a new Private Message from your forum members.",
-            'optionscode'   => 'onoff',
-            'value'         => '1'
-        ),
         'hide_forum' => array(
             'title'         => 'Hide Forums',
             'description'   => "Hide forum you don't want them to be listed in Tapatalk app with its ID. Separate multiple entries with a coma",
@@ -155,7 +149,7 @@ function tapatalk_install()
         ),
         'custom_replace'    => array(
         	'title'         => 'Custom replacement',
-        	'description'   => '',
+        	'description'   => 'adfasd',//自定义的内容替换，例如^123->456 ，箭头前可以是字符串也可以正则表达式，箭头后是要替换的内容，如果是加多个替换请换行
         	'optionscode'	=> 'textarea',
         	'value'         => ''
         ),
@@ -206,6 +200,24 @@ function tapatalk_install()
         	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Amazon App Store. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
         	'optionscode'   => 'text',
         	'value'         => 'http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity',
+        ),
+        'kindle_hd_msg' => array(
+            'title'			=> 'Kindle Fire HD Product Message',
+        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Amazon App Store. Default "This forum has an app for Kindle Fire HD! Click OK to learn more about Tapatalk."',
+        	'optionscode'   => 'text',
+        	'value'         => 'This forum has an app for Kindle Fire HD! Click OK to learn more about Tapatalk.',
+        ),
+        'kindle_hd_url' => array(
+            'title'			=> 'Kindle Fire HD Product URL',
+        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Amazon App Store. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
+        	'optionscode'   => 'text',
+        	'value'         => 'http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkHD',
+        ),
+        'smartbanner_notifier' => array(
+            'title'         => 'Enable smartbanner Notifier in Android HD',
+            'description'   => "Users of your forum on Chome will be notified with 'Tapatalk Notifier'. Tapatalk Notifier for Chrome is a web browser extension that notify you with a small alert when you received a new Private Message from your forum members.",
+            'optionscode'   => 'onoff',
+            'value'         => '1'
         ),
     );
 
@@ -514,8 +526,10 @@ function tapatalk_pre_output_page(&$page)
         var tapatalk_android_url  = '{$settings['tapatalk_android_url']}';
         var tapatalk_kindle_msg = '{$settings['tapatalk_kindle_msg']}';
         var tapatalk_kindle_url  = '{$settings['tapatalk_kindle_url']}';
+        var tapatalk_kindle_hd_msg = '{$settings['tapatalk_kindle_hd_msg']}';
+        var tapatalk_kindle_hd_url  = '{$settings['tapatalk_kindle_hd_url']}';
         var tapatalkdir = '{$settings['tapatalk_directory']}';
-        var tapatalk_chrome_enable = '{$settings['tapatalk_chrome_notifier']}';
+        var tapatalk_smartbanner_enable = '{$settings['tapatalk_smartbanner_notifier']}';
 </script>\n";
     $tapatalk_smart_banner_body = ' 
     <!-- Tapatalk smart banner body start --> 
@@ -523,7 +537,7 @@ function tapatalk_pre_output_page(&$page)
     '<script type=\'text/javascript\'>jQuery.noConflict();</script>
     <script src="mobiquo/smartbanner/jquery.smartbanner.js"></script> 
     <script type="text/javascript"> 
-    if(navigator.userAgent.match(/Android/i) && !navigator.userAgent.match(/mobile/i))
+    if(navigator.userAgent.match(/Android/i) && !navigator.userAgent.match(/mobile/i) && tapatalk_smartbanner_enable == "1")
     {
       jQuery.smartbanner({ 
         title: "Tapatalk HD for Android Tablet", 
@@ -531,7 +545,7 @@ function tapatalk_pre_output_page(&$page)
         icon: "'.$icon_url.'", 
         url: "'.$url.'", 
         iconGloss: 0, 
-        daysHidden: 30, 
+        daysHidden: 90, 
         daysReminder: 0,
         force:"android",
       }); 

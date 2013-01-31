@@ -108,8 +108,8 @@
         }
        
       , install: function(e) {
-            this.hide()
-            this.setCookie('sb-installed','true',this.options.daysReminder)
+            //this.hide()
+            //this.setCookie('sb-installed','true',this.options.daysReminder)
         }
        
       , setCookie: function(name, value, exdays) {
