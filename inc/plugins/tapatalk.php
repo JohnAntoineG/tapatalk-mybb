@@ -36,7 +36,7 @@ function tapatalk_info()
      */
     return array(
         "name"          => "Tapatalk",
-        "description"   => "Tapatalk MyBB Plugin",
+        "description"   => "Tapatalk Plugin for MyBB",
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
@@ -91,7 +91,7 @@ function tapatalk_install()
     $setting_group = array(
         'name'          =>    'tapatalk',
         'title'         =>    'Tapatalk Options',
-        'description'   =>    'Tapatalk enables your forum to be accessed by the Tapatalk app',
+        'description'   =>    'Optional Tapatalk Settings allow you to fine-tune the app behaviour with the forum',
         'disporder'     =>    0,
         'isdefault'     =>    0
     );
@@ -107,37 +107,37 @@ function tapatalk_install()
         ),
         'hide_forum' => array(
             'title'         => 'Hide Forums',
-            'description'   => "Hide forum you don't want them to be listed in Tapatalk app with its ID. Separate multiple entries with a coma",
+            'description'   => "Hide specific sub-forums from appearing in Tapatalk. Please enter a comma-separated sub-forum ID",
             'optionscode'   => 'text',
             'value'         => ''
         ),
         'reg_url' => array(
-            'title'         => 'Register page url',
-            'description'   => "Set the forum register page url here for tapatalk app based on forum url. Normally it should be the default 'member.php?action=register'",
+            'title'         => 'Registration URL',
+            'description'   => "Default Registration URL: 'member.php?action=register'",
             'optionscode'   => 'text',
             'value'         => 'member.php?action=register'
         ),
         'directory' => array(
-            'title'         => 'Tapatalk plugin directory',
-            'description'   => 'Never change it if you did not rename the Tapatalk plugin directory. And the default value is \'mobiquo\'. If you renamed the Tapatalk plugin directory, you also need to update the same setting for this forum in tapatalk forum owner area.(http://tapatalk.com/forum_owner.php)',
+            'title'         => 'Tapatalk Plugin Directory',
+            'description'   => 'Never change it if you did not rename the Tapatalk plugin directory. And the default value is \'mobiquo\'. If you renamed the Tapatalk plugin directory, you also need to update the same setting in Tapatalk Forum Owner Area.',
             'optionscode'   => 'text',
             'value'         => 'mobiquo'
         ),
         'push' => array(
-            'title'         => 'Enable Tapatalk Push Notification',
-            'description'   => 'Tapatalk users on your forum can get instant notification with new reply of subscribed topic and new pm if this setting was enabled.',
+            'title'         => 'Push Notification',
+            'description'   => 'Instant notifications of subscription topics, forums and private messages',
             'optionscode'   => 'onoff',
             'value'         => '1'
         ),
         'datakeep' => array(
-            'title'         => 'Keep Data When Uninsall',
-            'description'   => "Tapatalk users records and push options will be kept in table 'tapatalk_users'. Please keep the data if you'll reinstall tapatalk later.",
-            'optionscode'   => "radio\nkeep=Keep Data\ndelete=Delete all data and table",
+            'title'         => 'Uninstall Behaviour',
+            'description'   => "Ability to retain 'tapatalk_' tables in DB. Useful if you're re-installing Tapatalk Plugin.",
+            'optionscode'   => "radio\nkeep=Keep Data\ndelete=Delete all data and tables",
             'value'         => 'keep'
         ),
         'push_key' => array(
-        	'title'         => 'Tapatalk push key',
-        	'description'   => 'A push_key to verify your forum push certification, you can fill here with the push key you registered in Tapatalk.com. This is not mandatory but if you enter this key, it will make push feature perfect .',
+        	'title'         => 'Tapatalk Push Key',
+        	'description'   => 'Push Notification may not be enabled if this key is missing. Visit Forum Owner Area in Tapatalk.com to obtain Push Key for your forum.',
         	'optionscode'   => 'text',
             'value'         => ''
         ),
@@ -155,67 +155,67 @@ function tapatalk_install()
         ),
         'ipad_msg' => array(
             'title'			=> 'iPad Product Message',
-        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Apple App Store.Default "This forum has an app for iPad! Click OK to learn more about Tapatalk."',
+        	'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Apple App Store.Default "This forum has an app for iPad! Click OK to learn more about Tapatalk."',
         	'optionscode'   => 'text',
         	'value'         => 'This forum has an app for iPad! Click OK to learn more about Tapatalk.',
         ),
         'ipad_url' => array(
             'title'			=> 'iPad Product URL',
-        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Apple App Store . Default "http://itunes.apple.com/us/app/tapatalk-hd-for-ipad/id481579541?mt=8"',
+        	'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Apple App Store . Default "http://itunes.apple.com/us/app/tapatalk-hd-for-ipad/id481579541?mt=8"',
         	'optionscode'   => 'text',
         	'value'         => 'http://itunes.apple.com/us/app/tapatalk-hd-for-ipad/id481579541?mt=8',
         ),
         'iphone_msg' => array(
             'title'			=> 'iPhone Product Message',
-        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Apple App Store. Default "This forum has an app for iPhone! Click OK to learn more about Tapatalk."',
+        	'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Apple App Store. Default "This forum has an app for iPhone! Click OK to learn more about Tapatalk."',
         	'optionscode'   => 'text',
         	'value'         => 'This forum has an app for iPhone! Click OK to learn more about Tapatalk.',
         ),
         'iphone_url' => array(
             'title'			=> 'iPad Product URL',
-        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Apple App Store. Default "http://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8"',
+        	'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Apple App Store. Default "http://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8"',
         	'optionscode'   => 'text',
         	'value'         => 'http://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8',
         ),
         'android_msg' => array(
             'title'			=> 'Android Product Message',
-        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Google Play. Default "This forum has an app for Android. Click OK to learn more about Tapatalk."',
+        	'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Google Play. Default "This forum has an app for Android. Click OK to learn more about Tapatalk."',
         	'optionscode'   => 'text',
         	'value'         => 'This forum has an app for Android. Click OK to learn more about Tapatalk.',
         ),
         'android_url' => array(
             'title'			=> 'Android Product URL',
-        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Google Play. Default "market://details?id=com.quoord.tapatalkpro.activity"',
+        	'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Google Play. Default "market://details?id=com.quoord.tapatalkpro.activity"',
         	'optionscode'   => 'text',
         	'value'         => 'market://details?id=com.quoord.tapatalkpro.activity',
         ),
         'kindle_msg' => array(
             'title'			=> 'Kindle Fire Product Message',
-        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Amazon App Store. Default "This forum has an app for Kindle Fire! Click OK to learn more about Tapatalk."',
+        	'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Amazon App Store. Default "This forum has an app for Kindle Fire! Click OK to learn more about Tapatalk."',
         	'optionscode'   => 'text',
         	'value'         => 'This forum has an app for Kindle Fire! Click OK to learn more about Tapatalk.',
         ),
         'kindle_url' => array(
             'title'			=> 'Kindle Fire Product URL',
-        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Amazon App Store. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
+        	'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Amazon App Store. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
         	'optionscode'   => 'text',
         	'value'         => 'http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity',
         ),
         'kindle_hd_msg' => array(
             'title'			=> 'Kindle Fire HD Product Message',
-        	'description'   => 'Customize this message if you are Tapatalk Rebranding Customer and has published your App to Amazon App Store. Default "This forum has an app for Kindle Fire HD! Click OK to learn more about Tapatalk."',
+        	'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Amazon App Store. Default "This forum has an app for Kindle Fire HD! Click OK to learn more about Tapatalk."',
         	'optionscode'   => 'text',
         	'value'         => 'This forum has an app for Kindle Fire HD! Click OK to learn more about Tapatalk.',
         ),
         'kindle_hd_url' => array(
             'title'			=> 'Kindle Fire HD Product URL',
-        	'description'   => 'Change this URL if you are Tapatalk Rebranding Customer and has obtained your App URL from Amazon App Store. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
+        	'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Amazon App Store. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
         	'optionscode'   => 'text',
         	'value'         => 'http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkHD',
         ),
         'smartbanner_notifier' => array(
-            'title'         => 'Enable smartbanner Notifier in Android HD',
-            'description'   => "Users of your forum on Chome will be notified with 'Tapatalk Notifier'. Tapatalk Notifier for Chrome is a web browser extension that notify you with a small alert when you received a new Private Message from your forum members.",
+            'title'         => 'Enable Smart Banner on Android Tablets',
+            'description'   => "Allows user to open thread in Tapatalk directly from Web Browser on Android tablets.",
             'optionscode'   => 'onoff',
             'value'         => '1'
         ),
