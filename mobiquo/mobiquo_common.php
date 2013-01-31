@@ -396,7 +396,7 @@ function process_post($post, $returnHtml = false)
 		$replace_arr = explode("\n", $mybb->settings['tapatalk_custom_replace']);
 		foreach ($replace_arr as $replace)
 		{
-			$preg_arr = explode('->', $replace ,2);
+			$preg_arr = explode('=>', $replace ,2);
 			if(count($preg_arr) != 2)
 			{
 				continue;
