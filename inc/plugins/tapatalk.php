@@ -51,7 +51,6 @@ function tapatalk_install()
     global $db;
     
     tapatalk_uninstall();
-    
     if(!$db->table_exists('tapatalk_users'))
     {
         $db->query("
@@ -117,6 +116,12 @@ function tapatalk_install()
             'description'   => "Default Registration URL: 'member.php?action=register'",
             'optionscode'   => 'text',
             'value'         => 'member.php?action=register'
+        ),
+        'allow_register' => array(
+            'title'         => 'In-app Registration',
+            'description'   => 'Allows Tapatalk users to create new account, change password and update email address in-app.',
+            'optionscode'   => 'onoff',
+            'value'         => '1'
         ),
         'directory' => array(
             'title'         => 'Tapatalk Plugin Directory',

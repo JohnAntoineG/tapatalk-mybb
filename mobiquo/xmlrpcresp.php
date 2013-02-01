@@ -154,6 +154,7 @@ function get_alert_func()
 function register_func()
 {
 	 global $verify_result, $result_text;
+	 $result_text = strip_tags($result_text);
 	 $response = new xmlrpcval(array(
         'result'            => new xmlrpcval($verify_result, 'boolean'),
         'result_text'       => new xmlrpcval($result_text, 'base64'),
@@ -163,6 +164,7 @@ function register_func()
 function update_password_func()
 {
 	 global $verify_result , $result_text;
+	 $result_text = strip_tags($result_text);
 	 $response = new xmlrpcval(array(
         'result'            => new xmlrpcval($verify_result, 'boolean'),
         'result_text'       => new xmlrpcval($result_text, 'base64'),
@@ -173,6 +175,7 @@ function update_password_func()
 function forget_password_func()
 {
 	 global $verify_result , $result_text ,$verified;
+	 $result_text = strip_tags($result_text);
 	 $response = new xmlrpcval(array(
         'result'            => new xmlrpcval($verify_result, 'boolean'),
         'result_text'       => new xmlrpcval($result_text, 'base64'),

@@ -35,7 +35,26 @@ if(($mybb->input['action'] == "register" || $mybb->input['action'] == "do_regist
 if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 {
 	$plugins->run_hooks("member_do_register_start");
-
+	if($mybb->settings['disableregs'] == 1 || $mybb->settings['tapatalk_allow_register'] != '1')
+	{
+		error($lang->registrations_disabled);
+	}
+	if($mybb->user['regdate'])
+	{
+		error($lang->error_alreadyregistered);
+	}
+	if($mybb->settings['betweenregstime'] && $mybb->settings['maxregsbetweentime'])
+	{
+		$time = TIME_NOW;
+		$datecut = $time-(60*60*$mybb->settings['betweenregstime']);
+		$query = $db->simple_select("users", "*", "regip='".$db->escape_string($session->ipaddress)."' AND regdate > '$datecut'");
+		$regcount = $db->num_rows($query);
+		if($regcount >= $mybb->settings['maxregsbetweentime'])
+		{
+			$lang->error_alreadyregisteredtime = $lang->sprintf($lang->error_alreadyregisteredtime, $regcount, $mybb->settings['betweenregstime']);
+			error($lang->error_alreadyregisteredtime);
+		}
+	}
 	// If we have hidden CATPCHA enabled and it's filled, deny registration
 	if($mybb->settings['hiddencaptchaimage'])
 	{
@@ -68,7 +87,8 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 		{
 			$mybb->input['email'] = $result->email;
 			$mybb->input['email2'] = $result->email;
-		}			
+		}
+					
 	}
     
 	if($verify_result)
