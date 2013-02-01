@@ -486,10 +486,8 @@ function tapatalk_fetch_wol_activity_end(&$user_activity)
 
 function tapatalk_online_user()
 {
-	global $user,$mybb,$db;
-	$sql = "SELECT useragent FROM ".TABLE_PREFIX."sessions WHERE uid = '".$user['uid']."' ORDER BY time DESC";
-	$query = $db->query($sql);	
-	$row = $db->fetch_array($query);
+	global $user,$mybb;	
+	$row['useragent'] = $_SERVER['HTTP_USER_AGENT'];
 	if(strpos($user['location'], 'mobiquo') !== false)
 	{
 		$user['username'] = $user['username'] . '[tapatalk_user]';
