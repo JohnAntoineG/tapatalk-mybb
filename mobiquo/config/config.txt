@@ -35,3 +35,4 @@ anonymous = 1
 alert = 1
 thlprefix = g33k_thankyoulike_
 push_type = pm,sub,newtopic,tag,quote
+announcement = 0
