@@ -149,7 +149,7 @@ function tapatalk_install()
         ),
         'custom_replace'    => array(
         	'title'         => 'Thread Content Replacement (Advanced)',
-        	'description'   => 'Ability to match and replace thread content using PHP preg_replace function. E.g. \"\'pattern\', \'replacement\'\"',
+        	'description'   => 'Ability to match and replace thread content using PHP preg_replace function(http://www.php.net/manual/en/function.preg-replace.php). E.g. \"\'pattern\', \'replacement\'\"',
         	'optionscode'	=> 'textarea',
         	'value'         => ''
         ),
