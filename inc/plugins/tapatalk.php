@@ -508,7 +508,7 @@ function tapatalk_pre_output_page(&$page)
     global $mybb;
     
 	$url = tapatalk_get_url();
-	$icon_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk57x57.png';
+	$icon_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk.png';
 	$forumname = $mybb->settings['homename'];
     $tapatalk_detect_js_name = 'tapadetect.js';
     $settings = $mybb->settings;
