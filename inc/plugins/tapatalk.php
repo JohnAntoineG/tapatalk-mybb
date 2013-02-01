@@ -149,8 +149,8 @@ function tapatalk_install()
             'value'         => ''
         ),
         'custom_replace'    => array(
-        	'title'         => 'Custom replacement',
-        	'description'   => 'adfasd',//自定义的内容替换，例如^123->456 ，箭头前可以是字符串也可以正则表达式，箭头后是要替换的内容，如果是加多个替换请换行
+        	'title'         => 'Thread Content Replacement (Advanced)',
+        	'description'   => 'Ability to match and replace thread content using PHP preg_replace function(http://www.php.net/manual/en/function.preg-replace.php). E.g. \"\'pattern\', \'replacement\'\"',
         	'optionscode'	=> 'textarea',
         	'value'         => ''
         ),
