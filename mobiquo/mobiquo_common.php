@@ -391,28 +391,28 @@ function process_post($post, $returnHtml = false)
         $post = html_entity_decode($post, ENT_QUOTES, 'UTF-8');
         $post = str_replace('[hr]', "\n____________________________________\n", $post);
     }
+	
+    $post = trim($post);
+    // remove link on img
+    $post = preg_replace('/\[url=[^\]]*?\]\s*(\[img\].*?\[\/img\])\s*\[\/url\]/si', '$1', $post);
+    
 	if(!empty($mybb->settings['tapatalk_custom_replace']))
 	{
 		$replace_arr = explode("\n", $mybb->settings['tapatalk_custom_replace']);
 		foreach ($replace_arr as $replace)
 		{
-			$preg_arr = explode('=>', $replace ,2);
-			if(count($preg_arr) != 2)
+			preg_match('/\s*(\'|")((\#|\/|\!).+\3[ismexuADUX]*?)\1\s*,\s*(\'|")(.*?)\4\s*/', $replace,$matches);
+			if(count($matches) == 6)
 			{
-				continue;
-			}
-			$preg = trim($preg_arr[0]);
-			$replace_content = $preg_arr[1];
-			$temp_post = $post;
-			if(!empty($preg))
-			{
-				$post = @preg_replace($preg,$replace_content, $post);
-			}
+				$temp_post = $post;
+				$post = @preg_replace($matches[2], $matches[5], $post);
+				if(empty($post))
+				{
+					$post = $temp_post;
+				}
+			}	
 		}
 	}
-    $post = trim($post);
-    // remove link on img
-    $post = preg_replace('/\[url=[^\]]*?\]\s*(\[img\].*?\[\/img\])\s*\[\/url\]/si', '$1', $post);
     return $post;
 }
 function process_page($start_num, $end)
