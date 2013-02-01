@@ -23,6 +23,7 @@ if(!empty($_POST['tt_token']) && !empty($_POST['tt_code']) && empty($mybb->user[
 		$groupscache = $cache->read("usergroups");
 		$mybb->usergroup=$groupscache[$user['usergroup']];
 		$mybb->user = $user;
+		$verify_result = true;
 	}
 	else
 	{

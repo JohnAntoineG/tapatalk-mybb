@@ -312,7 +312,6 @@ switch ($request_method)
     	{
     		$_POST['tt_token'] = $request_params[1];
     		$_POST['tt_code'] = $request_params[2]; 
-    		$_POST['username'] = $request_params[3];
     		$_POST['password'] = $request_params[0];
     		$_POST['password2'] = $request_params[0];
     	}
