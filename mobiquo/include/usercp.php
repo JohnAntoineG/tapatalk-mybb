@@ -20,6 +20,8 @@ if(!empty($_POST['tt_token']) && !empty($_POST['tt_code']) && empty($mybb->user[
 	{
 		$query = $db->simple_select("users", "*", "email='".$result->email."'");
 		$user = $db->fetch_array($query);
+		$groupscache = $cache->read("usergroups");
+		$mybb->usergroup=$groupscache[$user['usergroup']];
 		$mybb->user = $user;
 	}
 	else
