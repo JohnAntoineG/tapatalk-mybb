@@ -263,7 +263,7 @@ function tapatalk_uninstall()
     {
         $db->drop_table('tapatalk_push_data');
     }
-	if(($mybb->settings['tapatalk_datakeep'] == 'delete' || !$db->field_exists('tag', 'tapatalk_users')) && $db->table_exists('tapatalk_users'))
+	if($db->table_exists('tapatalk_users') && ($mybb->settings['tapatalk_datakeep'] == 'delete' || !$db->field_exists('tag', 'tapatalk_users')))
     {
         $db->drop_table('tapatalk_users');
     }
@@ -486,25 +486,17 @@ function tapatalk_fetch_wol_activity_end(&$user_activity)
 
 function tapatalk_online_user()
 {
-	global $user,$mybb;	
-	$row['useragent'] = $_SERVER['HTTP_USER_AGENT'];
+	global $user;	
 	if(strpos($user['location'], 'mobiquo') !== false)
 	{
 		$user['username'] = $user['username'] . '[tapatalk_user]';
-	}
-	else if(strpos($row['useragent'],'Android') !== false || strpos($row['useragent'],'iPhone') !== false || 
-	strpos($row['useragent'],'BlackBerry') !== false || strpos($row['useragent'], 'Kindle Fire'))
-	{
-		$user['username'] = $user['username'] . '[mobile_user]';
-	}
-	
+	}	
 }
 function tapatalk_online_end()
 {
 	global $online_rows,$mybb;
 	$str = '&nbsp;<a title="Using Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
 	$online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](.*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
-	$online_rows = preg_replace('/<a href="(.*)">(.*)\[mobile_user\](.*)<\/a>/Usi', '<a href="$1">$2$3</a> <strong>[mobile]</strong>', $online_rows);
 }
 function tapatalk_pre_output_page(&$page)
 {
