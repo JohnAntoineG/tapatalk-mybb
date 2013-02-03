@@ -40,7 +40,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.3.0",
+        "version"       => "3.3.1",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -412,7 +412,7 @@ function tapatalk_fetch_wol_activity_end(&$user_activity)
 				$user_activity['activity'] = "member_login";
 				break;
 			case 'get_online_users':
-	    		$user_activity['activity'] = "woltoday";
+	    		$user_activity['activity'] = "wol";
 	    		break;
 			case 'get_user_topic':
 			case 'get_user_reply_post':
@@ -495,8 +495,13 @@ function tapatalk_online_user()
 function tapatalk_online_end()
 {
 	global $online_rows,$mybb;
+	$temp_online = $online_rows;
 	$str = '&nbsp;<a title="Using Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
-	$online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](.*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
+	$online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
+	if(empty($online_rows))
+	{
+		$online_rows = str_replace('[tapatalk_user]','',$temp_online);
+	}
 }
 function tapatalk_pre_output_page(&$page)
 {
