@@ -933,14 +933,17 @@ function tapatalk_push_pm()
 function tt_do_post_request($data,$pushTest = false)
 {
     global $mybb;
-    if(empty($data['data']))
+    
+    if(empty($data['data']) && !isset($data['ip']) && !isset($data['test']))
     {
-        return ;
+        return false;
     }
+    
     if(!empty($mybb->settings['tapatalk_push_key']) && !$pushTest)
     {
         $data['key'] = $mybb->settings['tapatalk_push_key'];
     }
+    
     $push_url = 'http://push.tapatalk.com/push.php';
     $push_host = 'push.tapatalk.com';
     $response = 'CURL is disabled and PHP option "allow_url_fopen" is OFF. You can enable CURL or turn on "allow_url_fopen" in php.ini to fix this problem.';
@@ -984,6 +987,7 @@ function tt_do_post_request($data,$pushTest = false)
             $response = @stream_get_contents($fp);
         }
     }
+    
     elseif (function_exists('curl_init'))
     {
         $ch = curl_init($push_url);
