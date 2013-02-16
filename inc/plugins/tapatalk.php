@@ -179,7 +179,7 @@ function tapatalk_install()
             'value'         => 'This forum has an app for iPhone! Click OK to learn more about Tapatalk.',
         ),
         'iphone_url' => array(
-            'title'         => 'iPad Product URL',
+            'title'         => 'iPhone Product URL',
             'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Apple App Store. Default "http://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8"',
             'optionscode'   => 'text',
             'value'         => 'http://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8',
