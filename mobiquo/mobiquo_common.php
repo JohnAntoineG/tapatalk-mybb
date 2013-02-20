@@ -401,7 +401,7 @@ function process_post($post, $returnHtml = false)
 		$replace_arr = explode("\n", $mybb->settings['tapatalk_custom_replace']);
 		foreach ($replace_arr as $replace)
 		{
-			preg_match('/\s*(\'|")((\#|\/|\!).+\3[ismexuADUX]*?)\1\s*,\s*(\'|")(.*?)\4\s*/', $replace,$matches);
+			preg_match('/^\s*(\'|")((\#|\/|\!).+\3[ismexuADUX]*?)\1\s*,\s*(\'|")(.*?)\4\s*$/', $replace,$matches);
 			if(count($matches) == 6)
 			{
 				$temp_post = $post;

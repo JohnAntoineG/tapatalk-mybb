@@ -541,7 +541,7 @@ function tapatalk_pre_output_page(&$page)
     <!-- Tapatalk smart banner body start -->
     '."<script type='text/javascript' src='{$mybb->settings['bburl']}/{$mybb->settings['tapatalk_directory']}/tapatalkdetect/jquery-1.7.min.js'></script>\n".
     '<script type=\'text/javascript\'>jQuery.noConflict();</script>
-    <script src="mobiquo/smartbanner/jquery.smartbanner.js"></script>
+    <script src="'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery.smartbanner.js"></script>
     <script type="text/javascript">
     if(navigator.userAgent.match(/Android/i) && !navigator.userAgent.match(/mobile/i) && tapatalk_smartbanner_enable == "1")
     {
