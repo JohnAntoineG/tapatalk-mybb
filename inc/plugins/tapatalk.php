@@ -509,8 +509,7 @@ function tapatalk_pre_output_page(&$page)
 	$icon_url = $mybb->settings['tapatalk_app_icon_url'];
 	$jquery_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery-1.7.min.js';
 	$smartbanner_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery.smartbanner.js';	
-    $str = '<!-- Tapatalk smart banner head start -->  
-<meta name="google-play-app" content="app-id=com.quoord.tapatalkpro.activity"> 
+    $str = '<!-- Tapatalk smart banner head start -->   
 <link rel="stylesheet" href="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery.smartbanner.css" type="text/css" media="screen"> 
 <!-- Tapatalk smart banner head end-->'.
 "
