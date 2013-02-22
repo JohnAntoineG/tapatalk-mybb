@@ -176,7 +176,7 @@ function tapatalk_install()
             'title'         => 'App Icon URL',
             'description'   => 'Icon URL to be loaded and displayed on Smart App Banner .',
             'optionscode'   => 'text',
-            'value'         => '/mobiquo/smartbanner/tapatalk2.png'
+            'value'         => 'mobiquo/smartbanner/tapatalk2.png'
         ),   
         'ipad_id' => array(
             'title'         => 'iPad App ID',
