@@ -138,14 +138,15 @@ function reply_post_func($xmlrpc_params)
 	}
 
 	$post['savedraft'] = 0;
-
+	
 	// Set up the post options from the input.
 	$post['options'] = array(
-		"signature" => 1,
+		"signature" => $mybb->user['signature'],
 		"subscriptionmethod" => $mybb->user['subscriptionmethod'] == 0 ? '':$mybb->user['subscriptionmethod'],
-		"disablesmilies" => 0
+		"disablesmilies" => $forum['allowsmilies']
 	);
-
+	$post['modoptions']['stickthread'] = $thread['sticky'];
+	$post['modoptions']['closethread'] = $thread['close'];
 	$posthandler->set_data($post);
 
 	// Now let the post handler do all the hard work.

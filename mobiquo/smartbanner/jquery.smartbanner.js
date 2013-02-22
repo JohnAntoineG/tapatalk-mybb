@@ -3,19 +3,77 @@
  * Copyright (c) 2012 Arnold Daniels <arnold@jasny.net>
  * Based on 'jQuery Smart Web App Banner' by Kurt Zenisek @ kzeni.com
  */
+jQuery.noConflict();
+var is_native_banner = false;
+if (navigator.userAgent.match(/Safari/i) != null &&
+            (navigator.userAgent.match(/CriOS/i) == null &&
+            window.Number(navigator.userAgent.substr(navigator.userAgent.indexOf('OS ') + 3, 3).replace('_', '.')) >= 6)) { 
+	if(navigator.userAgent.match(/iPad/i) != null){
+		jQuery("head").append('<meta name="apple-itunes-app" content="app-id='+app_ipad_id+',app-argument='+app_location_url+'"> ');
+		is_native_banner = true;
+	}	
+	else if(navigator.userAgent.match(/iPod|iPhone/i) != null)	{
+		jQuery("head").append('<meta name="apple-itunes-app" content="app-id='+app_iphone_id+',app-argument='+app_location_url+'"> ');
+		is_native_banner = true;
+	}	
+}
 !function(jQuery) {
     var SmartBanner = function(options) {
+    	if(app_name == '') {
+    		return;
+    	}
+    	this.options = jQuery.extend({}, jQuery.smartbanner.defaults, options)
+    	if ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i))) {
+    		if(app_iphone_id == '') {
+    			return;
+    		}
+    		this.options.product_url = 'https://itunes.apple.com/' + this.options.appStoreLanguage + '/app/id'+app_iphone_id;
+        } else if(navigator.userAgent.match(/iPad/i)) {
+        	if(app_ipad_id == '') {
+        		return;
+        	}
+        	this.options.product_url = 'https://itunes.apple.com/' + this.options.appStoreLanguage + '/app/id'+app_ipad_id;
+        } else if(navigator.userAgent.match(/Silk/)) {
+            if (navigator.userAgent.match(/Android 2/i)) {
+            	if(app_kindle_url == ''){
+            		return;
+            	}
+            	this.options.product_url = app_kindle_url;
+            }
+            	
+            else if(navigator.userAgent.match(/Android 4/i)) {
+            	if(app_kindle_hd_url == ''){
+            		return;
+            	}
+            	this.options.product_url = app_kindle_hd_url;
+            }
+            	
+        } else if(navigator.userAgent.match(/Android/i)) {
+        	if(navigator.userAgent.match(/mobile/i)) {
+        		if(app_android_url == ''){
+            		return;
+            	}
+        		this.options.product_url = app_android_url;
+        	}
+        	else {
+        		if(app_android_hd_url == ''){
+            		return;
+            	}
+        		this.options.product_url = app_android_hd_url;
+        	}
+        } else if(navigator.userAgent.match(/BlackBerry/i)) {        
+        	this.options.product_url = "http://appworld.blackberry.com/webstore/content/46654?lang=en";
+        } 
         this.origHtmlMargin = parseFloat(jQuery('html').css('margin-top')) // Get the original margin-top of the HTML element so we can take that into account
-        this.options = jQuery.extend({}, jQuery.smartbanner.defaults, options)
-        
         var standalone = navigator.standalone // Check if it's already a standalone web app or running within a webui view of an app (not mobile safari)
 
         // Detect banner type (iOS or Android)
+        
         if (this.options.force) {
             this.type = this.options.force
-        } else if (navigator.userAgent.match(/iPod|iPad|iPhone/i) != null) {
-            this.type = 'ios'
-        } else if (navigator.userAgent.match(/Android|Kindle Fire/i) != null) {
+        } else if (navigator.userAgent.match(/iPad|iPhone|iPod/i) != null) {
+            this.type = 'ios'; // Check webview and native smart banner support (iOS 6+)
+        } else if (navigator.userAgent.match(/Android/i) != null) {
             this.type = 'android'
         }
         
@@ -26,37 +84,46 @@
         
         // Calculate scale
         this.scale = this.options.scale == 'auto' ? jQuery(window).width() / window.screen.width : this.options.scale
+        if(navigator.userAgent.match(/Android/i)){
+        	if(navigator.userAgent.match(/mobile/i))
+               this.scale = 2.7       
+        }	
         if (this.scale < 1) this.scale = 1
-
+        
         // Get info from meta data
         var meta = jQuery(this.type=='android' ? 'meta[name="google-play-app"]' : 'meta[name="apple-itune-app"]')
-        if (meta.length == 0) return
+        if (meta.length == 0) //return
         
-        this.appId = /app-id=([^\s,]+)/.exec(meta.attr('content'))[1]
-        this.title = this.options.title ? this.options.title : jQuery('title').text().replace(/\s*[|\-·].*jQuery/, '')
+        //this.appId = /app-id=([^\s,]+)/.exec(meta.attr('content'))[1]
+        this.title = this.options.title ? this.options.title : '';
         this.author = this.options.author ? this.options.author : (jQuery('meta[name="author"]').length ? jQuery('meta[name="author"]').attr('content') : window.location.hostname)
 
         // Create banner
         this.create()
         this.show()
         this.listen()
-    }
-        
+    }   
     SmartBanner.prototype = {
 
         constructor: SmartBanner
     
       , create: function() {
             var iconURL
-              , link= 'market://details?id=com.quoord.tapatalkHD'
-              , inStore=this.options.price ? this.options.price + ' - ' + (this.type=='android' ? this.options.inGooglePlay : this.options.inAppStore) : ''
+              , link=(this.options.url ? this.options.url : (this.type=='android' ? 'market://details?id=' : ('https://itunes.apple.com/' + this.options.appStoreLanguage + '/app/id')) + this.appId)
+              , inStore = this.type=='android' ? this.options.inGooglePlay : this.options.inAppStore
               , gloss=this.options.iconGloss === null ? (this.type=='ios') : this.options.iconGloss
-
-            jQuery('body').append('<div id="smartbanner" class="'+this.type+'"><div class="sb-container"><a href="#" class="sb-close">&times;</a><span class="sb-icon"></span><div class="sb-info"><strong>'+
-            		this.title+'</strong><span>'+this.author+'</span></div><div class="tt-buttons"><a href="'+this.options.url+'" class="sb-button"><span>'+this.options.button+'</span></a>'+
-            		'<a href="'+link+'" class="open-button"><span>Install</span></a>'
-            		+'</div></div></div>')
-            
+            if(this.type == 'ios') {
+            	this.options.button = 'VIEW';
+            	jQuery('body').append('<div id="smartbanner" class="'+this.type+'"><div class="sb-container"><a href="#" class="sb-close">&times;</a><span class="sb-icon"></span><div class="sb-info"><strong>'+
+                		this.options.title+'</strong><span>'+this.options.author+'</span><span>'+inStore+'</span></div><div class="tt-buttons"><a href="'+this.options.product_url+'" class="sb-button"><span>'+this.options.button+'</span></a>');
+            }
+            else {
+            	var view_button = '<a href="'+this.options.url+'" class="sb-button"><span>'+this.options.button+'</span></a>'
+            	jQuery('body').append('<div id="smartbanner" class="'+this.type+'"><div class="sb-container"><a href="#" class="sb-close">&times;</a><span class="sb-icon"></span><div class="sb-info"><strong>'+
+                		this.options.title+'</strong><span>'+this.options.author+'</span><span>'+inStore+'</span></div><div class="tt-buttons">'+(jQuery(window).width() > 800 ? view_button : '')+
+                		'<a href="'+this.options.product_url+'" class="open-button"><span>Install</span></a>'
+                		+'</div></div></div>')
+            }
             if (this.options.icon) {
                 iconURL = this.options.icon
             } else if (jQuery('link[rel="apple-touch-icon-precomposed"]').length > 0) {
@@ -73,7 +140,9 @@
             }
 
             this.bannerHeight = jQuery('#smartbanner').outerHeight() + 2
+            
             if (this.scale > 1) {
+            	
                 jQuery('#smartbanner')
                     .css('top', parseFloat(jQuery('#smartbanner').css('top')) * this.scale)
                     .css('height', parseFloat(jQuery('#smartbanner').css('height')) * this.scale)
@@ -87,8 +156,8 @@
         }
         
       , listen: function () {
-            jQuery('#smartbanner .sb-close').on('click',jQuery.proxy(this.close, this))
-            jQuery('#smartbanner .sb-button').on('click',jQuery.proxy(this.install, this))
+            jQuery('#smartbanner .sb-close').bind('click',jQuery.proxy(this.close, this))
+            jQuery('#smartbanner .sb-button').bind('click',jQuery.proxy(this.install, this))
         }
         
       , show: function(callback) {
@@ -124,7 +193,7 @@
             for(i=0;i<ARRcookies.length;i++) {
                 x = ARRcookies[i].substr(0,ARRcookies[i].indexOf("="))
                 y = ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1)
-                x = x.replace(/^\s+|\s+jQuery/g,"")
+                x = x.replace(/^\s+|\s+$/g,"")
                 if (x==name) {
                     return unescape(y)
                 }
@@ -138,7 +207,7 @@
           
           this.hide(function() {
             that.type = that.type=='android' ? 'ios' : 'android'
-            var meta = jQuery(that.type=='android' ? 'meta[name="google-play-app"]' : 'meta[name="apple-itune-app"]').attr('content')
+            var meta = jQuery(that.type=='android' ? 'meta[name="google-play-app"]' : 'meta[name="apple-itunes-app"]').attr('content')
             that.appId = /app-id=([^\s,]+)/.exec(meta)[1]
             
             jQuery('#smartbanner').detach()
@@ -161,11 +230,14 @@
         title: null, // What the title of the app should be in the banner (defaults to <title>)
         author: null, // What the author of the app should be in the banner (defaults to <meta name="author"> or hostname)
         price: 'Free', // Price of the app
+	    appStoreLanguage: 'us', // Language code for App Store
         inAppStore: 'On the App Store', // Text of price for iOS
         inGooglePlay: 'In Google Play', // Text of price for Android
         icon: null, // The URL of the icon (defaults to <meta name="apple-touch-icon">)
         iconGloss: null, // Force gloss effect for iOS even for precomposed
-        button: 'View In App', // Text for the install button
+        button: 'VIEW', // Text for the install button
+	    url: null,
+	    product_url:null,
         scale: 'auto', // Scale based on viewport size (set to 1 to disable)
         speedIn: 300, // Show animation speed of the banner
         speedOut: 400, // Close animation speed of the banner
@@ -177,3 +249,26 @@
     jQuery.smartbanner.Constructor = SmartBanner
 
 }(window.jQuery);
+if(navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod/i) && !is_native_banner)
+{
+  jQuery.smartbanner({ 
+    title: app_name, 
+    author: app_desc, 
+    icon: app_icon_url, 
+    url: app_location_url, 
+    iconGloss: 0, 
+    daysHidden: 90, 
+    daysReminder: 0, 
+  }); 
+  
+  jQuery(document).ready(function(){
+	  if(navigator.userAgent.match(/Android/i)) {
+		 if(navigator.userAgent.match(/mobile/i)) {
+		  	jQuery("#smartbanner").css("position","absolute");
+		 }
+	  }
+	  else {
+		  jQuery("#smartbanner").css('font-family',"'Helvetica Neue',sans-serif");
+	  }
+  })
+}

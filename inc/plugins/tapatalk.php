@@ -41,7 +41,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.3.2",
+        "version"       => "3.3.3",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -160,71 +160,60 @@ function tapatalk_install()
             'optionscode'   => 'textarea',
             'value'         => ''
         ),
-        'ipad_msg' => array(
-            'title'         => 'iPad Product Message',
-            'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Apple App Store.Default "This forum has an app for iPad! Click OK to learn more about Tapatalk."',
+        'app_name'    => array(
+            'title'         => 'App Name',
+            'description'   => 'Please limit this name to within 20 characters .',
             'optionscode'   => 'text',
-            'value'         => 'This forum has an app for iPad! Click OK to learn more about Tapatalk.',
-        ),
-        'ipad_url' => array(
-            'title'         => 'iPad Product URL',
-            'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Apple App Store . Default "http://itunes.apple.com/us/app/tapatalk-hd-for-ipad/id481579541?mt=8"',
+            'value'         => 'Tapatalk Forum App'
+        ),  
+        'app_desc'    => array(
+            'title'         => 'App Description',
+            'description'   => 'A short description of the product, ideally within five words. Less is better for small screen.',
             'optionscode'   => 'text',
-            'value'         => 'http://itunes.apple.com/us/app/tapatalk-hd-for-ipad/id481579541?mt=8',
-        ),
-        'iphone_msg' => array(
-            'title'         => 'iPhone Product Message',
-            'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Apple App Store. Default "This forum has an app for iPhone! Click OK to learn more about Tapatalk."',
+            'value'         => 'App for this forum'
+        ), 
+        'app_icon_url'    => array(
+            'title'         => 'App Icon URL',
+            'description'   => 'Icon URL to be loaded and displayed on Smart App Banner .',
             'optionscode'   => 'text',
-            'value'         => 'This forum has an app for iPhone! Click OK to learn more about Tapatalk.',
-        ),
-        'iphone_url' => array(
-            'title'         => 'iPhone Product URL',
-            'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Apple App Store. Default "http://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8"',
+            'value'         => '/mobiquo/smartbanner/tapatalk2.png'
+        ),   
+        'ipad_id' => array(
+            'title'         => 'iPad App ID',
+            'description'   => 'Enter your product ID in Apple App Store, to be used on iPad device .',
             'optionscode'   => 'text',
-            'value'         => 'http://itunes.apple.com/us/app/tapatalk-forum-app/id307880732?mt=8',
-        ),
-        'android_msg' => array(
-            'title'         => 'Android Product Message',
-            'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Google Play. Default "This forum has an app for Android. Click OK to learn more about Tapatalk."',
+            'value'         => '481579541',
+        ),        
+        'iphone_id' => array(
+            'title'         => 'iPhone App ID',
+            'description'   => 'Enter your product ID in Apple App Store, to be used on iPhone device .',
             'optionscode'   => 'text',
-            'value'         => 'This forum has an app for Android. Click OK to learn more about Tapatalk.',
+            'value'         => '307880732',
         ),
         'android_url' => array(
-            'title'         => 'Android Product URL',
-            'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Google Play. Default "market://details?id=com.quoord.tapatalkpro.activity"',
+            'title'         => 'Android (Phone) URL',
+            'description'   => 'Google Play URL for Android Phone. Default "market://details?id=com.quoord.tapatalkpro.activity"',
             'optionscode'   => 'text',
             'value'         => 'market://details?id=com.quoord.tapatalkpro.activity',
         ),
-        'kindle_msg' => array(
-            'title'         => 'Kindle Fire Product Message',
-            'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Amazon App Store. Default "This forum has an app for Kindle Fire! Click OK to learn more about Tapatalk."',
+        'android_hd_url' => array(
+            'title'         => 'Android (Tablet) URL',
+            'description'   => 'Google Play URL for Android tablets. Default "market://details?id=com.quoord.tapatalkHD"',
             'optionscode'   => 'text',
-            'value'         => 'This forum has an app for Kindle Fire! Click OK to learn more about Tapatalk.',
+            'value'         => 'market://details?id=com.quoord.tapatalkHD',
         ),
         'kindle_url' => array(
-            'title'         => 'Kindle Fire Product URL',
-            'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Amazon App Store. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
+            'title'         => 'Kindle Fire (Original) URL',
+            'description'   => 'Amazon App Store URL for Kindle Fire. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
             'optionscode'   => 'text',
             'value'         => 'http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity',
         ),
-        'kindle_hd_msg' => array(
-            'title'         => 'Kindle Fire HD Product Message',
-            'description'   => 'Customize this message if you are Tapatalk BYO Customer and has published your App to Amazon App Store. Default "This forum has an app for Kindle Fire HD! Click OK to learn more about Tapatalk."',
-            'optionscode'   => 'text',
-            'value'         => 'This forum has an app for Kindle Fire HD! Click OK to learn more about Tapatalk.',
-        ),
+        
         'kindle_hd_url' => array(
-            'title'         => 'Kindle Fire HD Product URL',
-            'description'   => 'Change this URL if you are Tapatalk BYO Customer and has obtained your App URL from Amazon App Store. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
+            'title'         => 'Kindle Fire HD URL',
+            'description'   => 'Amazon App Store URL for Kindle Fire HD. Default "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity"',
             'optionscode'   => 'text',
             'value'         => 'http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkHD',
-        ),
-        'smartbanner_notifier' => array(
-            'title'         => 'Enable Smart Banner on Android Tablets',
-            'description'   => "Allows user to open thread in Tapatalk directly from Web Browser on Android tablets.",
-            'optionscode'   => 'onoff',
-            'value'         => '1'
         ),
     );
 
@@ -511,54 +500,38 @@ function tapatalk_online_end()
 function tapatalk_pre_output_page(&$page)
 {
     global $mybb;
-
-    $url = tapatalk_get_url();
-    $icon_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk.png';
-    $forumname = $mybb->settings['homename'];
-    $tapatalk_detect_js_name = 'tapadetect.js';
     $settings = $mybb->settings;
-    $str = '<!-- Tapatalk smart banner head start -->
-<meta name="apple-itune-app" content="app-id=307880732">
-<meta name="google-play-app" content="app-id=com.quoord.tapatalkpro.activity">
-<link rel="stylesheet" href="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery.smartbanner.css" type="text/css" media="screen">
+    if(empty($settings['tapatalk_app_name']))
+    {
+    	return ;
+    }
+	$url = tapatalk_get_url();
+	$icon_url = $mybb->settings['tapatalk_app_icon_url'];
+	$jquery_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery-1.7.min.js';
+	$smartbanner_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery.smartbanner.js';	
+    $str = '<!-- Tapatalk smart banner head start -->  
+<meta name="google-play-app" content="app-id=com.quoord.tapatalkpro.activity"> 
+<link rel="stylesheet" href="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery.smartbanner.css" type="text/css" media="screen"> 
 <!-- Tapatalk smart banner head end-->'.
 "
-<script type='text/javascript'>
-        var tapatalk_ipad_msg = '{$settings['tapatalk_ipad_msg']}';
-        var tapatalk_ipad_url  = '{$settings['tapatalk_ipad_url']}';
-        var tapatalk_iphone_msg = '{$settings['tapatalk_iphone_msg']}';
-        var tapatalk_iphone_url  = '{$settings['tapatalk_iphone_url']}';
-        var tapatalk_android_msg = '{$settings['tapatalk_android_msg']}';
-        var tapatalk_android_url  = '{$settings['tapatalk_android_url']}';
-        var tapatalk_kindle_msg = '{$settings['tapatalk_kindle_msg']}';
-        var tapatalk_kindle_url  = '{$settings['tapatalk_kindle_url']}';
-        var tapatalk_kindle_hd_msg = '{$settings['tapatalk_kindle_hd_msg']}';
-        var tapatalk_kindle_hd_url  = '{$settings['tapatalk_kindle_hd_url']}';
-        var tapatalkdir = '{$settings['tapatalk_directory']}';
-        var tapatalk_smartbanner_enable = '{$settings['tapatalk_smartbanner_notifier']}';
+<script type='text/javascript'> 
+        var app_name = '".addslashes(substr($settings['tapatalk_app_name'],0,20))."';
+		var app_desc = '".addslashes($settings['tapatalk_app_desc'])."';
+		var app_icon_url = '{$icon_url}';
+		var app_iphone_id = '{$settings['tapatalk_iphone_id']}';
+		var app_ipad_id = '{$settings['tapatalk_ipad_id']}';
+		var app_android_url = '{$settings['tapatalk_android_url']}';
+		var app_android_hd_url = '{$settings['tapatalk_android_hd_url']}';
+		var app_kindle_url = '{$settings['tapatalk_kindle_url']}';
+		var app_kindle_hd_url = '{$settings['tapatalk_kindle_hd_url']}';
+        var app_location_url = '{$url}';       		
 </script>\n";
-    $tapatalk_smart_banner_body = '
-    <!-- Tapatalk smart banner body start -->
-    '."<script type='text/javascript' src='{$mybb->settings['bburl']}/{$mybb->settings['tapatalk_directory']}/tapatalkdetect/jquery-1.7.min.js'></script>\n".
-    '<script type=\'text/javascript\'>jQuery.noConflict();</script>
-    <script src="mobiquo/smartbanner/jquery.smartbanner.js"></script>
-    <script type="text/javascript">
-    if(navigator.userAgent.match(/Android/i) && !navigator.userAgent.match(/mobile/i) && tapatalk_smartbanner_enable == "1")
-    {
-      jQuery.smartbanner({
-        title: "Tapatalk HD for Android Tablet",
-        author: "'.$forumname.' is now on Tapatalk Forum App",
-        icon: "'.$icon_url.'",
-        url: "'.$url.'",
-        iconGloss: 0,
-        daysHidden: 90,
-        daysReminder: 0,
-        force:"android",
-      });
-    }
-    </script>
+    $tapatalk_smart_banner_body = " 
+    <!-- Tapatalk smart banner body start --> \n".
+    '<script type="text/javascript" src="'.$jquery_url.'"></script>'."\n".
+    '<script type="text/javascript" src="'.$smartbanner_url.'"></script>'."\n".' 
     <!-- Tapatalk smart banner body end --> ';
-    $page = str_ireplace("</head>", $str . "\n<script type='text/javascript' src='{$mybb->settings['bburl']}/{$mybb->settings['tapatalk_directory']}/{$tapatalk_detect_js_name}'></script></head>", $page);
+    $page = str_ireplace("</head>", $str . "\n</head>", $page);
     $page = str_ireplace("<body>", "<body>\n".$tapatalk_smart_banner_body, $page);
 }
 
@@ -712,10 +685,11 @@ function tapatalk_push_quote()
     if(!empty($post['message']))
     {
         $matches = array();
-        preg_match_all('/\[quote=\'(.*)\' pid=\'(.*)\' dateline=\'(.*)\'\]/', $post['message'] , $matches);
+        preg_match_all('/\[quote=\'(.*?)\' pid=\'(.*?)\' dateline=\'(.*?)\'\]/', $post['message'] , $matches);
         $matches = array_unique($matches[1]);
         foreach ($matches as $username)
         {
+        	$username = $db->escape_string($username);
             $query = $db->query("SELECT tu.*,u.uid FROM " . TABLE_PREFIX . "tapatalk_users AS tu LEFT JOIN
             " . TABLE_PREFIX ."users AS u ON tu.userid = u.uid  WHERE u.username = '$username'");
             $user = $db->fetch_array($query);
@@ -773,6 +747,7 @@ function tapatalk_push_tag()
         $matches = tt_get_tag_list($post['message']);
         foreach ($matches as $username)
         {
+        	$username = $db->escape_string($username);
             $query = $db->query("SELECT tu.*,u.uid FROM " . TABLE_PREFIX . "tapatalk_users AS tu LEFT JOIN
             " . TABLE_PREFIX ."users AS u ON tu.userid = u.uid  WHERE u.username = '$username'");
             $user = $db->fetch_array($query);

@@ -30,12 +30,11 @@ function get_thread_by_unread_func($xmlrpc_params)
         $visible = "AND p.visible='1'";
     }
 
-    $query = $db->query("select p.pid from ".TABLE_PREFIX."posts p
+    $query = $db->query("select min(p.pid) as pid from ".TABLE_PREFIX."posts p
         LEFT JOIN ".TABLE_PREFIX."threadsread tr on p.tid = tr.tid and tr.uid = '{$mybb->user['uid']}'
         where p.tid='{$thread['tid']}' and tr.dateline < p.dateline $visible
-        order by p.dateline desc
-        limit 1");
-    $pid = $db->fetch_field($query, 'pid');
+        ");
+	$pid = $db->fetch_field($query, 'pid');
     if(!$pid)
     {
         $query = $db->query("select p.pid from ".TABLE_PREFIX."posts p
