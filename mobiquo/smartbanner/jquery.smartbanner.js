@@ -8,6 +8,7 @@ var is_native_banner = false;
 if (navigator.userAgent.match(/Safari/i) != null &&
             (navigator.userAgent.match(/CriOS/i) == null &&
             window.Number(navigator.userAgent.substr(navigator.userAgent.indexOf('OS ') + 3, 3).replace('_', '.')) >= 6)) { 
+	app_location_url = 'tapatalk://'
 	if(navigator.userAgent.match(/iPad/i) != null){
 		jQuery("head").append('<meta name="apple-itunes-app" content="app-id='+app_ipad_id+',app-argument='+app_location_url+'"> ');
 		is_native_banner = true;
