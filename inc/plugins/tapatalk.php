@@ -180,13 +180,13 @@ function tapatalk_install()
         ),   
         'ipad_id' => array(
             'title'         => 'iPad App ID',
-            'description'   => 'Enter your product ID in Apple App Store, to be used on iPad device .',
+            'description'   => 'Enter your product ID in Apple App Store, to be used on iPad device .Default 481579541',
             'optionscode'   => 'text',
             'value'         => '481579541',
         ),        
         'iphone_id' => array(
             'title'         => 'iPhone App ID',
-            'description'   => 'Enter your product ID in Apple App Store, to be used on iPhone device .',
+            'description'   => 'Enter your product ID in Apple App Store, to be used on iPhone device . Default 307880732',
             'optionscode'   => 'text',
             'value'         => '307880732',
         ),
