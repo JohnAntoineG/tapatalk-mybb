@@ -141,9 +141,9 @@ function reply_post_func($xmlrpc_params)
 	
 	// Set up the post options from the input.
 	$post['options'] = array(
-		"signature" => $mybb->user['signature'],
+		"signature" => 1,
 		"subscriptionmethod" => $mybb->user['subscriptionmethod'] == 0 ? '':$mybb->user['subscriptionmethod'],
-		"disablesmilies" => $forum['allowsmilies']
+		"disablesmilies" => 0
 	);
 	$post['modoptions']['stickthread'] = $thread['sticky'];
 	$post['modoptions']['closethread'] = $thread['close'];
