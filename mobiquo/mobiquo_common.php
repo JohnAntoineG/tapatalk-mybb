@@ -347,6 +347,7 @@ function cutstr($string, $length)
 
 function process_short_content($post_text, $parser = null, $length = 200)
 {
+	$post_text = Tapatalk_Input::covertNameToEmpty($post_text);
     global $parser;
     
     if($parser === null) {
@@ -378,6 +379,7 @@ function process_short_content($post_text, $parser = null, $length = 200)
 function process_post($post, $returnHtml = false)
 {
 	global $mybb;
+	$post = Tapatalk_Input::covertHtmlToEmoji($post);
     if($returnHtml){
         //$post = str_replace("&", '&amp;', $post);
         //$post = str_replace("<", '&lt;', $post);

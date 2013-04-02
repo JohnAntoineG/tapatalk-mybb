@@ -21,7 +21,10 @@ $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_quote');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_tag');
 $plugins->add_hook('online_user','tapatalk_online_user');
 $plugins->add_hook('online_end','tapatalk_online_end');
-
+$plugins->add_hook('postbit','tapatalk_postbit');
+$plugins->add_hook('postbit_prev','tapatalk_postbit');
+$plugins->add_hook('postbit_pm','tapatalk_postbit');
+$plugins->add_hook('postbit_announcement','tapatalk_postbit');
 function tapatalk_info()
 {
     /**
@@ -509,8 +512,10 @@ function tapatalk_pre_output_page(&$page)
 	$icon_url = $mybb->settings['tapatalk_app_icon_url'];
 	$jquery_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery-1.7.min.js';
 	$smartbanner_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery.smartbanner.js';	
-    $str = '<!-- Tapatalk smart banner head start -->   
+    $str = '<!-- Tapatalk smart banner head start -->  
+<meta name="google-play-app" content="app-id=com.quoord.tapatalkpro.activity"> 
 <link rel="stylesheet" href="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/jquery.smartbanner.css" type="text/css" media="screen"> 
+<link rel="stylesheet" href="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/emoji/emoji.css" type="text/css" media="screen"> 
 <!-- Tapatalk smart banner head end-->'.
 "
 <script type='text/javascript'> 
@@ -533,7 +538,14 @@ function tapatalk_pre_output_page(&$page)
     $page = str_ireplace("</head>", $str . "\n</head>", $page);
     $page = str_ireplace("<body>", "<body>\n".$tapatalk_smart_banner_body, $page);
 }
-
+function tapatalk_postbit(&$post)
+{
+	global $mybb;
+	require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/emoji/emoji.php';
+	$post['message'] = emoji_name_to_unified($post['message']);
+	$post['message'] = emoji_unified_to_html($post['message']);
+	return $post;
+}
 function tapatalk_get_url()
 {
     global $mybb;
@@ -817,32 +829,31 @@ function tapatalk_push_newtopic()
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['newtopic'] == 1)
         {
-            $ttp_push_data[] = $ttp_data[count($ttp_data)-1];
+        	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
         }
     }
     if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
     {
-        $ttp_post_data = array(
+    	$ttp_post_data = array(
             'url'  => $mybb->settings['bburl'],
             'data' => base64_encode(serialize($ttp_push_data)),
         );
-
+        
         $return_status = tt_do_post_request($ttp_post_data);
         return true;
     }
     return false;
 }
-
 function tapatalk_double_push_check($userid,$pid)
 {
-    global $db;
-    $query = $db->query("SELECT * FROM " . TABLE_PREFIX ."tapatalk_push_data WHERE user_id = '$userid' AND data_id = '$pid'");
-    $row = $db->fetch_array($query);
-    if(empty($row))
-    {
-        return true;
-    }
-    return false;
+	global $db;
+	$query = $db->query("SELECT * FROM " . TABLE_PREFIX ."tapatalk_push_data WHERE user_id = '$userid' AND data_id = '$pid'");
+	$row = $db->fetch_array($query);
+	if(empty($row))
+	{
+		return true;
+	}
+	return false;
 }
 
 function tt_get_tag_list($str)
@@ -873,12 +884,12 @@ function tapatalk_push_pm()
         LEFT JOIN ".TABLE_PREFIX."tapatalk_users tu ON (p.toid=tu.userid)
         WHERE p.fromid = '{$mybb->user['uid']}' and p.dateline = " . TIME_NOW . " AND p.folder = 1
     ");
-
+        
     $ttp_push_data = array();
     while($user = $db->fetch_array($query))
     {
         if ($user['toid'] == $mybb->user['uid']) continue;
-
+            
         $ttp_data[] = array(
             'userid'    => $user['toid'],
             'type'      => 'pm',
@@ -890,7 +901,7 @@ function tapatalk_push_pm()
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['pm'] == 1)
         {
-            $ttp_push_data[] = $ttp_data[count($ttp_data)-1];
+        	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
         }
     }
     if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
@@ -899,7 +910,7 @@ function tapatalk_push_pm()
             'url'  => $mybb->settings['bburl'],
             'data' => base64_encode(serialize($ttp_push_data)),
         );
-
+        
         $return_status = tt_do_post_request($ttp_post_data);
     }
 }
@@ -927,10 +938,10 @@ function tt_do_post_request($data,$pushTest = false)
         if(!$pushTest)
         {
             $fp = fsockopen($push_host, 80, $errno, $errstr, 5);
-
+            
             if(!$fp)
                 return false;
-
+                
             $data =  http_build_query($data,'', '&');
             fputs($fp, "POST /push.php HTTP/1.1\r\n");
             fputs($fp, "Host: $push_host\r\n");
@@ -956,12 +967,12 @@ function tt_do_post_request($data,$pushTest = false)
 
             ini_set('default_socket_timeout', $old);
             stream_set_timeout($fp, $timeout);
-            stream_set_blocking($fp, 0);
+            stream_set_blocking($fp, 0); 
+            
 
             $response = @stream_get_contents($fp);
         }
     }
-    
     elseif (function_exists('curl_init'))
     {
         $ch = curl_init($push_url);
@@ -974,35 +985,34 @@ function tt_do_post_request($data,$pushTest = false)
         $response = curl_exec($ch);
         curl_close($ch);
     }
-
-    return $response;
+    
+	return $response;
 }
 
 function tt_insert_push_data($data)
 {
-    global $mybb,$db;
-    if(!$db->table_exists("tapatalk_push_data"))
-    {
-        return ;
-    }
-    if($data['type'] == 'pm')
-    {
-        $data['subid'] = $data['id'];
-    }
-    $sql_data = array(
+	global $mybb,$db;
+	if(!$db->table_exists("tapatalk_push_data"))
+	{
+		return ;
+	}
+	if($data['type'] == 'pm')
+	{
+		$data['subid'] = $data['id'];
+	}
+	$sql_data = array(
         'author' => $data['author'],
-        'user_id' => $data['userid'],
-        'data_type' => $data['type'],
-        'title' => $data['title'],
-        'data_id' => $data['subid'],
-        'create_time' => $data['dateline']
+		'user_id' => $data['userid'],
+		'data_type' => $data['type'],
+		'title' => $data['title'],
+		'data_id' => $data['subid'],
+		'create_time' => $data['dateline']		
     );
-    $db->insert_query('tapatalk_push_data', $sql_data);
+	$db->insert_query('tapatalk_push_data', $sql_data);
 }
-
 function tt_push_clean($str)
 {
-    global $db;
+	global $db;
     $str = strip_tags($str);
     $str = trim($str);
     $str = html_entity_decode($str, ENT_QUOTES, 'UTF-8');

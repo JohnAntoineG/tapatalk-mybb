@@ -86,7 +86,7 @@ function get_raw_post_func($xmlrpc_params)
 	$result = new xmlrpcval(array(
 		'post_id'       => new xmlrpcval($post['pid'], 'string'),
 		'post_title'    => new xmlrpcval($post['subject'], 'base64'),
-		'post_content'  => new xmlrpcval($post['message'], 'base64'),
+		'post_content'  => new xmlrpcval(Tapatalk_Input::covertNameToEmoji($post['message']), 'base64'),
 	), 'struct');
 	
 	return new xmlrpcresp($result);

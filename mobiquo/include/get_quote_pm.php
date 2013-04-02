@@ -81,7 +81,7 @@ function get_quote_pm_func($xmlrpc_params)
 		'result_text'   => new xmlrpcval('', 'base64'),
 		'msg_id'      => new xmlrpcval($pm['pmid'], 'string'),
 		'msg_subject'   => new xmlrpcval($subject, 'base64'),
-		'text_body'     => new xmlrpcval($message, 'base64'),
+		'text_body'     => new xmlrpcval(Tapatalk_Input::covertNameToEmoji($message), 'base64'),
 	), 'struct');
 
 	return new xmlrpcresp($result);
