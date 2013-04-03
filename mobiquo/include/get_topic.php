@@ -369,6 +369,14 @@ function get_topic_func($xmlrpc_params)
                 $folder_label .= $lang->icon_no_new;
                 $new_class = "subject_old";
             }
+            if(!empty($thread['closed']))
+            {
+            	$moved = explode("|", $thread['closed']);
+            	if($moved[0] == "moved")
+            	{
+            		$thread['subject'] = $lang->moved_prefix . ' '.$thread['subject'];
+            	}
+            }
             
             $new_topic = array(
                 'forum_id'          => new xmlrpcval($thread['fid'], 'string'),

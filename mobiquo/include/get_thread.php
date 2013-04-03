@@ -354,7 +354,7 @@ function get_thread_func($xmlrpc_params)
 
     $can_reply = $forumpermissions['canpostreplys'] != 0 && $mybb->user['suspendposting'] != 1 && ($thread['closed'] != 1 || is_moderator($fid)) && $forum['open'] != 0;
     
-	/*build_tt_breadcrumb($fid);
+	build_tt_breadcrumb($fid);
     $navgation_arr = $navbits;
 	if(is_array($navgation_arr) && count($navgation_arr) > 1)
     {
@@ -373,7 +373,7 @@ function get_thread_func($xmlrpc_params)
 				'sub_only' => new xmlrpcval($sub_only, 'boolean'),
                 ), 'struct');
         }
-    }*/
+    }
     
     $result = array(
         'total_post_num'  => new xmlrpcval($postcount, 'int'),

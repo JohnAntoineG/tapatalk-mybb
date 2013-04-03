@@ -361,10 +361,9 @@ function m_move_topic_func($xmlrpc_params)
     {
         return xmlrespfalse($lang->error_movetosameforum);
     }
+    $newtid = $moderation->move_thread($tid, $moveto);
 
-    $newtid = $moderation->move_thread($tid, $moveto, $method, $expire);
-
-    log_moderator_action($modlogdata, $lang->thread_moved);
+    //log_moderator_action($modlogdata, $lang->thread_moved);
 
     $response = new xmlrpcval(array(
         'result'        => new xmlrpcval(true, 'boolean'),

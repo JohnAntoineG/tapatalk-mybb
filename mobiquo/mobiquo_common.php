@@ -370,7 +370,7 @@ function process_short_content($post_text, $parser = null, $length = 200)
     {
         $post_text = my_substr(trim($post_text), 0, $length);
     }
-    
+    $post_text = process_post($post_text);
     //$post_text = str_replace("\xC2\xA0", " ", $post_text);
     
     return $post_text;
