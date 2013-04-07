@@ -812,7 +812,7 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
 
     if(!empty($holdTime) && function_exists('file_get_contents') && $method == 'GET')
     {
-        $response = file_get_contents($url);
+        $response = @file_get_contents($url);
     }
     else if (@ini_get('allow_url_fopen'))
     {
@@ -824,7 +824,7 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
 
             if($method == 'POST')
             {
-                $fp = fsockopen($host, 80, $errno, $errstr, 5);
+                $fp = @fsockopen($host, 80, $errno, $errstr, 5);
 
                 if(!$fp)
                 {
@@ -841,6 +841,7 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
                 fputs($fp, "Connection: close\r\n\r\n");
                 fputs($fp, $data);
                 fclose($fp);
+                return 1;
             }
             else
             {

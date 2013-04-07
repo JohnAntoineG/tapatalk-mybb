@@ -331,7 +331,12 @@ if(empty($request_params))
 {
 	$request_params[0]='';
 }
-$_SERVER['QUERY_STRING'] = 'method='.$request_method.'&params='.$request_params[0];
+$taptalk_from = '';
+if(strpos($_SERVER['HTTP_USER_AGENT'], 'BYO') !== false)
+{
+	$taptalk_from = 'BYO';
+}
+$_SERVER['QUERY_STRING'] = 'method='.$request_method.'&params='.$request_params[0].'&from='.$taptalk_from;
 define("IN_MYBB", 1);
 require_once './global.php';
 

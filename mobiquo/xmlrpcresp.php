@@ -7,7 +7,6 @@ function search_func()
     global $search_data, $include_topic_num, $mybb;
     
     $return_list = array();
-    
     foreach ($search_data['results'] as $item)
     {
         $fid = $item['fid'];
@@ -22,7 +21,7 @@ function search_func()
                 'forum_name'            => new xmlrpcval(basic_clean($item['forumname']), 'base64'),
                 'topic_id'              => new xmlrpcval($item['tid'], 'string'),
                 'topic_title'           => new xmlrpcval(basic_clean($item['subject']), 'base64'),
-                
+                'post_id'               => new  xmlrpcval($item['lastpost']['pid'], 'string'),
                 'post_author_id'        => new xmlrpcval($lastpost ? $lastpost['uid'] : $item['lastposteruid'], 'string'),
                 'post_author_name'      => new xmlrpcval(basic_clean($lastpost ? $lastpost['username'] : $item['lastposter']), 'base64'),
                 'last_reply_time'       => new xmlrpcval(mobiquo_iso8601_encode($lastpost ? $lastpost['dateline'] : $item['lastpost']), 'dateTime.iso8601'),

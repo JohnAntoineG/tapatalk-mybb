@@ -52,7 +52,7 @@ function tapatalk_info()
 
 function tapatalk_install()
 {
-    global $db;
+    global $db,$mybb;
 
     tapatalk_uninstall();
     if(!$db->table_exists('tapatalk_users'))
@@ -99,8 +99,17 @@ function tapatalk_install()
         'disporder'     =>    0,
         'isdefault'     =>    0
     );
+    $setting_byo_group = array(
+    	'name'          =>    'tapatalk_byo',
+        'title'         =>    'Tapatalk BYO Options',
+        'description'   =>    'Tapatalk - Build Your Own - Options',
+        'disporder'     =>    0,
+        'isdefault'     =>    0
+    );
     $db->insert_query('settinggroups', $setting_group);
     $gid = $db->insert_id();
+    $db->insert_query('settinggroups', $setting_byo_group);
+    $gid_byo = $db->insert_id();
 
     $settings = array(
         'enable' => array(
@@ -163,7 +172,17 @@ function tapatalk_install()
             'optionscode'   => 'textarea',
             'value'         => ''
         ),
-        'app_name'    => array(
+        
+        'push_slug' => array(
+        	'title'         => '',
+            'description'   => '',
+            'optionscode'   => 'php',
+            'value'         => '0',
+        )
+    );
+	
+    $settings_byo = array(
+    	'app_name'    => array(
             'title'         => 'App Name',
             'description'   => 'Please limit this name to within 20 characters .',
             'optionscode'   => 'text',
@@ -218,8 +237,25 @@ function tapatalk_install()
             'optionscode'   => 'text',
             'value'         => 'http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkHD',
         ),
+        'online_icon' => array(
+        	'title'         => 'User Online Page icon display',
+            'description'   => 'Onlin page icon url',
+            'optionscode'   => 'text',
+            'value'         => $mybb->settings['bburl'].'/mobiquo/images/tapatalk-online.png',     
+        ),
+        'online_text' => array(
+        	'title'         => 'Online text',
+            'description'   => 'Onlin page icon url',
+            'optionscode'   => 'text',
+            'value'         => 'On Tapatalk',     
+        ),
+        'online_target' => array(
+        	'title'         => 'Online target',
+            'description'   => 'Onlin target url',
+            'optionscode'   => 'text',
+            'value'         => 'http://www.tapatalk.com',     
+        ),
     );
-
     $s_index = 0;
     foreach($settings as $name => $setting)
     {
@@ -232,6 +268,22 @@ function tapatalk_install()
             'value'       => $db->escape_string($setting['value']),
             'disporder'   => $s_index,
             'gid'         => $gid,
+            'isdefault'   => 0
+        );
+        $db->insert_query('settings', $insert_settings);
+    }
+	$s_index = 0;
+    foreach($settings_byo as $name => $setting)
+    {
+        $s_index++;
+        $insert_settings = array(
+            'name'        => $db->escape_string('tapatalk_'.$name),
+            'title'       => $db->escape_string($setting['title']),
+            'description' => $db->escape_string($setting['description']),
+            'optionscode' => $db->escape_string($setting['optionscode']),
+            'value'       => $db->escape_string($setting['value']),
+            'disporder'   => $s_index,
+            'gid'         => $gid_byo,
             'isdefault'   => 0
         );
         $db->insert_query('settings', $insert_settings);
@@ -263,6 +315,16 @@ function tapatalk_uninstall()
 
     // Remove settings
     $result = $db->simple_select('settinggroups', 'gid', "name = 'tapatalk'", array('limit' => 1));
+    $group = $db->fetch_array($result);
+
+    if(!empty($group['gid']))
+    {
+        $db->delete_query('settinggroups', "gid='{$group['gid']}'");
+        $db->delete_query('settings', "gid='{$group['gid']}'");
+        rebuild_settings();
+    }
+	// Remove byo settings
+    $result = $db->simple_select('settinggroups', 'gid', "name = 'tapatalk_byo'", array('limit' => 1));
     $group = $db->fetch_array($result);
 
     if(!empty($group['gid']))
@@ -481,8 +543,11 @@ function tapatalk_fetch_wol_activity_end(&$user_activity)
 function tapatalk_online_user()
 {
     global $user;
-    
-    if(strpos($user['location'], 'mobiquo') !== false)
+    if((strpos($user['location'], 'mobiquo') !== false) && (strpos($user['location'], 'BYO') !== false))
+    {
+    	 $user['username'] = $user['username'] . '[tapatalk_byo_user]';
+    }
+	else if(strpos($user['location'], 'mobiquo') !== false)
     {
         $user['username'] = $user['username'] . '[tapatalk_user]';
     }
@@ -492,8 +557,11 @@ function tapatalk_online_end()
 {
     global $online_rows,$mybb;
     $temp_online = $online_rows;
+    
     $str = '&nbsp;<a title="Using Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
     $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
+    $str_byo =  '&nbsp;<a title="'.$mybb->settings['tapatalk_online_text'].'" href="'.$mybb->settings['tapatalk_online_target'].'" target="_blank" ><img src="'.$mybb->settings['tapatalk_online_icon'].'" style="vertical-align:middle"></a>';
+    $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_byo_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str_byo, $online_rows);
     if(empty($online_rows))
     {
         $online_rows = str_replace('[tapatalk_user]','',$temp_online);
@@ -915,7 +983,8 @@ function tapatalk_push_pm()
     }
 }
 
-function tt_do_post_request($data,$pushTest = false)
+
+function tt_do_post_request($data)
 {
     global $mybb;
     
@@ -924,71 +993,109 @@ function tt_do_post_request($data,$pushTest = false)
         return false;
     }
     
-    if(!empty($mybb->settings['tapatalk_push_key']) && !$pushTest)
+    if(!empty($mybb->settings['tapatalk_push_key']))
     {
         $data['key'] = $mybb->settings['tapatalk_push_key'];
     }
     
     $push_url = 'http://push.tapatalk.com/push.php';
-    $push_host = 'push.tapatalk.com';
-    $response = 'CURL is disabled and PHP option "allow_url_fopen" is OFF. You can enable CURL or turn on "allow_url_fopen" in php.ini to fix this problem.';
 
-    if (@ini_get('allow_url_fopen'))
+    //Initial this key in modSettings
+    if(!isset($mybb->settings['tapatalk_push_slug']))
+        tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => 0));
+
+    //Get push_slug from db
+    $push_slug = isset($mybb->settings['tapatalk_push_slug'])? $mybb->settings['tapatalk_push_slug'] : 0;
+    $slug = base64_decode($push_slug);
+    $slug = push_slug($slug, 'CHECK');
+    $check_res = unserialize($slug);
+
+    //If it is valide(result = true) and it is not sticked, we try to send push
+    if($check_res['result'] && !$check_res['stick'])
     {
-        if(!$pushTest)
+        //Slug is initialed or just be cleared
+        if($check_res['save'])
         {
-            $fp = fsockopen($push_host, 80, $errno, $errstr, 5);
-            
-            if(!$fp)
-                return false;
-                
-            $data =  http_build_query($data,'', '&');
-            fputs($fp, "POST /push.php HTTP/1.1\r\n");
-            fputs($fp, "Host: $push_host\r\n");
-            fputs($fp, "Content-type: application/x-www-form-urlencoded\r\n");
-            fputs($fp, "Content-length: ". strlen($data) ."\r\n");
-            fputs($fp, "Connection: close\r\n\r\n");
-            fputs($fp, $data);
-            fclose($fp);
+            tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => base64_encode($slug)));
         }
-        else
+
+        //Send push
+        $push_resp = getContentFromRemoteServer($push_url, 0, $error, 'POST', $data);
+
+        if(!is_numeric($push_resp))
         {
-            $params = array('http' => array(
-                'method' => 'POST',
-                'content' => http_build_query($data, '', '&'),
-            ));
-
-            $ctx = stream_context_create($params);
-            $timeout = 10;
-            $old = ini_set('default_socket_timeout', $timeout);
-            $fp = @fopen($push_url, 'rb', false, $ctx);
-
-            if (!$fp) return false;
-
-            ini_set('default_socket_timeout', $old);
-            stream_set_timeout($fp, $timeout);
-            stream_set_blocking($fp, 0); 
-            
-
-            $response = @stream_get_contents($fp);
+            //Sending push failed, try to update push_slug to db
+            $slug = push_slug($slug, 'UPDATE');
+            $update_res = unserialize($slug);
+            if($update_res['result'] && $update_res['save'])
+            {
+                tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => base64_encode($slug)));
+            }
         }
     }
-    elseif (function_exists('curl_init'))
-    {
-        $ch = curl_init($push_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT,1);
-        $response = curl_exec($ch);
-        curl_close($ch);
-    }
-    
-	return $response;
 }
 
+function push_slug($push_v, $method = 'NEW')
+{
+    if(empty($push_v))
+        $push_v = serialize(array());
+    $push_v_data = unserialize($push_v);
+    $current_time = time();
+    if(!is_array($push_v_data))
+        return serialize(array('result' => 0, 'result_text' => 'Invalid v data', 'stick' => 0));
+    if($method != 'CHECK' && $method != 'UPDATE' && $method != 'NEW')
+        return serialize(array('result' => 0, 'result_text' => 'Invalid method', 'stick' => 0));
+
+    if($method != 'NEW' && !empty($push_v_data))
+    {
+        $push_v_data['save'] = $method == 'UPDATE';
+        if($push_v_data['stick'] == 1)
+        {
+            if($push_v_data['stick_timestamp'] + $push_v_data['stick_time'] > $current_time)
+                return $push_v;
+            else
+                $method = 'NEW';
+        }
+    }
+
+    if($method == 'NEW' || empty($push_v_data))
+    {
+        $push_v_data = array();                       //Slug
+        $push_v_data['max_times'] = 3;                //max push failed attempt times in period
+        $push_v_data['max_times_in_period'] = 300;      //the limitation period
+        $push_v_data['result'] = 1;                   //indicate if the output is valid of not
+        $push_v_data['result_text'] = '';             //invalid reason
+        $push_v_data['stick_time_queue'] = array();   //failed attempt timestamps
+        $push_v_data['stick'] = 0;                    //indicate if push attempt is allowed
+        $push_v_data['stick_timestamp'] = 0;          //when did push be sticked
+        $push_v_data['stick_time'] = 600;             //how long will it be sticked
+        $push_v_data['save'] = 1;                     //indicate if you need to save the slug into db
+        return serialize($push_v_data);
+    }
+
+    if($method == 'UPDATE')
+    {
+        $push_v_data['stick_time_queue'][] = $current_time;
+    }
+    $sizeof_queue = count($push_v_data['stick_time_queue']);
+    $period_queue = $push_v_data['stick_time_queue'][$sizeof_queue - 1] - $push_v_data['stick_time_queue'][0];
+    $times_overflow = $sizeof_queue > $push_v_data['max_times'];
+    $period_overflow = $period_queue > $push_v_data['max_times_in_period'];
+
+    if($period_overflow)
+    {
+        if(!array_shift($push_v_data['stick_time_queue']))
+            $push_v_data['stick_time_queue'] = array();
+    }
+    
+    if($times_overflow && !$period_overflow)
+    {
+        $push_v_data['stick'] = 1;
+        $push_v_data['stick_timestamp'] = $current_time;
+    }
+
+    return serialize($push_v_data);
+}
 function tt_insert_push_data($data)
 {
 	global $mybb,$db;
@@ -1018,4 +1125,12 @@ function tt_push_clean($str)
     $str = html_entity_decode($str, ENT_QUOTES, 'UTF-8');
     $str = $db->escape_string($str);
     return $str;
+}
+
+function tt_update_settings($updated_setting)
+{
+	global $db;
+	$name = $db->escape_string($updated_setting['name']);
+	$updated_value = array('value' => $db->escape_string($updated_setting['value']));
+	$db->update_query("settings", $updated_value, "name='$name'");
 }

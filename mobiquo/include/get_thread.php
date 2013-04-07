@@ -468,7 +468,7 @@ function build_tt_breadcrumb($fid, $multipage=array())
 				
 				$navsize = count($navbits);
 				// Convert & to &amp;
-				$navbits[$navsize]['name'] = preg_replace("#&(?!\#[0-9]+;)#si", "&amp;", $forumnav['name']);
+				$navbits[$navsize]['name'] =  $forumnav['name'];
 				$navbits[$navsize]['type'] = $pforumcache[$fid][$forumnav['pid']]['type'];
 				if(IN_ARCHIVE == 1)
 				{

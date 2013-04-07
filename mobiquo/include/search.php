@@ -485,7 +485,6 @@ elseif($mybb->input['action'] == "getdaily")
             $where_sql .= " AND t.fid IN (".implode(',', $fids).")";
         }
     }
-
     $unsearchforums = get_unsearchable_forums();
     if($unsearchforums)
     {
@@ -502,7 +501,6 @@ elseif($mybb->input['action'] == "getdaily")
     {
         $where_sql .= " AND t.fid NOT IN (" . $mybb->input['exclude'] . ')';
     }
-
     $permsql = "";
     $onlyusfids = array();
 
@@ -590,7 +588,12 @@ elseif($mybb->input['action'] == "do_search" && $mybb->request_method == "post")
         $searchuser = $db->fetch_array($query);
         $mybb->input['author'] = $searchuser['username'];
     }
-
+    
+    //tapatalk add
+	if(($request_method == 'get_participated_topic' && empty($mybb->input['author'])))
+	{
+		$mybb->input['author'] = $mybb->user['username'];
+	}
     $search_data = array(
         "keywords" => $mybb->input['keywords'],
         "author" => $mybb->input['author'],
