@@ -377,7 +377,7 @@ elseif($mybb->input['action'] == "getunread")
     if(!empty($mybb->input['exclude']))
     {
     	$fids_ex = explode(',',$mybb->input['exclude']);
-    	$fids_ex = tt_get_sforums($fids);
+    	$fids_ex = tt_get_sforums($fids_ex);
     	$fids_ex = implode(',', $fids_ex);
     	if(!empty($fids_ex))
     	{
@@ -599,7 +599,7 @@ elseif($mybb->input['action'] == "do_search" && $mybb->request_method == "post")
 	{
 		$mybb->input['author'] = $mybb->user['username'];
 	}
-	if(!empty($mybb->input['exclude']))
+	/*if(!empty($mybb->input['exclude']))
 	{
 		$fids_ex = $mybb->input['exclude'];
 		$fids_ex = tt_get_sforums($fids_ex);
@@ -639,7 +639,7 @@ elseif($mybb->input['action'] == "do_search" && $mybb->request_method == "post")
 				}
 			}
 		}
-	}
+	}*/
 
     $search_data = array(
         "keywords" => $mybb->input['keywords'],
@@ -677,6 +677,7 @@ elseif($mybb->input['action'] == "do_search" && $mybb->request_method == "post")
         {
             $search_results = perform_search_mysql($search_data);
         }
+      
     }
     else
     {
@@ -1178,10 +1179,17 @@ if($mybb->input['action'] == "results")
         }
         
         // tapatalk add for forum exclude
-        if(!empty($mybb->input['exclude']))
-        {
-            $permsql .= " AND t.fid NOT IN (" . $mybb->input['exclude'] . ')';
-        }
+	    if(!empty($mybb->input['exclude']))
+	    {
+	    	$fids_ex = explode(',',$mybb->input['exclude']);
+	    	$fids_ex = tt_get_sforums($fids_ex);
+	    	$fids_ex = implode(',', $fids_ex);
+	    	if(!empty($fids_ex))
+	    	{
+	    		$permsql .= " AND t.fid NOT IN (" . $fids_ex . ')';
+	    	}
+	        
+	    }
 
         // Begin selecting matching threads, cache them.
         $sqlarray = array(

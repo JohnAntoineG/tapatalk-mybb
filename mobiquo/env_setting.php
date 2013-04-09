@@ -60,7 +60,7 @@ switch ($request_method)
             
             if (isset($search_filter['not_in']) && is_array($search_filter['not_in']))
             {
-                $_POST['exclude'] = array_map('intval', $search_filter['not_in']);
+                $_POST['exclude'] = implode(', ', array_map('intval', $search_filter['not_in']));
             }
         }
         break;
@@ -121,9 +121,13 @@ switch ($request_method)
         $_GET['page'] = $page;
         $_GET['perpage'] = $limit;
         
-        if (isset($request_params[2]) && $request_params[2])
+        if (!empty($request_params[2]))
         {
+            $_GET['action'] = 'results';
             $_GET['sid'] = $request_params[2];
+        }
+        else
+        {
             $_GET['action'] = 'getdaily';
             $_GET['days'] = 30;
             if (isset($request_params[3]))
@@ -139,6 +143,7 @@ switch ($request_method)
                 }
             }
         }
+       
         break;
     case 'get_unread_topic':
         $function_file_name = 'search';
@@ -147,9 +152,13 @@ switch ($request_method)
         $_GET['page'] = $page;
         $_GET['perpage'] = $limit;
         
-        if (isset($request_params[2]) && $request_params[2])
+        if (!empty($request_params[2]))
         {
-            $_GET['sid'] = $request_params[2];     
+            $_GET['action'] = 'results';
+            $_GET['sid'] = $request_params[2];
+        }
+        else
+        {
             $_GET['action'] = 'getunread';
             if (isset($request_params[3]))
             {
