@@ -1033,8 +1033,7 @@ function tt_do_post_request($data)
 		}
 		
         //Send push
-        $push_resp = getContentFromRemoteServer($push_url, 0, $error, 'POST', $data);
-		
+        $push_resp = getContentFromRemoteServer($push_url, 5, '', 'POST', $data);
         if(!is_numeric($push_resp))
         {
             //Sending push failed, try to update push_slug to db
@@ -1045,6 +1044,8 @@ function tt_do_post_request($data)
                 tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => base64_encode($slug)));
             }
         }
+        
+        return $push_resp;
     }
     
 }

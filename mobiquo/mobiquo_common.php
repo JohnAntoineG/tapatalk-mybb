@@ -818,7 +818,7 @@ function check_return_user_type($username)
  * @exmaple: getContentFromRemoteServer('http://push.tapatalk.com/push.php', 0, $error_msg, 'POST', $ttp_post_data)
  * @return string when get content successfully|false when the parameter is invalid or connection failed.
 */
-function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 'GET', $data = array())
+function getContentFromRemoteServer($url, $holdTime = 0, $error_msg='', $method = 'GET', $data = array())
 {
     //Validate input.
     $vurl = parse_url($url);
@@ -885,6 +885,7 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
                     'method' => 'POST',
                     'content' => http_build_query($data, '', '&'),
                 ));
+               
                 $ctx = stream_context_create($params);
                 $old = ini_set('default_socket_timeout', $holdTime);
                 $fp = @fopen($url, 'rb', false, $ctx);
@@ -927,6 +928,10 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
     {
         $error_msg = 'CURL is disabled and PHP option "allow_url_fopen" is OFF. You can enable CURL or turn on "allow_url_fopen" in php.ini to fix this problem.';
         return false;
+    }
+    if(!empty($error_msg))
+    {
+    	return $error_msg;
     }
     return $response;
 }
