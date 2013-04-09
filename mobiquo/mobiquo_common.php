@@ -347,14 +347,32 @@ function cutstr($string, $length)
 
 function process_short_content($post_text, $parser = null, $length = 200)
 {
-	$post_text = Tapatalk_Input::covertNameToEmpty($post_text);
-    global $parser;
+	global $parser,$mybb;
+	
+	require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/emoji/emoji.class.php';
+	$post_text = tapatalkEmoji::covertNameToEmpty($post_text);
     
     if($parser === null) {
         require_once MYBB_ROOT."inc/class_parser.php";
         $parser = new postParser;
     }
-
+	$array_reg = array(
+		array('reg' => '/\[color=(.*?)\](.*?)\[\/color\]/sei','replace' => "mobi_color_convert('$1','$2' ,false)"),
+		array('reg' => '/\[php\](.*?)\[\/php\]/si','replace' => '[php]$1'),
+		array('reg' => '/\[align=(.*?)\](.*?)\[\/align\]/si',replace=>" $2 "),
+		array('reg' => '/\[email\](.*?)\[\/email\]/si',replace=>"[url]$1"),
+		array('reg' => '/\[quote(.*?)\](.*?)\[\/quote\]/si','replace' => '[quote]$2'),
+		array('reg' => '/\[url=(.*?)\](.*?)\[\/url\]/si','replace' => '[url]$1'),
+		array('reg' => '/\[img\](.*?)\[\/img\]/si','replace' => '[img]$1'),
+		array('reg' => '/\[video=(.*?)\](.*?)\[\/video\]/si','replace' => '[V]$2'),
+		array('reg' => '/\[attachment=(.*?)\]/si','replace' => '[attach]'),
+	);
+	foreach ($array_reg as $arr)
+	{
+		$post_text = preg_replace($arr['reg'], $arr['replace'], $post_text);
+	}
+	$post_text = tt_covert_list($post_text, '/\[list=1\](.*?)\[\/list\]/si', '2');
+	$post_text = tt_covert_list($post_text, '/\[list\](.*?)\[\/list\]/si', '1');
     $parser_options = array(
         'allow_html' => 0,
         'allow_mycode' => 1,
@@ -370,16 +388,15 @@ function process_short_content($post_text, $parser = null, $length = 200)
     {
         $post_text = my_substr(trim($post_text), 0, $length);
     }
-    $post_text = process_post($post_text);
-    //$post_text = str_replace("\xC2\xA0", " ", $post_text);
-    
     return $post_text;
 }
 
 function process_post($post, $returnHtml = false)
 {
 	global $mybb;
-	$post = Tapatalk_Input::covertHtmlToEmoji($post);
+	
+	require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/emoji/emoji.class.php';
+	$post = tapatalkEmoji::covertHtmlToEmoji($post);
     if($returnHtml){
         //$post = str_replace("&", '&amp;', $post);
         //$post = str_replace("<", '&lt;', $post);
@@ -933,4 +950,31 @@ function tt_get_user_push_type($userid)
     $result = $db->query($sql);
     $row = $db->fetch_array($result);
     return $row;
+}
+
+function tt_get_sforums($fids)
+{
+	global $db;
+	$fids_temp = array();
+	foreach($fids as $key => $fid)
+    {
+        $fid = intval($fid);
+    	switch($db->type)
+ 		{
+ 			case "pgsql":
+				$query = $db->simple_select("forums", "DISTINCT fid", "(','||parentlist||',' LIKE ',%{$fid}%,') = true AND active != 0");
+ 				break;
+ 			case "sqlite":
+				$query = $db->simple_select("forums", "DISTINCT fid", "(','||parentlist||',' LIKE ',%{$fid}%,') > 0 AND active != 0");
+ 				break;
+ 			default:
+				$query = $db->simple_select("forums", "DISTINCT fid", "INSTR(CONCAT(',',parentlist,','),',{$fid},') > 0 AND active != 0");
+ 		}
+        while($sforum = $db->fetch_array($query))
+        {
+            $fids_temp[] = $sforum['fid'];
+        }
+    }
+    $fids_temp = array_unique($fids_temp);
+    return $fids_temp;
 }

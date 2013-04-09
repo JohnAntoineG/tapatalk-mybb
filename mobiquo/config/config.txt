@@ -37,3 +37,4 @@ thlprefix = g33k_thankyoulike_
 push_type = pm,sub,newtopic,tag,quote
 announcement = 0
 prefix_edit = 1
+ban_delete_type = none

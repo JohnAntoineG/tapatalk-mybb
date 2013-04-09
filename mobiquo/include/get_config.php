@@ -61,7 +61,6 @@ function get_config_func()
     $config_list['min_search_length'] = new xmlrpcval(intval($mybb->settings['minsearchword']), 'int');
     
     $response = new xmlrpcval($config_list, 'struct');
-    
     return new xmlrpcresp($response);
 }
 

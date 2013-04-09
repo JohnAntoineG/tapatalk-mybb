@@ -351,6 +351,10 @@ function tapatalk_deactivate()
 
 function tapatalk_error($error)
 {
+	if(!strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
+	{
+		return ;		
+	}
     if(defined('IN_MOBIQUO'))
     {
         global $lang, $include_topic_num, $search, $function_file_name;
@@ -396,6 +400,10 @@ function tapatalk_error($error)
 
 function tapatalk_redirect($args)
 {
+	if(!strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
+	{
+		return ;		
+	}
     tapatalk_error($args['message']);
 }
 
@@ -1018,10 +1026,15 @@ function tt_do_post_request($data)
         {
             tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => base64_encode($slug)));
         }
-
+		if(!function_exists("getContentFromRemoteServer"))
+		{
+			define('IN_MOBIQUO', true);
+			require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/mobiquo_common.php';
+		}
+		
         //Send push
         $push_resp = getContentFromRemoteServer($push_url, 0, $error, 'POST', $data);
-
+		
         if(!is_numeric($push_resp))
         {
             //Sending push failed, try to update push_slug to db
@@ -1033,6 +1046,7 @@ function tt_do_post_request($data)
             }
         }
     }
+    
 }
 
 function push_slug($push_v, $method = 'NEW')

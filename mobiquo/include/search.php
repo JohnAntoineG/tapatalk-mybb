@@ -354,10 +354,7 @@ elseif($mybb->input['action'] == "getunread")
     else if($mybb->input['fids'])
     {
         $fids = explode(',', $mybb->input['fids']);
-        foreach($fids as $key => $fid)
-        {
-            $fids[$key] = intval($fid);
-        }
+        $fids = tt_get_sforums($fids);
 
         if(!empty($fids))
         {
@@ -379,7 +376,10 @@ elseif($mybb->input['action'] == "getunread")
     // tapatalk add for forum exclude
     if(!empty($mybb->input['exclude']))
     {
-        $where_sql .= " AND t.fid NOT IN (" . $mybb->input['exclude'] . ')';
+    	$fids_ex = explode(',',$mybb->input['exclude']);
+    	$fids_ex = tt_get_sforums($fids);
+    	$fids_ex = implode(',', $fids_ex);
+        $where_sql .= " AND t.fid NOT IN (" . $fids_ex . ')';
     }
 
     $permsql = "";
@@ -475,11 +475,7 @@ elseif($mybb->input['action'] == "getdaily")
     else if($mybb->input['fids'])
     {
         $fids = explode(',', $mybb->input['fids']);
-        foreach($fids as $key => $fid)
-        {
-            $fids[$key] = intval($fid);
-        }
-
+        $fids = tt_get_sforums($fids);
         if(!empty($fids))
         {
             $where_sql .= " AND t.fid IN (".implode(',', $fids).")";
@@ -499,7 +495,10 @@ elseif($mybb->input['action'] == "getdaily")
     // tapatalk add for forum exclude
     if(!empty($mybb->input['exclude']))
     {
-        $where_sql .= " AND t.fid NOT IN (" . $mybb->input['exclude'] . ')';
+    	$fids_ex = explode(',', $mybb->input['exclude']);
+    	$fids_ex = tt_get_sforums($fids_ex);
+    	$fids_ex = implode(',', $fids_ex);
+        $where_sql .= " AND t.fid NOT IN (" . $fids_ex . ')';
     }
     $permsql = "";
     $onlyusfids = array();
@@ -517,7 +516,6 @@ elseif($mybb->input['action'] == "getdaily")
     {
         $where_sql .= "AND ((t.fid IN(".implode(',', $onlyusfids).") AND t.uid='{$mybb->user['uid']}') OR t.fid NOT IN(".implode(',', $onlyusfids)."))";
     }
-
     $sid = md5(uniqid(microtime(), 1));
     $searcharray = array(
         "sid" => $db->escape_string($sid),
@@ -594,6 +592,48 @@ elseif($mybb->input['action'] == "do_search" && $mybb->request_method == "post")
 	{
 		$mybb->input['author'] = $mybb->user['username'];
 	}
+	if(!empty($mybb->input['exclude']))
+	{
+		$fids_ex = $mybb->input['exclude'];
+		$fids_ex = tt_get_sforums($fids_ex);
+		foreach ($fids_ex as $key=> $fid_ex)
+		{
+			if(empty($fid_ex))
+			{
+				unset($fids_ex[$key]);
+			}
+		}
+		if(!empty($fids_ex))
+		{	
+			// Get Forums
+			$query = $db->simple_select("forums", "DISTINCT fid", 'active != 0 and pid != 0');
+			while($all_forum = $db->fetch_array($query))
+			{
+				$all_fids[] = $all_forum['fid'];
+			}
+			$fids_only_in = array_diff($all_fids, $fids_ex);
+			if(empty($mybb->input['forums']))
+			{
+				$mybb->input['forums'] = array();
+			}
+			if(empty($fids_only_in))
+			{
+				$mybb->input['forums'] = array('1'=>9999999);
+			}
+			else 
+			{
+				$mybb->input['forums'] = array_unique(array_merge($mybb->input['forums'],$fids_only_in));
+			}
+			foreach ($mybb->input['forums'] as $key => $fid)
+			{
+				if(empty($fid))
+				{
+					unset($mybb->input['forums'][$key]);
+				}
+			}
+		}
+	}
+
     $search_data = array(
         "keywords" => $mybb->input['keywords'],
         "author" => $mybb->input['author'],
