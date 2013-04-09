@@ -358,21 +358,22 @@ function process_short_content($post_text, $parser = null, $length = 200)
     }
 	$array_reg = array(
 		array('reg' => '/\[color=(.*?)\](.*?)\[\/color\]/sei','replace' => "mobi_color_convert('$1','$2' ,false)"),
-		array('reg' => '/\[php\](.*?)\[\/php\]/si','replace' => '[php]$1'),
+		array('reg' => '/\[php\](.*?)\[\/php\]/si','replace' => '[php]'),
 		array('reg' => '/\[align=(.*?)\](.*?)\[\/align\]/si',replace=>" $2 "),
-		array('reg' => '/\[email\](.*?)\[\/email\]/si',replace=>"[url]$1"),
-		array('reg' => '/\[quote(.*?)\](.*?)\[\/quote\]/si','replace' => '[quote]$2'),
-		array('reg' => '/\[url=(.*?)\](.*?)\[\/url\]/si','replace' => '[url]$1'),
-		array('reg' => '/\[img\](.*?)\[\/img\]/si','replace' => '[img]$1'),
-		array('reg' => '/\[video=(.*?)\](.*?)\[\/video\]/si','replace' => '[V]$2'),
+		array('reg' => '/\[email\](.*?)\[\/email\]/si',replace=>"[url]"),
+		array('reg' => '/\[quote(.*?)\](.*?)\[\/quote\]/si','replace' => '[quote]'),
+		array('reg' => '/\[code\](.*?)\[\/code\]/si','replace' => ''),
+		array('reg' => '/\[url=(.*?)\](.*?)\[\/url\]/sei','replace' => "mobi_url_convert('$1','$2')"),
+		array('reg' => '/\[img\](.*?)\[\/img\]/si','replace' => '[img]'),
+		array('reg' => '/\[video=(.*?)\](.*?)\[\/video\]/si','replace' => '[V]'),
 		array('reg' => '/\[attachment=(.*?)\]/si','replace' => '[attach]'),
 	);
 	foreach ($array_reg as $arr)
 	{
 		$post_text = preg_replace($arr['reg'], $arr['replace'], $post_text);
 	}
-	$post_text = tt_covert_list($post_text, '/\[list=1\](.*?)\[\/list\]/si', '2');
-	$post_text = tt_covert_list($post_text, '/\[list\](.*?)\[\/list\]/si', '1');
+	//$post_text = tt_covert_list($post_text, '/\[list=1\](.*?)\[\/list\]/si', '2');
+	//$post_text = tt_covert_list($post_text, '/\[list\](.*?)\[\/list\]/si', '1');
     $parser_options = array(
         'allow_html' => 0,
         'allow_mycode' => 1,
@@ -390,7 +391,17 @@ function process_short_content($post_text, $parser = null, $length = 200)
     }
     return $post_text;
 }
-
+function mobi_url_convert($a,$b)
+{
+	if(trim($a) == trim($b))
+	{
+		return '[url]';
+	}
+	else 
+	{
+		return '[url]'.$b;
+	}
+}
 function process_post($post, $returnHtml = false)
 {
 	global $mybb;
