@@ -399,7 +399,7 @@ function mobi_url_convert($a,$b)
 	}
 	else 
 	{
-		return '[url]'.$b;
+		return $b;
 	}
 }
 function process_post($post, $returnHtml = false)

@@ -379,7 +379,11 @@ elseif($mybb->input['action'] == "getunread")
     	$fids_ex = explode(',',$mybb->input['exclude']);
     	$fids_ex = tt_get_sforums($fids);
     	$fids_ex = implode(',', $fids_ex);
-        $where_sql .= " AND t.fid NOT IN (" . $fids_ex . ')';
+    	if(!empty($fids_ex))
+    	{
+    		$where_sql .= " AND t.fid NOT IN (" . $fids_ex . ')';
+    	}
+        
     }
 
     $permsql = "";
@@ -498,7 +502,10 @@ elseif($mybb->input['action'] == "getdaily")
     	$fids_ex = explode(',', $mybb->input['exclude']);
     	$fids_ex = tt_get_sforums($fids_ex);
     	$fids_ex = implode(',', $fids_ex);
-        $where_sql .= " AND t.fid NOT IN (" . $fids_ex . ')';
+    	if(!empty($fids_ex))
+    	{
+    		$where_sql .= " AND t.fid NOT IN (" . $fids_ex . ')';
+    	}  
     }
     $permsql = "";
     $onlyusfids = array();
