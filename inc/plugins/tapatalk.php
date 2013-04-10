@@ -933,7 +933,7 @@ function tapatalk_push_pm()
 }
 
 
-function tt_do_post_request($data)
+function tt_do_post_request($data,$is_test=false)
 {
     global $mybb;
     
@@ -950,11 +950,11 @@ function tt_do_post_request($data)
     $push_url = 'http://push.tapatalk.com/push.php';
 
     //Initial this key in modSettings
-    if(!isset($mybb->settings['tapatalk_push_slug']))
+    if(empty($mybb->settings['tapatalk_push_slug']))
         tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => 0));
 
     //Get push_slug from db
-    $push_slug = isset($mybb->settings['tapatalk_push_slug'])? $mybb->settings['tapatalk_push_slug'] : 0;
+    $push_slug = !empty($mybb->settings['tapatalk_push_slug'])? $mybb->settings['tapatalk_push_slug'] : 0;
     $slug = base64_decode($push_slug);
     $slug = push_slug($slug, 'CHECK');
     $check_res = unserialize($slug);
@@ -982,7 +982,7 @@ function tt_do_post_request($data)
 		}
         //Send push
         $push_resp = getContentFromRemoteServer($push_url, $hold_time, '', 'POST', $data);
-        if(!is_numeric($push_resp))
+        if(!is_numeric($push_resp) && !$is_test)
         {
             //Sending push failed, try to update push_slug to db
             $slug = push_slug($slug, 'UPDATE');
@@ -994,6 +994,10 @@ function tt_do_post_request($data)
         }
         
         return $push_resp;
+    }
+    else 
+    {
+    	return 'stick ' . $check_res['stick'] . ' | result ' . $check_res['result'];
     }
     
 }
@@ -1096,4 +1100,5 @@ function tt_update_settings($updated_setting)
 	$name = $db->escape_string($updated_setting['name']);
 	$updated_value = array('value' => $db->escape_string($updated_setting['value']));
 	$db->update_query("settings", $updated_value, "name='$name'");
+	rebuild_settings();
 }
