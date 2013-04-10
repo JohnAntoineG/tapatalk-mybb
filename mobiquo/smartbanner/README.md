@@ -9,7 +9,7 @@ App Banner
             <link href="'.$tapatalk_dir_url.'/smartbanner/appbanner.css" rel="stylesheet" type="text/css" media="screen">
             <script type="text/javascript">
                 var is_mobile_skin     = '.$is_mobile_skin.';
-                var app_ios_id         = '.intval($settings['app_ios_id']).';
+                var app_ios_id         = "'.intval($settings['app_ios_id']).'";
                 var app_android_url    = "'.addslashes($settings['app_android_url']).'";
                 var app_kindle_url     = "'.addslashes($settings['app_kindle_url']).'";
                 var app_banner_message = "'.addslashes(str_replace("\n", '<br />', $settings['app_banner_message'])).'";

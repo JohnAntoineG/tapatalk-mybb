@@ -9,8 +9,16 @@ if (empty(app_ios_id)) {
     var app_ios_hd_id = app_ios_id;
 }
 
-var app_ios_url = 'https://itunes.apple.com/us/app/id'+app_ios_id;
-var app_ios_hd_url = 'https://itunes.apple.com/us/app/id'+app_ios_hd_id;
+if (app_ios_id == '-1')
+{
+    var app_ios_url = '-1';
+    var app_ios_hd_url = '-1';
+}
+else
+{
+    var app_ios_url = 'https://itunes.apple.com/us/app/id'+app_ios_id;
+    var app_ios_hd_url = 'https://itunes.apple.com/us/app/id'+app_ios_hd_id;
+}
 
 if (empty(app_android_url)) {
     var app_android_url = "market://details?id=com.quoord.tapatalkpro.activity";
@@ -38,7 +46,7 @@ if (empty(app_banner_message))
 
 // Support native iOS Smartbanner
 var native_ios_banner = false;
-if (app_ios_id !== -1 && navigator.userAgent.match(/Safari/i) != null &&
+if (app_ios_id != '-1' && navigator.userAgent.match(/Safari/i) != null &&
     (navigator.userAgent.match(/CriOS/i) == null && window.Number(navigator.userAgent.substr(navigator.userAgent.indexOf('OS ') + 3, 3).replace('_', '.')) >= 6))
 {
     if (navigator.userAgent.match(/iPad/i) != null)
@@ -70,11 +78,11 @@ function tapatalkDetect()
     
     var app_install_url = '';
     if (navigator.userAgent.match(/iPhone|iPod/i)) {
-        app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'iOS');
+        app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'iPhone');
         app_install_url = app_ios_url;
     }
     else if (navigator.userAgent.match(/iPad/i)) {
-        app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'iOS');
+        app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'iPad');
         app_install_url = app_ios_hd_url;
     }
     else if (navigator.userAgent.match(/Silk/)) {
@@ -103,6 +111,7 @@ function tapatalkDetect()
     }
     else
         return
+    
     
     if (app_install_url == '-1') return
     
