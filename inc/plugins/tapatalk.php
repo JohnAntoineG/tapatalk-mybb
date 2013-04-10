@@ -972,9 +972,16 @@ function tt_do_post_request($data)
 			define('IN_MOBIQUO', true);
 			require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/mobiquo_common.php';
 		}
-		
+		if(isset($data['ip']) || isset($data['test']))
+		{
+			$hold_time = 10;
+		}
+		else 
+		{
+			$hold_time = 0;
+		}
         //Send push
-        $push_resp = getContentFromRemoteServer($push_url, 5, '', 'POST', $data);
+        $push_resp = getContentFromRemoteServer($push_url, $hold_time, '', 'POST', $data);
         if(!is_numeric($push_resp))
         {
             //Sending push failed, try to update push_slug to db
