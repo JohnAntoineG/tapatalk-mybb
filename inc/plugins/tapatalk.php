@@ -543,7 +543,7 @@ function tapatalk_pre_output_page(&$page)
         var app_ios_id         = '".intval($settings['tapatalk_app_ios_id'])."';                
         var app_android_url    = '".addslashes($settings['tapatalk_android_url'])."';
         var app_kindle_url     = '".addslashes($settings['tapatalk_kindle_url'])."';
-        var app_banner_message = '".addslashes(str_replace("\n", '<br />', $settings['tapatalk_app_banner_message']))."';
+        var app_banner_message = '".addslashes(str_replace("\n", '<br />', $settings['tapatalk_app_banner_msg']))."';
         var app_forum_name     = '".addslashes($settings['homename'])."';
         var app_location_url   = '{$url}';     		
 </script>
@@ -721,7 +721,7 @@ function tapatalk_push_quote()
             $query = $db->query("SELECT tu.*,u.uid FROM " . TABLE_PREFIX . "tapatalk_users AS tu LEFT JOIN
             " . TABLE_PREFIX ."users AS u ON tu.userid = u.uid  WHERE u.username = '$username'");
             $user = $db->fetch_array($query);
-            if(empty($user) || !tapatalk_double_push_check($user['uid'],$pid))
+            if(empty($user))
             {
                 return false;
             }
@@ -779,9 +779,10 @@ function tapatalk_push_tag()
             $query = $db->query("SELECT tu.*,u.uid FROM " . TABLE_PREFIX . "tapatalk_users AS tu LEFT JOIN
             " . TABLE_PREFIX ."users AS u ON tu.userid = u.uid  WHERE u.username = '$username'");
             $user = $db->fetch_array($query);
-            if(empty($user) || !tapatalk_double_push_check($user['uid'],$pid))
+            
+            if(empty($user))
             {
-                return false;
+                continue;
             }
             if ($user['uid'] == $mybb->user['uid']) continue;
             $ttp_push_data = array();
@@ -806,7 +807,7 @@ function tapatalk_push_tag()
                 'url'  => $mybb->settings['bburl'],
                 'data' => base64_encode(serialize($ttp_push_data)),
             );
-
+			
             $return_status = tt_do_post_request($ttp_post_data);
             return true;
         }
@@ -863,17 +864,7 @@ function tapatalk_push_newtopic()
     }
     return false;
 }
-function tapatalk_double_push_check($userid,$pid)
-{
-	global $db;
-	$query = $db->query("SELECT * FROM " . TABLE_PREFIX ."tapatalk_push_data WHERE user_id = '$userid' AND data_id = '$pid'");
-	$row = $db->fetch_array($query);
-	if(empty($row))
-	{
-		return true;
-	}
-	return false;
-}
+
 
 function tt_get_tag_list($str)
 {
@@ -923,6 +914,7 @@ function tapatalk_push_pm()
         	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
         }
     }
+    
     if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
     {
         $ttp_post_data = array(
