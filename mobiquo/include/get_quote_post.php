@@ -9,7 +9,7 @@ require_once MYBB_ROOT."inc/class_parser.php";
 function get_quote_post_func($xmlrpc_params)
 {
 	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups;
-	
+	require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/emoji/emoji.class.php';
 	$input = Tapatalk_Input::filterXmlInput(array(
 			'post_id' => Tapatalk_Input::STRING,
 	), $xmlrpc_params);       
@@ -149,7 +149,7 @@ function get_quote_post_func($xmlrpc_params)
 	$result = new xmlrpcval(array(
 		'post_id'       => new xmlrpcval($pid),
 		'post_title'    => new xmlrpcval($subject, 'base64'),
-		'post_content'  => new xmlrpcval(Tapatalk_Input::covertNameToEmoji($message), 'base64'),
+		'post_content'  => new xmlrpcval(tapatalkEmoji::covertNameToEmoji($message), 'base64'),
 	), 'struct');
 
 	return new xmlrpcresp($result);

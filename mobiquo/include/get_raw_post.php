@@ -4,11 +4,10 @@ defined('IN_MOBIQUO') or exit;
 
 require_once MYBB_ROOT."inc/functions_post.php";
 require_once MYBB_ROOT."inc/functions_upload.php";
-
 function get_raw_post_func($xmlrpc_params)
 {
 	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups;
-		
+	require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/emoji/emoji.class.php';
 	$lang->load("editpost");
 
 	$input = Tapatalk_Input::filterXmlInput(array(
@@ -86,7 +85,7 @@ function get_raw_post_func($xmlrpc_params)
 	$result = new xmlrpcval(array(
 		'post_id'       => new xmlrpcval($post['pid'], 'string'),
 		'post_title'    => new xmlrpcval($post['subject'], 'base64'),
-		'post_content'  => new xmlrpcval(Tapatalk_Input::covertNameToEmoji($post['message']), 'base64'),
+		'post_content'  => new xmlrpcval(tapatalkEmoji::covertNameToEmoji($post['message']), 'base64'),
 	), 'struct');
 	
 	return new xmlrpcresp($result);

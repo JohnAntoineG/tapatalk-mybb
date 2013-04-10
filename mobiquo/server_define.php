@@ -567,6 +567,7 @@ $server_param = array(
     'update_push_status' => array(
         'function' => 'update_push_status_func',
         'signature' => array(array($xmlrpcStruct, $xmlrpcStruct),
-                             array($xmlrpcStruct, $xmlrpcStruct, $xmlrpcBase64, $xmlrpcBase64)),
+                             array($xmlrpcStruct, $xmlrpcStruct, $xmlrpcBase64, $xmlrpcBase64),
+                             ),
     ),
 );
