@@ -62,7 +62,7 @@ function get_online_users_func()
 	
 		if(strpos($user['useragent'], 'BYO') !== false)
 	    {
-	    	 $user['from'] = $mybb->settings['tapatalk_online_text'];
+	    	 $user['from'] = 'byo';
 	    }
 	    
 		// Stop links etc. 

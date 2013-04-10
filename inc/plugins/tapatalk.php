@@ -517,9 +517,9 @@ function tapatalk_online_end()
     global $online_rows,$mybb;
     $temp_online = $online_rows;
     
-    $str = '&nbsp;<a title="Using Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
+    $str = '&nbsp;<a title="On Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
     $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
-    $str_byo =  '&nbsp;<a title="'.$mybb->settings['tapatalk_online_text'].'" href="'.$mybb->settings['tapatalk_online_target'].'" target="_blank" ><img src="'.$mybb->settings['tapatalk_online_icon'].'" style="vertical-align:middle"></a>';
+    $str_byo =  '&nbsp;<a title="Own app of this forum" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/byo-online.png" style="vertical-align:middle"></a>';
     $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_byo_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str_byo, $online_rows);
     if(empty($online_rows))
     {
@@ -795,7 +795,7 @@ function tapatalk_push_tag()
                 'dateline'  => TIME_NOW,
             );
             tt_insert_push_data($ttp_data[count($ttp_data)-1]);
-            if($user['quote'] == 1)
+            if($user['tag'] == 1)
             {
                 $ttp_push_data[] = $ttp_data[count($ttp_data)-1];
             }
@@ -823,8 +823,9 @@ function tapatalk_push_newtopic()
     {
         return false;
     }
+    
     $query = $db->query("
-        SELECT ts.uid,tu.newtopic as sub
+        SELECT ts.uid,tu.newtopic as newtopic
         FROM ".TABLE_PREFIX."forumsubscriptions ts
         RIGHT JOIN ".TABLE_PREFIX."tapatalk_users tu ON (ts.uid=tu.userid)
         WHERE ts.fid = '$fid'
@@ -834,6 +835,7 @@ function tapatalk_push_newtopic()
     while($user = $db->fetch_array($query))
     {
         if ($user['uid'] == $mybb->user['uid']) continue;
+        
         $ttp_data[] = array(
             'userid'    => $user['uid'],
             'type'      => 'newtopic',
@@ -891,7 +893,7 @@ function tt_get_tag_list($str)
 function tapatalk_push_pm()
 {
     global $mybb, $db, $pm, $pminfo;
-    if(!($pminfo['messagesent'] &&$db->table_exists('tapatalk_users')))
+    if(!($pminfo['messagesent'] && $db->table_exists('tapatalk_users')))
     {
         return false;
     }

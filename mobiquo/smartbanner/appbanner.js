@@ -121,11 +121,24 @@ function tapatalkDetect()
     
     var bannerScale = document.body.clientWidth / window.screen.width
     
-    if (bannerScale < 1) bannerScale = 1;
+    if (bannerScale < 1 || (is_mobile_skin && navigator.userAgent.match(/mobile/i))) bannerScale = 1;
         
     // mobile portrait mode may need bigger scale
-    if (navigator.userAgent.match(/mobile/i) && bannerScale < 2 && !is_mobile_skin && document.body.clientWidth > 600) {
-        bannerScale = 2
+    if (window.innerWidth < window.innerHeight)
+    {
+        if (navigator.userAgent.match(/mobile/i) && bannerScale < 2 && !is_mobile_skin && document.body.clientWidth > 600) {
+            bannerScale = 2
+        } else if (bannerScale > 2.8) {
+            bannerScale = 2.8
+        }
+    }
+    else
+    {
+        if (navigator.userAgent.match(/mobile/i) && bannerScale < 1.5 && !is_mobile_skin && document.body.clientWidth > 600) {
+            bannerScale = 1.5
+        } else if (bannerScale > 2) {
+            bannerScale = 2
+        }
     }
     
     
