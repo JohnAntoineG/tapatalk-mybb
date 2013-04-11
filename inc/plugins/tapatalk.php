@@ -44,7 +44,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.3.3",
+        "version"       => "3.4.0",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -543,7 +543,7 @@ function tapatalk_pre_output_page(&$page)
         var app_ios_id         = '".intval($settings['tapatalk_app_ios_id'])."';                
         var app_android_url    = '".addslashes($settings['tapatalk_android_url'])."';
         var app_kindle_url     = '".addslashes($settings['tapatalk_kindle_url'])."';
-        var app_banner_message = '".addslashes(str_replace("\n", '<br />', $settings['tapatalk_app_banner_msg']))."';
+        var app_banner_message = '".addslashes(preg_replace("/\r?\n/", "<br />", $settings['tapatalk_app_banner_msg']))."';
         var app_forum_name     = '".addslashes($settings['homename'])."';
         var app_location_url   = '{$url}';     		
 </script>
@@ -942,11 +942,7 @@ function tt_do_post_request($data,$is_test=false)
     }
     
     $push_url = 'http://push.tapatalk.com/push.php';
-
-    //Initial this key in modSettings
-    if(empty($mybb->settings['tapatalk_push_slug']))
-        tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => 0));
-
+    
     //Get push_slug from db
     $push_slug = !empty($mybb->settings['tapatalk_push_slug'])? $mybb->settings['tapatalk_push_slug'] : 0;
     $slug = base64_decode($push_slug);
