@@ -518,9 +518,9 @@ function tapatalk_online_end()
     $temp_online = $online_rows;
     
     $str = '&nbsp;<a title="On Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
-    $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
+    $online_rows = preg_replace('/<a href="(.*?)">(.*?)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|\s*|<\/b><\/span>)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
     $str_byo =  '&nbsp;<a title="Own app of this forum" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/byo-online.png" style="vertical-align:middle"></a>';
-    $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_byo_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str_byo, $online_rows);
+    $online_rows = preg_replace('/<a href="(.*?)">(.*?)\[tapatalk_byo_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|\s*|<\/b><\/span>)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str_byo, $online_rows);
     if(empty($online_rows))
     {
         $online_rows = str_replace('[tapatalk_user]','',$temp_online);
@@ -553,7 +553,7 @@ function tapatalk_pre_output_page(&$page)
     '<script type="text/javascript">tapatalkDetect()</script>'."\n".' 
     <!-- Tapatalk smart banner body end --> ';
     $page = str_ireplace("</head>", $str . "\n</head>", $page);
-    $page = str_ireplace("<body>", "<body>\n".$tapatalk_smart_banner_body, $page);
+    $page = preg_replace("/<body>/isU", "<body>\n".$tapatalk_smart_banner_body, $page,1);
 }
 function tapatalk_postbit(&$post)
 {
