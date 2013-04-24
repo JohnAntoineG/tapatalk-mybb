@@ -23,13 +23,16 @@ function get_inbox_stat_func($xmlrpc_params)
 	{
 		$visible = '';
 	}
-
+	if($mybb->settings['threadreadcut'] > 0)
+	{
+		$cutoff = TIME_NOW-$mybb->settings['threadreadcut']*60*60*24;
+	}
 	$query = $db->query("
 		SELECT COUNT(ts.tid) as threads
 		FROM ".TABLE_PREFIX."threadsubscriptions ts
 		LEFT JOIN ".TABLE_PREFIX."threads t ON (t.tid = ts.tid)
 		left join ".TABLE_PREFIX."threadsread tr on t.tid = tr.tid and tr.uid = '{$mybb->user['uid']}'
-		WHERE ts.uid = '".$mybb->user['uid']."' and (tr.dateline < t.lastpost or tr.dateline is null) {$visible}
+		WHERE ts.uid = '".$mybb->user['uid']."' and (tr.dateline < t.lastpost or tr.dateline is null) and t.lastpost > $cutoff {$visible}
 	");
 	$threadcount = $db->fetch_field($query, "threads");
 	
