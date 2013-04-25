@@ -129,7 +129,8 @@ function new_topic_func($xmlrpc_params)
 
 	if($pid != '')
 	{
-		$db->update_query("attachments", array("pid" => intval($pid)), "posthash='{$input['group_id_esc']}'");
+		if(!empty($input['group_id_esc']))
+			$db->update_query("attachments", array("pid" => intval($pid)), "posthash='{$input['group_id_esc']}'");
 	}
 	tapatalk_push_newtopic();
 	tapatalk_push_quote();
