@@ -190,9 +190,9 @@ function reply_post_func($xmlrpc_params)
 			$state = 1;
 		}
 	}
-
 	$pid = intval($pid);
-	$db->update_query("attachments", array("pid" => $pid), "posthash='{$input['group_id_esc']}'");
+	if(!empty($input['group_id_esc']))
+		$db->update_query("attachments", array("pid" => $pid), "posthash='{$input['group_id_esc']}'");
 
 	// update thread attachment account
 	if (count($input['attachment_id_array']) > 0)
