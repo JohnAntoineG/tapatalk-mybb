@@ -44,7 +44,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.4.1",
+        "version"       => "3.4.2",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );

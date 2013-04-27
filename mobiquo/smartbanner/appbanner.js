@@ -89,12 +89,10 @@ function tapatalkDetect()
         app_location_url = "tapatalk://";   // hard code for tapatalk 1 issue
     }
     else if (navigator.userAgent.match(/Silk/)) {
+        app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Kindle');
         if (navigator.userAgent.match(/Android 2/i)) {
-            app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Kindle');
             app_install_url = app_kindle_url;
-        }
-        else if (navigator.userAgent.match(/Android 4/i)) {
-            app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Kindle');
+        } else {
             app_install_url = app_kindle_hd_url;
         }
     }

@@ -45,15 +45,21 @@ function upload_attach_func($xmlrpc_params)
 
 	// Check if this forum is password protected and we have a valid password
 	tt_check_forum_password($forum['fid']);
-   
+	
 	$posthash = $input['group_id'];
 	if(empty($posthash)){
 		$posthash = md5($mybb->user['uid'].random_str());
 	}
-	$mybb->input['posthash'] = $posthash;	
+	$mybb->input['posthash'] = $posthash;
+	if(!empty($mybb->input['pid']))
+	{
+		$attachwhere = "pid='{$mybb->input['pid']}'";
+	}	
+	else 
+	{
+		$attachwhere = "posthash='{$posthash}'";
+	}
 	
-	$attachwhere = "posthash='{$input['group_id_esc']}'";
-
 	$query = $db->simple_select("attachments", "COUNT(aid) as numattachs", $attachwhere);
 	$attachcount = $db->fetch_field($query, "numattachs");
 	
