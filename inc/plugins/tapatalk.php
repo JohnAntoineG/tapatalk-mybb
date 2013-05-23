@@ -195,8 +195,8 @@ function tapatalk_install()
             'value'         => ''
         ), 
         'android_url'    => array(
-            'title'         => 'Android Product URL',
-            'description'   => 'Enter your BYO App URL from Google Play, to be used on Android device.',
+            'title'         => 'Android Product ID',
+            'description'   => 'Enter your BYO App ID from Google Play, to be used on Android device. E.g. "com.quoord.tapatalkpro.activity".',
             'optionscode'   => 'text',
             'value'         => ''
         ),   
@@ -537,23 +537,23 @@ function tapatalk_pre_output_page(&$page)
 {
     global $mybb;
     $settings = $mybb->settings;
-	$url = tapatalk_get_url();
-	$smartbanner_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/appbanner.js';	
-    $str = '<!-- Tapatalk smart banner head start -->  
-<link rel="stylesheet" href="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/smartbanner/appbanner.css" type="text/css" media="screen"> 
-<link rel="stylesheet" href="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/emoji/emoji.css" type="text/css" media="screen"> 
-<!-- Tapatalk smart banner head end-->'.
-"
-<script type='text/javascript'>    
-        var is_mobile_skin     = '0';       
-        var app_ios_id         = '".intval($settings['tapatalk_app_ios_id'])."';                
-        var app_android_url    = '".addslashes($settings['tapatalk_android_url'])."';
-        var app_kindle_url     = '".addslashes($settings['tapatalk_kindle_url'])."';
-        var app_banner_message = '".addslashes(preg_replace("/\r?\n/", "<br />", $settings['tapatalk_app_banner_msg']))."';
-        var app_forum_name     = '".addslashes($settings['homename'])."';
-        var app_location_url   = '{$url}';     		
-</script>
-<script type=\"text/javascript\" src=".$smartbanner_url."></script>\n";
+	
+    $app_forum_name = $settings['homename'];
+    $board_url = $mybb->settings['bburl'];
+    $tapatalk_dir = $mybb->settings['tapatalk_directory'];  // default as 'mobiquo'
+    $tapatalk_dir_url = $board_url.'/'.$tapatalk_dir;
+    $is_mobile_skin = 0;
+    $app_location_url = tapatalk_get_url();
+    
+    $app_banner_message = $settings['tapatalk_app_banner_msg'];
+    $app_ios_id = $settings['tapatalk_app_ios_id'];
+    $app_android_id = $settings['tapatalk_android_url'];
+    $app_kindle_url = $settings['tapatalk_kindle_url'];
+    
+    if (file_exists(MYBB_ROOT.$tapatalk_dir . '/smartbanner/head.inc.php'))
+        include(MYBB_ROOT.$tapatalk_dir . '/smartbanner/head.inc.php');
+	
+    $str = $app_head_include;
     $tapatalk_smart_banner_body = " 
     <!-- Tapatalk smart banner body start --> \n".
     '<script type="text/javascript">tapatalkDetect()</script>'."\n".' 
