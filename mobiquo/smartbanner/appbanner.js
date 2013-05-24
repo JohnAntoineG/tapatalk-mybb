@@ -48,12 +48,16 @@ if (empty(app_android_id)) {
         byo_android_enable = true;
         var app_android_hd_id = app_android_id;
     } else
-        var app_android_hd_id = app_ios_hd_id_default;
+        var app_android_hd_id = app_android_hd_id_default;
 }
 
-var app_android_url = "market://details?id="+app_android_id;
-var app_android_hd_url = "market://details?id="+app_android_hd_id;
-
+if (app_android_id == '-1') {
+    var app_android_url = '-1';
+    var app_android_hd_url = '-1';
+} else {
+    var app_android_url = "market://details?id="+app_android_id;
+    var app_android_hd_url = "market://details?id="+app_android_hd_id;
+}
 
 if (empty(app_kindle_url)) {
     var app_kindle_url = "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity";
@@ -172,7 +176,7 @@ function tapatalkDetect()
     // mobile portrait mode may need bigger scale
     if (window.innerWidth < window.innerHeight)
     {
-        if (navigator.userAgent.match(/mobile/i) && bannerScale < 2 && !is_mobile_skin && document.body.clientWidth > 600) {
+        if (bannerScale < 2 && !is_mobile_skin && document.body.clientWidth > 600) {
             bannerScale = 2
         } else if (bannerScale > 2.8) {
             bannerScale = 2.8
