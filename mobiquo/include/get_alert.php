@@ -22,7 +22,7 @@ function getAlert()
     $monthtime = 30*24*60*60;
     $preMonthtime = $nowtime-$monthtime;
     $startNum = ($page-1) * $per_page; 
-    $sql = 'DELETE FROM ' . $push_table . ' WHERE create_time < ' . $preMonthtime . ' and user_id = ' . $mybb->user['uid'];
+    $sql = 'DELETE FROM ' . $push_table . ' WHERE create_time < ' . $preMonthtime;
     $db->query($sql);
     $sql_select = "SELECT p.*,u.uid as author_id,u.avatar  FROM ". $push_table . " p 
     LEFT JOIN " . TABLE_PREFIX . "users u ON p.author = u.username WHERE p.user_id = " . $mybb->user['uid'] . "
