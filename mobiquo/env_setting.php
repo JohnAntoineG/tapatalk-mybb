@@ -323,6 +323,16 @@ switch ($request_method)
     	$_POST['email'] =  $request_params[1];
     	$_POST['email2'] =  $request_params[1];
     	break;
+    case 'sign_in':
+    	$_POST['token'] = $request_params[0];
+    	$_POST['code'] = $request_params[1];
+    	$_POST['email'] = $request_params[2];
+    	$_POST['username'] = $request_params[3];
+    	$_POST['password'] = $request_params[4];
+    	break;
+    case 'prefetch_account':
+    	$_POST['email'] = $request_params[0];
+    	break;
 }
 
 error_reporting(MOBIQUO_DEBUG);

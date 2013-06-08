@@ -44,7 +44,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.4.3",
+        "version"       => "3.5.0",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -1066,10 +1066,20 @@ function push_slug($push_v, $method = 'NEW')
 function tt_insert_push_data($data)
 {
 	global $mybb,$db;
+	
 	if(!$db->table_exists("tapatalk_push_data"))
 	{
 		return ;
 	}
+	
+	//delete old data
+	$push_table = TABLE_PREFIX . "tapatalk_push_data";
+	$nowtime = time();
+    $monthtime = 30*24*60*60;
+    $preMonthtime = $nowtime-$monthtime;
+    $sql = 'DELETE FROM ' . $push_table . ' WHERE create_time < ' . $preMonthtime . ' and user_id = ' . $mybb->user['uid'];
+    $db->query($sql);
+    
 	if($data['type'] == 'pm')
 	{
 		$data['subid'] = $data['id'];

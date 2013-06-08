@@ -560,6 +560,21 @@ $server_param = array(
     						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcString ,$xmlrpcString),
     						 ),
     ),
+    'sign_in' => array (
+    	'function' => 'sign_in_func',
+    	'signature' => array(
+                             array($xmlrpcStruct, $xmlrpcString,$xmlrpcString),
+    						 array($xmlrpcStruct, $xmlrpcString,$xmlrpcString,$xmlrpcBase64),
+    						 array($xmlrpcStruct, $xmlrpcString,$xmlrpcString,$xmlrpcBase64,$xmlrpcBase64),
+    						 array($xmlrpcStruct, $xmlrpcString,$xmlrpcString,$xmlrpcBase64,$xmlrpcBase64,$xmlrpcBase64),
+    						 ),
+    ), 
+    'prefetch_account' => array(
+    	'function' => 'prefetch_account_func',
+    	'signature' => array(
+                             array($xmlrpcStruct, $xmlrpcBase64),
+    						 ),
+    ),
     //**********************************************
     // Puch related functions
     //**********************************************

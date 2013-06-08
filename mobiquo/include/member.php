@@ -34,7 +34,6 @@ if(($mybb->input['action'] == "register" || $mybb->input['action'] == "do_regist
 
 if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 {
-	$plugins->run_hooks("member_do_register_start");
 	if($mybb->settings['disableregs'] == 1 || $mybb->settings['tapatalk_allow_register'] != '1')
 	{
 		error($lang->registrations_disabled);
@@ -53,16 +52,6 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 		{
 			$lang->error_alreadyregisteredtime = $lang->sprintf($lang->error_alreadyregisteredtime, $regcount, $mybb->settings['betweenregstime']);
 			error($lang->error_alreadyregisteredtime);
-		}
-	}
-	// If we have hidden CATPCHA enabled and it's filled, deny registration
-	if($mybb->settings['hiddencaptchaimage'])
-	{
-		$string = $mybb->settings['hiddencaptchaimagefield'];
-
-		if($mybb->input[$string] != '')
-		{
-			error($lang->error_spam_deny);
 		}
 	}
 
@@ -95,7 +84,7 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 	{
 		$usergroup = 2;
 	}
-        else if($mybb->settings['regtype'] == "verify" || $mybb->settings['regtype'] == "admin" || $mybb->input['coppa'] == 1)
+    else if($mybb->settings['regtype'] == "verify" || $mybb->settings['regtype'] == "admin" || $mybb->input['coppa'] == 1)
 	{
 		$usergroup = 5;
 	}
@@ -119,22 +108,6 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 		"longregip" => my_ip2long($session->ipaddress),
 		"coppa_user" => intval($mybb->cookies['coppauser']),
 	);
-	if(isset($mybb->input['regcheck1']) && isset($mybb->input['regcheck2']))
-	{
-		$user['regcheck1'] = $mybb->input['regcheck1'];
-		$user['regcheck2'] = $mybb->input['regcheck2'];
-	}
-
-	// Do we have a saved COPPA DOB?
-	if($mybb->cookies['coppadob'])
-	{
-		list($dob_day, $dob_month, $dob_year) = explode("-", $mybb->cookies['coppadob']);
-		$user['birthday'] = array(
-			"day" => $dob_day,
-			"month" => $dob_month,
-			"year" => $dob_year
-		);
-	}
 
 	$user['options'] = array(
 		"allownotices" => $mybb->input['allownotices'],
@@ -183,8 +156,6 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 			}
 			my_mail($user_info['email'], $emailsubject, $emailmessage);
 
-			$plugins->run_hooks("member_do_register_end");
-
 			$result_text = $lang->redirect_registered_passwordsent;
 		}
 		else if($mybb->settings['regtype'] == "verify" && !$verify_result)
@@ -218,15 +189,12 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 			
 			$lang->redirect_registered_activation = $lang->sprintf($lang->redirect_registered_activation, $mybb->settings['bbname'], $user_info['username']);
 
-			$plugins->run_hooks("member_do_register_end");
 
 			$result_text = $lang->redirect_registered_activation;
 		}
 		else if($mybb->settings['regtype'] == "admin")
 		{
 			$lang->redirect_registered_admin_activate = $lang->sprintf($lang->redirect_registered_admin_activate, $mybb->settings['bbname'], $user_info['username']);
-
-			$plugins->run_hooks("member_do_register_end");
 
 			$result_text = $lang->redirect_registered_admin_activate;
 		}
