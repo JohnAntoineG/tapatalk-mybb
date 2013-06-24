@@ -104,17 +104,25 @@ if (app_ios_id != '-1' && navigator.userAgent.match(/Safari/i) != null &&
     }
 }
 
+// for those forum system which can not add js in html body
+if (functionCallAfterWindowLoad) addWindowOnload(tapatalkDetect)
+
+var bannerLoaded = false
+
 function tapatalkDetect()
 {
     var standalone = navigator.standalone // Check if it's already a standalone web app or running within a webui view of an app (not mobile safari)
-    addtrack();
+    if (empty(functionCallAfterWindowLoad)) addtrack();
     
     // work only when browser support cookie
     if (!navigator.cookieEnabled 
+        || bannerLoaded
         || standalone
         || document.cookie.indexOf("banner-closed=true") >= 0 
         || native_ios_banner)
         return
+    
+    bannerLoaded = true
     
     app_banner_message = app_banner_message.replace(/\{your_forum_name\}/gi, app_forum_name);
     app_banner_message = app_banner_message.replace(/\{app_name\}/gi, app_name);
@@ -153,6 +161,11 @@ function tapatalkDetect()
             app_install_url = app_android_hd_url;
         }
         banner_location_url = byo_android_enable ? app_location_url_byo : app_location_url;
+    }
+    else if (navigator.userAgent.match(/IEMobile|Windows Phone/i)) {
+        app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Windows Phone');
+        app_install_url = "http://www.windowsphone.com/s?appid=913ffd61-3ba0-435c-a894-9d3ec7e78d6e";
+        banner_location_url = app_location_url;
     }
     else if (navigator.userAgent.match(/BlackBerry/i)) {
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'BlackBerry');
@@ -215,10 +228,32 @@ function tapatalkDetect()
     }
     
     bannerHeight = getWH(appBanner, 'height', true)
-    htmlElement.style.marginTop = (origHtmlMargin+bannerHeight)+"px"
+    bannerTop = (origHtmlMargin+bannerHeight)+"px"
+    htmlElement.style.marginTop = bannerTop
     
     if (getComputedStyle(bodyItem, null).position !== 'static')
-        appBanner.style.top = -1*(origHtmlMargin+bannerHeight)+"px"
+        appBanner.style.top = '-'+bannerTop
+    
+    addWindowOnload(resetBannerTop)
+}
+
+function addWindowOnload(func)
+{
+    if (typeof window.onload != 'function') {
+        window.onload = func;
+    } else {
+        var oldonload = window.onload;
+        window.onload = function() {
+            oldonload();
+            func();
+        }
+    }
+}
+
+function resetBannerTop()
+{
+    if (getComputedStyle(bodyItem, null).position !== 'static' || document.getElementById('google_translate_element'))
+        appBanner.style.top = '-'+bannerTop
 }
 
 function closeBanner()

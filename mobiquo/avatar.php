@@ -22,6 +22,7 @@ if(!empty($_GET['user_id']))
 }
 else if(!empty($_GET['username']))
 {
+	$_GET['username'] = base64_decode($_GET['username']);
 	$_GET['username'] = $db->escape_string($_GET['username']);	
 	$query = $db->simple_select("users", "uid", "username='{$_GET['username']}'");
     $uid = $db->fetch_field($query, "uid");

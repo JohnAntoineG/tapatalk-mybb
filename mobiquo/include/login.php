@@ -8,7 +8,7 @@ require_once MYBB_ROOT."inc/class_parser.php";
 
 function login_func($xmlrpc_params)
 {
-    global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $mobiquo_config;
+    global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $mobiquo_config,$user;
 
     $lang->load("member");
 
@@ -25,7 +25,13 @@ function login_func($xmlrpc_params)
     if(!username_exists($input['username']))
     {
         my_setcookie('loginattempts', $logins + 1);
-        return xmlrespfalse($lang->error_invalidpworusername.$login_text);
+        $status = 2;
+    	$response = new xmlrpcval(array(
+	        'result'          => new xmlrpcval(0, 'boolean'),
+	        'result_text'     => new xmlrpcval($lang->error_invalidpworusername, 'base64'),
+		 	'status'          => new xmlrpcval($status, 'string'),
+	    ), 'struct');
+	    return new xmlrpcresp($response);
     }
 
     $query = $db->simple_select("users", "loginattempts", "LOWER(username)='".my_strtolower($input['username_esc'])."'", array('limit' => 1));

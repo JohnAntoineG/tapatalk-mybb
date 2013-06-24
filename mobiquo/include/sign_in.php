@@ -21,13 +21,24 @@ function sign_in_func()
 		if($result->result && !empty($result->email))
 		{
 			$email = $result->email;
-			$avatar_url = !empty($result->avatar_url) ? $result->avatar_url : '';
-			if($user = tt_get_user_by_email($email))
+		    if(!empty($post_email) && $post_email != $email)
 			{
-				return tt_login_success();
+				$status = 3;
 			}
-			else if(!empty($username) && !empty($email) && !empty($password))
+			else if($user = tt_get_user_by_email($email))
 			{
+				if(!empty($username) && $username != $user['username'])
+				{
+					$status = 3;
+				}
+				else 
+				{
+					return tt_login_success();
+				}		
+			}
+			else if(!empty($username) && !empty($email))
+			{
+				$avatar_url = !empty($result->avatar_url) ? $result->avatar_url : '';
 				if($mybb->settings['disableregs'] == 1)
 				{
 					error($lang->registrations_disabled);
@@ -54,17 +65,13 @@ function sign_in_func()
 					"avatar" => $avatar_url
 				);
 				$userhandler->set_data($user);
-				if(!empty($post_email) && $post_email != $email)
-				{
-					$status = 3;
-				}
-				else if($userhandler->verify_username_exists())
+				if($userhandler->verify_username_exists())
 				{
 					$status = 1;
 				}
-				else if(!$userhandler->verify_password() && !$userhandler->verify_username())
+				else if(!$userhandler->verify_password() || !$userhandler->verify_username())
 				{
-					$errors = $userhandler->get_errors();
+					$errors = $userhandler->get_friendly_errors();
 					error($errors[0]);
 				}
 				else
@@ -91,7 +98,7 @@ function sign_in_func()
 		        'result_text'       => new xmlrpcval('', 'base64'),
 			 	'status'          => new xmlrpcval($status, 'string'),
 			 ), 'struct');
-			 return new xmlrpcresp($response);
+			return new xmlrpcresp($response);
 		}
 	}
 	else

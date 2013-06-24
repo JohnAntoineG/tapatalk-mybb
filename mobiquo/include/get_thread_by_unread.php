@@ -29,12 +29,18 @@ function get_thread_by_unread_func($xmlrpc_params)
     {
         $visible = "AND p.visible='1'";
     }
-
+	$cutoff = 0;
+	if($mybb->settings['threadreadcut'] > 0)
+	{
+		$cutoff = TIME_NOW-$mybb->settings['threadreadcut']*60*60*24;
+	}
+	
     $query = $db->query("select min(p.pid) as pid from ".TABLE_PREFIX."posts p
         LEFT JOIN ".TABLE_PREFIX."threadsread tr on p.tid = tr.tid and tr.uid = '{$mybb->user['uid']}'
-        where p.tid='{$thread['tid']}' and tr.dateline < p.dateline $visible
+        where p.tid='{$thread['tid']}' and p.uid != '{$mybb->user['uid']}' and (p.dateline > tr.dateline or tr.dateline is null) and p.dateline > $cutoff $visible
         ");
 	$pid = $db->fetch_field($query, 'pid');
+
     if(!$pid)
     {
         $query = $db->query("select p.pid from ".TABLE_PREFIX."posts p

@@ -946,6 +946,10 @@ function tt_register_verify($tt_token,$tt_code)
 	$url = "http://directory.tapatalk.com/au_reg_verify.php?token=".$tt_token."&code=".$tt_code."&key=" . $mybb->settings['tapatalk_push_key'];
 	$error_msg = '';
 	$response = getContentFromRemoteServer($url, 10 , $error_msg);
+	if(empty($response))
+	{
+		$response = getContentFromRemoteServer($url, 0 , $error_msg);
+	}
 	if(!empty($error_msg))
 	{
 		$response = '{"result":false,"result_text":"Contect timeout , please try again"}';
