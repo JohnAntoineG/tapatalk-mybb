@@ -1,5 +1,8 @@
 <?php
 
+// for those forum system which can not add js in html body, please set $functionCallAfterWindowLoad as 1
+$functionCallAfterWindowLoad = isset($functionCallAfterWindowLoad) && $functionCallAfterWindowLoad ? 1 : 0;
+
 $app_ios_id_default = '307880732';      // Tapatalk 1, 585178888 for Tapatalk 2
 $app_ios_hd_id_default = '307880732';   // Tapatalk 1, 481579541 for Tapatalk HD
 $app_android_id_default = 'com.quoord.tapatalkpro.activity';
@@ -59,6 +62,7 @@ $app_banner_head = '
         var app_banner_message = "'.addslashes($app_banner_message).'";
         var app_forum_name     = "'.addslashes($app_forum_name).'";
         var app_location_url   = "'.addslashes($app_location_url).'";
+        var functionCallAfterWindowLoad = '.$functionCallAfterWindowLoad.'
     </script>
     <script src="'.$tapatalk_dir_url.'/smartbanner/appbanner.js" type="text/javascript"></script>
     <!-- Tapatalk Banner head end-->
