@@ -290,8 +290,8 @@ $server_param = array(
     'mark_pm_unread' => array(
         'function'  => 'mark_pm_unread_func',
         'signature' => array(array($xmlrpcArray),
-                             array($xmlrpcStruct, $xmlrpcString, $xmlrpcString)),
-        'docstring' => 'message id, box id',
+                             array($xmlrpcStruct, $xmlrpcString)),
+        'docstring' => 'message id',
     ),
     
     'get_quote_pm' => array(
@@ -575,6 +575,7 @@ $server_param = array(
                              array($xmlrpcStruct, $xmlrpcBase64),
     						 ),
     ),
+    
     //**********************************************
     // Puch related functions
     //**********************************************

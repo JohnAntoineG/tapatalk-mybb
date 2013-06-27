@@ -333,6 +333,7 @@ switch ($request_method)
     case 'prefetch_account':
     	$_POST['email'] = $request_params[0];
     	break;
+    
 }
 
 error_reporting(MOBIQUO_DEBUG);

@@ -13,7 +13,6 @@ function mark_pm_unread_func($xmlrpc_params)
 	
 	$input = Tapatalk_Input::filterXmlInput(array(
 		'message_id' => Tapatalk_Input::INT,
-		'box_id' => Tapatalk_Input::INT,
 	), $xmlrpc_params);
 			
 	$lang->load("private");
