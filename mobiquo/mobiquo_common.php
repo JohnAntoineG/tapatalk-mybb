@@ -631,7 +631,7 @@ function tp_get_forum_icon($id, $type = 'forum', $lock = false, $new = false)
 
 function tp_get_forum_icon_by_name($icon_name)
 {
-    $tapatalk_forum_icon_dir = './forum_icons/';
+    $tapatalk_forum_icon_dir = TT_ROOT.'forum_icons/';
     
     if (file_exists($tapatalk_forum_icon_dir.$icon_name.'.png'))
         return $icon_name.'.png';
