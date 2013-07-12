@@ -148,41 +148,22 @@ function processForum($forum)
     }
 
     $lightbulb = get_forum_lightbulb($forum, $lastpost_data, $showlockicon);
-
     $new_post = $lightbulb['folder'] == 'on';
-	$logo_url = '';
-	//@todo
-	global $tapatalk_forum_icon_url,$tapatalk_forum_icon_dir;
-	$tapatalk_forum_icon_dir = './forum_icons/';
-	$tapatalk_forum_icon_url = MYBB_ROOT . $mybb->settings['tapatalkdir'] .'/forum_icons/';
-	if($forum['type'] == c)
-	{
-		$forum_type = 'category';
-	}
-	else if(!empty($forum['linkto']))
-	{
-		$forum_type = 'link';
-	}
-	else 
-	{
-		$forum_type = 'forum';
-    }
-	if(empty($forum['forum_image']))
-	{
-		$logo_url = get_forum_icon($forum['fid'],$forum_type);
-	}
-	else if ($forum['forum_image'])
+    $is_locked = $forum['open'] == 0;
+    $forum_type = $forum['linkto'] ? 'link' : ($forum['type'] == 'c' ? 'category' : 'forum');
+    
+    if ($logo_icon_name = tp_get_forum_icon($forum['fid'], $forum_type, $is_locked, $new_post))
+        $logo_url = $mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'] .'/forum_icons/'.$logo_icon_name;
+    else if ($forum['forum_image'])
     {
-        $logo_url = MYBB_ROOT . $forum['forum_image'];
+        if (preg_match('#^https?://#i', $forum['forum_image']))
+            $logo_url = $forum['forum_image'];
+        else
+            $logo_url = $mybb->settings['bburl'].'/'.$forum['forum_image'];
     }
-	if(!empty($forum['unread_count']))
-	{
-		$logo_url = get_forum_icon($forum['fid'],$forum_type,false,true);
-	}
-	if (!empty($forum['password']))
-	{
-		$logo_url = get_forum_icon($forum['fid'],$forum_type,true);
-	}
+    else
+        $logo_url = '';
+    
     $xmlrpc_forum = new xmlrpcval(array(
         'forum_id'      => new xmlrpcval($forum['fid'], 'string'),
         'forum_name'    => new xmlrpcval(basic_clean($forum['name']), 'base64'),
