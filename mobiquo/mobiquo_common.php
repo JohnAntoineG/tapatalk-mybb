@@ -577,81 +577,73 @@ function shutdown()
     }
 }
 
-function get_forum_icon($id, $type = 'forum', $lock = false, $new = false)
+function tp_get_forum_icon($id, $type = 'forum', $lock = false, $new = false)
 {
-    if (!in_array($type, array('link', 'category', 'forum')))
-        $type = 'forum';
-    
-    $icon_name = $type;
-    if ($type != 'link')
+    if ($type == 'link')
     {
-        if ($lock) $icon_name .= '_lock';
-        if ($new) $icon_name .= '_new';
+        if ($filename = tp_get_forum_icon_by_name('link'))
+            return $filename;
+    }
+    else
+    {
+        if ($lock && $new && $filename = tp_get_forum_icon_by_name('lock_new_'.$id))
+            return $filename;
+        if ($lock && $filename = tp_get_forum_icon_by_name('lock_'.$id))
+            return $filename;
+        if ($new && $filename = tp_get_forum_icon_by_name('new_'.$id))
+            return $filename;
+        if ($filename = tp_get_forum_icon_by_name($id))
+            return $filename;
+        
+        if ($type == 'category')
+        {
+            if ($lock && $new && $filename = tp_get_forum_icon_by_name('category_lock_new'))
+                return $filename;
+            if ($lock && $filename = tp_get_forum_icon_by_name('category_lock'))
+                return $filename;
+            if ($new && $filename = tp_get_forum_icon_by_name('category_new'))
+                return $filename;
+            if ($filename = tp_get_forum_icon_by_name('category'))
+                return $filename;
+        }
+        else
+        {
+            if ($lock && $new && $filename = tp_get_forum_icon_by_name('forum_lock_new'))
+                return $filename;
+            if ($lock && $filename = tp_get_forum_icon_by_name('forum_lock'))
+                return $filename;
+            if ($new && $filename = tp_get_forum_icon_by_name('forum_new'))
+                return $filename;
+            if ($filename = tp_get_forum_icon_by_name('forum'))
+                return $filename;
+        }
+        
+        if ($lock && $new && $filename = tp_get_forum_icon_by_name('lock_new'))
+            return $filename;
+        if ($lock && $filename = tp_get_forum_icon_by_name('lock'))
+            return $filename;
+        if ($new && $filename = tp_get_forum_icon_by_name('new'))
+            return $filename;
     }
     
-    $icon_map = array(
-        'category_lock_new' => array('category_lock', 'category_new', 'lock_new', 'category', 'lock', 'new'),
-        'category_lock'     => array('category', 'lock'),
-        'category_new'      => array('category', 'new'),
-        'lock_new'          => array('lock', 'new'),
-        'forum_lock_new'    => array('forum_lock', 'forum_new', 'lock_new', 'forum', 'lock', 'new'),
-        'forum_lock'        => array('forum', 'lock'),
-        'forum_new'         => array('forum', 'new'),
-        'category'          => array(),
-        'forum'             => array(),
-        'lock'              => array(),
-        'new'               => array(),
-        'link'              => array(),
-    );
+    return tp_get_forum_icon_by_name('default');
+}
+
+function tp_get_forum_icon_by_name($icon_name)
+{
+    $tapatalk_forum_icon_dir = TT_ROOT.'forum_icons/';
     
-    $final = empty($icon_map[$icon_name]);
+    if (file_exists($tapatalk_forum_icon_dir.$icon_name.'.png'))
+        return $icon_name.'.png';
     
-    if ($url = get_forum_icon_by_name($id, $icon_name, $final))
-        return $url;
-    
-    foreach ($icon_map[$icon_name] as $sub_name)
-    {
-        $final = empty($icon_map[$sub_name]);
-        if ($url = get_forum_icon_by_name($id, $sub_name, $final))
-            return $url;
-    }
+    if (file_exists($tapatalk_forum_icon_dir.$icon_name.'.jpg'))
+        return $icon_name.'.jpg';
     
     return '';
 }
 
-function get_forum_icon_by_name($id, $name, $final)
-{
-    global $tapatalk_forum_icon_dir, $tapatalk_forum_icon_url;
-    
-    $filename_array = array(
-        $name.'_'.$id.'.png',
-        $name.'_'.$id.'.jpg',
-        $id.'.png', $id.'.jpg',
-        $name.'.png',
-        $name.'.jpg',
-    );
-    
-    foreach ($filename_array as $filename)
-    {
-        if (file_exists($tapatalk_forum_icon_dir.$filename))
-        {
-            return $tapatalk_forum_icon_url.$filename;
-        }
-    }
-    
-    if ($final) {
-        if (file_exists($tapatalk_forum_icon_dir.'default.png'))
-            return $tapatalk_forum_icon_url.'default.png';
-        else if (file_exists($tapatalk_forum_icon_dir.'default.jpg'))
-            return $tapatalk_forum_icon_url.'default.jpg';
-    }
-    
-    return false;
-}
-
 function post_bbcode_clean($str)
 {
-	global $board_url;
 	$array_reg = array(
 		array('reg' => '/\[color=(.*?)\](.*?)\[\/color\]/sei','replace' => "mobi_color_convert('$1','$2' ,false)"),
 		array('reg' => '/\[php\](.*?)\[\/php\]/si','replace' => '[quote]$1[/quote]'),
