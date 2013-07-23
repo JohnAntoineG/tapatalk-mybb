@@ -18,6 +18,7 @@ function sign_in_func()
 	if(!empty($token) && !empty($code))
 	{
 		$result = tt_register_verify($token, $code);
+		
 		if($result->result && !empty($result->email))
 		{
 			$email = $result->email;
@@ -38,7 +39,7 @@ function sign_in_func()
 			}
 			else if(!empty($username) && !empty($email))
 			{
-				$avatar_url = !empty($result->avatar_url) ? $result->avatar_url : '';
+				$profile = $result->profile;
 				if($mybb->settings['disableregs'] == 1)
 				{
 					error($lang->registrations_disabled);
@@ -47,6 +48,18 @@ function sign_in_func()
 				// Set up user handler.
 				require_once MYBB_ROOT."inc/datahandlers/user.php";
 				$userhandler = new UserDataHandler("insert");
+				
+				$birthday_arr = explode('-', $profile->birthday);
+				$bday = array(
+					"day" => $birthday_arr[2],
+					"month" => $birthday_arr[1],
+					"year" => $birthday_arr[0],
+				);
+				$user_field = array(
+					'fid3' => ucfirst($profile->gender),
+					'fid1' => $profile->location,
+					'fid2' => $profile->description,
+				);
 				// Set the data for the new user.
 				$user = array(
 					"username" => $mybb->input['username'],
@@ -62,9 +75,17 @@ function sign_in_func()
 					"regip" => $session->ipaddress,
 					"longregip" => my_ip2long($session->ipaddress),
 					"coppa_user" => 0,
-					"avatar" => $avatar_url
-				);
+					"avatar" => $profile->avatar_url,
+					"birthday" => $bday,
+					"website" => $profile->link,
+					"user_fields" => $user_field,
+					"signature" => $profile->signature,
+					"option" => array(),
+				);						
+				
 				$userhandler->set_data($user);
+				$userhandler->verify_birthday();
+				$userhandler->verify_options();
 				if($userhandler->verify_username_exists())
 				{
 					$status = 1;

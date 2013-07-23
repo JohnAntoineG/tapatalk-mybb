@@ -944,6 +944,9 @@ function tt_register_verify($tt_token,$tt_code)
 		$mybb->settings['tapatalk_push_key'] = '';
 	}
 	$url = "http://directory.tapatalk.com/au_reg_verify.php?token=".$tt_token."&code=".$tt_code."&key=" . $mybb->settings['tapatalk_push_key'];
+	$board_url = $mybb->settings['bburl'];
+	$url = $url . '&url=' . $board_url;
+	
 	$error_msg = '';
 	$response = getContentFromRemoteServer($url, 10 , $error_msg);
 	if(empty($response))
@@ -1046,7 +1049,7 @@ function tt_login_success()
 	foreach($groups as $group){
 		$xmlgroups[] = new xmlrpcval($group, "string");
 	}
-	update_push();
+	tt_update_push();
 	if ($settings['maxattachments'] == 0) $settings['maxattachments'] = 100;
 	$push_type = array();
 	$userPushType = tt_get_user_push_type($mybb->user['uid']);
@@ -1083,7 +1086,7 @@ function tt_login_success()
 	return new xmlrpcresp(new xmlrpcval($result, 'struct'));
 }
 
-function update_push()
+function tt_update_push()
 {
     global $mybb, $db;
     
