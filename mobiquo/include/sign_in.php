@@ -71,11 +71,9 @@ function sign_in_func()
 					"referrer" => '',
 					"timezone" => $mybb->settings['timezoneoffset'],
 					"language" => '',
-					"profile_fields" => '',
 					"regip" => $session->ipaddress,
 					"longregip" => my_ip2long($session->ipaddress),
 					"coppa_user" => 0,
-					"avatar" => $profile->avatar_url,
 					"birthday" => $bday,
 					"website" => $profile->link,
 					"user_fields" => $user_field,
@@ -83,6 +81,11 @@ function sign_in_func()
 					"option" => array(),
 				);						
 				
+				if(!empty($profile->avatar_url))
+				{
+					$updated_avatar = tt_update_avatar_url($profile->avatar_url);
+				}
+
 				$userhandler->set_data($user);
 				$userhandler->verify_birthday();
 				$userhandler->verify_options();
@@ -99,6 +102,10 @@ function sign_in_func()
 				{
 					$userhandler->set_validated(true);
 					$user = $userhandler->insert_user();
+					if(!empty($updated_avatar))
+					{
+						$db->update_query("users", $updated_avatar, "uid='".$user['uid']."'");
+					}					
 					return tt_login_success();
 				}
 			}
@@ -127,3 +134,63 @@ function sign_in_func()
 		error("Invlaid params!");
 	}
 }
+
+function tt_update_avatar_url($avatar_url)
+{
+	global $mybb,$user,$db;
+	$avatar_url = preg_replace("#script:#i", "", $avatar_url);
+	$avatar_url = preg_replace("/^(https)/", 'http', $avatar_url);
+	$ext = get_extension($avatar_url);
+
+	// Copy the avatar to the local server (work around remote URL access disabled for getimagesize)
+	$file = fetch_remote_file($avatar_url);
+
+	if(!$file)
+	{
+		return false;
+	}
+	else
+	{
+		$tmp_name = $mybb->settings['avataruploadpath']."/remote_".md5(random_str());
+		$fp = @fopen($tmp_name, "wb");
+		if(!$fp)
+		{
+			return false;
+		}
+		else
+		{
+			fwrite($fp, $file);
+			fclose($fp);
+			list($width, $height, $type) = @getimagesize($tmp_name);
+			@unlink($tmp_name);
+			if(!$type)
+			{
+				return false;
+			}
+		}
+	}
+
+	
+	if($width && $height && $mybb->settings['maxavatardims'] != "")
+	{
+		list($maxwidth, $maxheight) = explode("x", my_strtolower($mybb->settings['maxavatardims']));
+		if(($maxwidth && $width > $maxwidth) || ($maxheight && $height > $maxheight))
+		{
+			return false;
+		}
+	}
+
+	if($width > 0 && $height > 0)
+	{
+		$avatar_dimensions = intval($width)."|".intval($height);
+	}
+	
+	$updated_avatar = array(
+		"avatar" => $db->escape_string($avatar_url.'?dateline='.TIME_NOW),
+		"avatardimensions" => $avatar_dimensions,
+		"avatartype" => "remote"
+	);
+	return $updated_avatar;
+}
+
+
