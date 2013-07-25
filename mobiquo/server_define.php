@@ -584,6 +584,13 @@ $server_param = array(
     						 ),
     ),
     
+    'get_recommended_user' => array(
+    	'function' => 'get_recommended_user_func',
+    	'signature' => array(array($xmlrpcStruct),
+    						 array($xmlrpcStruct,$xmlrpcInt ,$xmlrpcInt),
+    						 ),
+    ),
+    
     //**********************************************
     // Puch related functions
     //**********************************************

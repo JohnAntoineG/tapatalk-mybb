@@ -338,7 +338,10 @@ switch ($request_method)
     	$_POST['page'] = isset($request_params[1]) ? $request_params [1] : '1';
     	$_POST['perpage'] = isset($request_params[2]) ? $request_params[2] : '20';
     	break;
-    
+    case 'get_recommended_user':
+    	$_POST['page'] = !empty($request_params[0]) ? $request_params [0] : '1';
+    	$_POST['perpage'] = isset($request_params[1]) ? $request_params[1] : '20';
+    	break;  
 }
 
 error_reporting(MOBIQUO_DEBUG);
