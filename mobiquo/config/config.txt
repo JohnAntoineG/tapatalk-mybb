@@ -41,3 +41,4 @@ announcement = 0
 prefix_edit = 1
 ban_delete_type = none
 search_user = 1
+user_recommend = 1

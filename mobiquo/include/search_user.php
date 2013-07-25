@@ -141,8 +141,6 @@ function search_user_func()
 		{
 			continue;
 		}
-		
-		$alt_bg = alt_trow();
 
 		$user['username'] = format_name($user['username'], $user['usergroup'], $user['displaygroup']);
 		

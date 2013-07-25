@@ -23,6 +23,12 @@ function get_config_func()
         $config_list['result_text'] = new xmlrpcval(basic_clean($mybb->settings['boardclosed_reason']), 'base64');
     }
     
+    // First, load the stats cache.
+	$stats = $cache->read("stats");
+	$config_list['stats'] = new xmlrpcval(array(
+        'topic'    => new xmlrpcval($stats['numthreads'], 'int'),
+        'user'     => new xmlrpcval($stats['numusers'], 'int'),
+    ), 'struct');
     
     if ($mybb->settings['tapatalk_reg_url'])
     {

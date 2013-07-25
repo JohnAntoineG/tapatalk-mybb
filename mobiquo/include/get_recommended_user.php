@@ -89,11 +89,7 @@ function get_recommended_user_list($sql,$type)
 		{
 			continue;
 		}
-		
-		$alt_bg = alt_trow();
-
-		$user['username'] = format_name($user['username'], $user['usergroup'], $user['displaygroup']);
-		
+		$user['username'] = format_name($user['username'], $user['usergroup'], $user['displaygroup']);		
 		if($user['avatar'] != '')
 		{
 			$user['avatar'] = absolute_url($user['avatar']);

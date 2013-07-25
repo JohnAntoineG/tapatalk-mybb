@@ -382,6 +382,7 @@ function get_thread_func($xmlrpc_params)
         'topic_id'        => new xmlrpcval($thread['tid'], 'string'),
         'topic_title'     => new xmlrpcval(basic_clean($thread['subject']), 'base64'),
         'can_upload'      => new xmlrpcval($forumpermissions['canpostattachments'] != 0, 'boolean'),
+    	'can_report'      => new xmlrpcval(true,'boolean')
         //'can_subscribe'   => new xmlrpcval(true, 'boolean'), // default as true, so don't need to return
     );
 	if($forumpermissions['canview'] == 0 || $forumpermissions['canviewthreads'] == 0)
