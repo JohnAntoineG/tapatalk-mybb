@@ -16,6 +16,7 @@ get_latest_topic = 1
 
 upload_avatar = 1
 mark_read = 1
+mark_pm_unread = 1
 mod_approve = 1
 mod_delete = 0
 mod_report = 1
@@ -34,7 +35,9 @@ user_id = 1
 anonymous = 1
 alert = 1
 thlprefix = g33k_thankyoulike_
+push = 1
 push_type = pm,sub,newtopic,tag,quote
 announcement = 0
 prefix_edit = 1
 ban_delete_type = none
+search_user = 1

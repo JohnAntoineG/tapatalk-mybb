@@ -22,10 +22,7 @@ function get_config_func()
     	$config_list['is_open'] = new xmlrpcval(false,'boolean');
         $config_list['result_text'] = new xmlrpcval(basic_clean($mybb->settings['boardclosed_reason']), 'base64');
     }
-    if ($mybb->settings['tapatalk_push'])
-    {
-        $config_list['push'] = new xmlrpcval(1, 'string');
-    }
+    
     
     if ($mybb->settings['tapatalk_reg_url'])
     {

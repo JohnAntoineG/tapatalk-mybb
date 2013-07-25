@@ -333,6 +333,11 @@ switch ($request_method)
     case 'prefetch_account':
     	$_POST['email'] = $request_params[0];
     	break;
+    case 'search_user':
+    	$_POST['username'] = $request_params[0];
+    	$_POST['page'] = isset($request_params[1]) ? $request_params [1] : '1';
+    	$_POST['perpage'] = isset($request_params[2]) ? $request_params[2] : '20';
+    	break;
     
 }
 

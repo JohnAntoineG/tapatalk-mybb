@@ -687,7 +687,7 @@ function tapatalk_push_reply()
         }
     }
     
-    if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+    if(!empty($ttp_push_data))
     {
         $ttp_post_data = array(
             'url'  => $mybb->settings['bburl'],
@@ -749,7 +749,7 @@ function tapatalk_push_quote()
             }
         }
         
-        if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+        if(!empty($ttp_push_data))
         {
             $ttp_post_data = array(
                 'url'  => $mybb->settings['bburl'],
@@ -807,7 +807,7 @@ function tapatalk_push_tag()
                 $ttp_push_data[] = $ttp_data[count($ttp_data)-1];
             }
         }
-        if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+        if(!empty($ttp_push_data))
         {
             $ttp_post_data = array(
                 'url'  => $mybb->settings['bburl'],
@@ -858,7 +858,7 @@ function tapatalk_push_newtopic()
         	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
         }
     }
-    if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+    if(!empty($ttp_push_data))
     {
     	$ttp_post_data = array(
             'url'  => $mybb->settings['bburl'],
@@ -921,7 +921,7 @@ function tapatalk_push_pm()
         }
     }
     
-    if(!empty($ttp_push_data) && $mybb->settings['tapatalk_push'])
+    if(!empty($ttp_push_data))
     {
         $ttp_post_data = array(
             'url'  => $mybb->settings['bburl'],

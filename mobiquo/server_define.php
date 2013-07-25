@@ -576,6 +576,14 @@ $server_param = array(
     						 ),
     ),
     
+    'search_user' => array(
+    	'function' => 'search_user_func',
+    	'signature' => array(array($xmlrpcStruct),
+    						 array($xmlrpcStruct, $xmlrpcBase64 ),
+    						 array($xmlrpcStruct, $xmlrpcBase64,$xmlrpcInt ,$xmlrpcInt),
+    						 ),
+    ),
+    
     //**********************************************
     // Puch related functions
     //**********************************************
