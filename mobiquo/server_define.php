@@ -591,6 +591,13 @@ $server_param = array(
     						 ),
     ),
     
+    'ignore_user' => array(
+    	'function' => 'ignore_user_func',
+    	'signature' => array(
+    						 array($xmlrpcStruct,$xmlrpcString ,$xmlrpcInt),
+    						 ),
+    ),
+    
     //**********************************************
     // Puch related functions
     //**********************************************

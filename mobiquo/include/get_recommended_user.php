@@ -62,7 +62,7 @@ function get_recommended_user_func()
         foreach ($users as $user)
         {
             $return_user_lists[] = new xmlrpcval(array(
-                'username'     => new xmlrpcval($user['username'], 'base64'),
+                'username'     => new xmlrpcval(basic_clean($user['username']), 'base64'),
                 'user_id'       => new xmlrpcval($user['uid'], 'string'),
                 'icon_url'      => new xmlrpcval($user['avatar'],'string'),
                 'type'          => new xmlrpcval('', 'string'),

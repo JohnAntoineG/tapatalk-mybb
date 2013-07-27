@@ -342,6 +342,11 @@ switch ($request_method)
     	$_POST['page'] = !empty($request_params[0]) ? $request_params [0] : '1';
     	$_POST['perpage'] = isset($request_params[1]) ? $request_params[1] : '20';
     	break;  
+    case 'ignore_user':
+    	$_GET['action'] = 'do_editlists';
+    	$_GET['manage'] = 'ignored';
+    	$_POST['user_id'] = $request_params[0];
+    	$_POST['mode'] = isset($request_params[1]) ? $request_params[1] : '1';
 }
 
 error_reporting(MOBIQUO_DEBUG);
