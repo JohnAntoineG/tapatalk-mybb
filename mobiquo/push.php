@@ -12,8 +12,7 @@ echo '<b>Tapatalk Push Notification Status Monitor</b><br/>';
 echo '<br/>Push notification test: ' . (($return_status == '1') ? '<b>Success</b>' : '<font color="red">Failed('.$return_status.')</font>');
 echo '<br/>Current server IP: ' . $return_ip;
 echo '<br/>Current forum url: ' . $board_url;
-echo '<br/>Tapatalk user table existence: Yes';
-echo '<br/>Push Notification Option status: ' . $option_status;
+
 echo '<br/><br/><a href="http://tapatalk.com/api/api.php" target="_blank">Tapatalk API for Universal Forum Access</a> | <a href="http://tapatalk.com/mobile.php" target="_blank">Tapatalk Mobile Applications</a><br>
     For more details, please visit <a href="http://tapatalk.com" target="_blank">http://tapatalk.com</a>';
 

@@ -125,7 +125,7 @@ function thl_func()
 
 function get_alert_func()
 {
-	global $alertData;
+	global $alertData,$totalAlert;
 	$return_array = array();
 	foreach ($alertData as $data)
 	{
@@ -144,7 +144,7 @@ function get_alert_func()
 	}
 	
 	$result = new xmlrpcval(array(
-		'total' => new xmlrpcval(count($alertData),'int'),
+		'total' => new xmlrpcval($totalAlert,'int'),
 		'items' => new xmlrpcval($return_array,'array'),
 	),'struct');
 	return $result;

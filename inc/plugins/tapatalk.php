@@ -142,12 +142,7 @@ function tapatalk_install()
             'optionscode'   => 'text',
             'value'         => 'mobiquo'
         ),
-        'push' => array(
-            'title'         => 'Push Notification',
-            'description'   => 'Instant notifications of subscription topics, forums and private messages',
-            'optionscode'   => 'onoff',
-            'value'         => '1'
-        ),
+ 
         'datakeep' => array(
             'title'         => 'Uninstall Behaviour',
             'description'   => "Ability to retain 'tapatalk_' tables in DB. Useful if you're re-installing Tapatalk Plugin.",
@@ -155,8 +150,8 @@ function tapatalk_install()
             'value'         => 'keep'
         ),
         'push_key' => array(
-            'title'         => 'Tapatalk Push Key',
-            'description'   => 'Push Notification may not be enabled if this key is missing. Visit Forum Owner Area in Tapatalk.com to obtain Push Key for your forum.',
+            'title'         => 'Tapatalk API Key',
+            'description'   => 'Formerly known as Push Key. This key is now required for secure connection between your community and Tapatalk server. Features such as Push Notification and Single Sign-On requires this key to work. ',
             'optionscode'   => 'text',
             'value'         => ''
         ),
