@@ -1052,6 +1052,7 @@ function tt_login_success()
 			'value' => new xmlrpcval($value,'boolean'),                    
 			), 'struct');
 	}
+	
 	$result = array(
 		'result'            => new xmlrpcval(true, 'boolean'),
 		'result_text'       => new xmlrpcval('', 'base64'),
@@ -1061,6 +1062,7 @@ function tt_login_success()
 		'icon_url'          => new xmlrpcval(absolute_url($mybb->user['avatar']), 'string'),
 		'post_count'        => new xmlrpcval(intval($mybb->user['postnum']), 'int'),
 		'usergroup_id'      => new xmlrpcval($xmlgroups, 'array'),
+	    'ignored_uids'      => new xmlrpcval($mybb->user['ignorelist'],'string'),
 		'max_png_size'      => new xmlrpcval(10000000, "int"),
 		'max_jpg_size'      => new xmlrpcval(10000000, "int"),
 		'max_attachment'    => new xmlrpcval($mybb->usergroup['canpostattachments'] == 1 ? $settings['maxattachments'] : 0, "int"),
