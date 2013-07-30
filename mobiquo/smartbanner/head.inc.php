@@ -7,7 +7,7 @@ $app_ios_id_default = '307880732';      // Tapatalk 1, 585178888 for Tapatalk 2
 $app_ios_hd_id_default = '307880732';   // Tapatalk 1, 481579541 for Tapatalk HD
 $app_android_id_default = 'com.quoord.tapatalkpro.activity';
 
-$app_location_url = isset($app_location_url) && stripos($app_location_url, 'tapatalk://') === 0 ? $app_location_url : 'tapatalk://';
+$app_location_url = isset($app_location_url) && preg_match('#^tapatalk://#i', $app_location_url) ? $app_location_url : 'tapatalk://';
 $app_location_url_byo = str_replace('tapatalk://', 'tapatalk-byo://', $app_location_url);
 $tapatalk_dir_url = isset($tapatalk_dir_url) && $tapatalk_dir_url ? $tapatalk_dir_url : './mobiquo';
 $app_forum_name = isset($app_forum_name) && $app_forum_name ? $app_forum_name : 'this forum';
@@ -25,24 +25,24 @@ if ($app_ios_id != -1 || $app_android_id != -1)
     $twitter_card_head .= '
         <!-- twitter app card start-->
         <!-- https://dev.twitter.com/docs/cards/types/app-card -->
-        <meta name="twitter:card" content="app">
+        <meta name="twitter:card" content="app" />
     ';
     
     if ($app_ios_id != '-1')
     {
         $twitter_card_head .= '
-        <meta name="twitter:app:id:iphone" content="'.$app_ios_id.'">
-        <meta name="twitter:app:url:iphone" content="'.($app_ios_id != $app_ios_id_default ? 'tapatalk-byo://' : 'tapatalk://').'">
+        <meta name="twitter:app:id:iphone" content="'.$app_ios_id.'" />
+        <meta name="twitter:app:url:iphone" content="'.($app_ios_id != $app_ios_id_default ? 'tapatalk-byo://' : 'tapatalk://').'" />
         <meta name="twitter:app:id:ipad" content="'.$app_ios_hd_id.'">
-        <meta name="twitter:app:url:ipad" content="'.($app_ios_hd_id != $app_ios_id_default ? 'tapatalk-byo://' : 'tapatalk://').'">
+        <meta name="twitter:app:url:ipad" content="'.($app_ios_hd_id != $app_ios_id_default ? 'tapatalk-byo://' : 'tapatalk://').'" />
         ';
     };
         
     if ($app_android_id != '-1')
     {
         $twitter_card_head .= '
-        <meta name="twitter:app:id:googleplay" content="'.$app_android_id.'">
-        <meta name="twitter:app:url:googleplay" content="'.($app_android_id != $app_android_id_default ? $app_location_url_byo : $app_location_url).'">
+        <meta name="twitter:app:id:googleplay" content="'.$app_android_id.'" />
+        <meta name="twitter:app:url:googleplay" content="'.($app_android_id != $app_android_id_default ? $app_location_url_byo : $app_location_url).'" />
         ';
     };
     

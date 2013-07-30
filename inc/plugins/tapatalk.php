@@ -666,6 +666,7 @@ function tapatalk_push_reply()
     while($user = $db->fetch_array($query))
     {
         if ($user['uid'] == $mybb->user['uid']) continue;
+        if (tt_check_ignored($user['uid'])) continue;
         $ttp_data[] = array(
             'userid'    => $user['uid'],
             'type'      => 'sub',
@@ -727,6 +728,7 @@ function tapatalk_push_quote()
                 return false;
             }
             if ($user['uid'] == $mybb->user['uid']) continue;
+            if (tt_check_ignored($user['uid'])) continue;
             $ttp_push_data = array();
             $ttp_data[] = array(
                 'userid'    => $user['uid'],
@@ -786,6 +788,7 @@ function tapatalk_push_tag()
                 continue;
             }
             if ($user['uid'] == $mybb->user['uid']) continue;
+            if (tt_check_ignored($user['uid'])) continue;
             $ttp_push_data = array();
             $ttp_data[] = array(
                 'userid'    => $user['uid'],
@@ -837,7 +840,7 @@ function tapatalk_push_newtopic()
     while($user = $db->fetch_array($query))
     {
         if ($user['uid'] == $mybb->user['uid']) continue;
-        
+        if (tt_check_ignored($user['uid'])) continue;
         $ttp_data[] = array(
             'userid'    => $user['uid'],
             'type'      => 'newtopic',
@@ -900,7 +903,9 @@ function tapatalk_push_pm()
     while($user = $db->fetch_array($query))
     {
         if ($user['toid'] == $mybb->user['uid']) continue;
-            
+
+        if (tt_check_ignored($user['toid'])) continue;
+        
         $ttp_data[] = array(
             'userid'    => $user['toid'],
             'type'      => 'pm',
@@ -1106,4 +1111,19 @@ function tt_update_settings($updated_setting)
 	$updated_value = array('value' => $db->escape_string($updated_setting['value']));
 	$db->update_query("settings", $updated_value, "name='$name'");
 	rebuild_settings();
+}
+
+function tt_check_ignored($uid)
+{
+	global $mybb;
+	$user = get_user($uid);
+	$user_ignored_array = array();
+	if(!empty($user['ignorelist']))
+		$user_ignored_array = explode(',', $user['ignorelist']);
+
+	if(in_array($mybb->user['uid'], $user_ignored_array))
+	{
+		return true;
+	}
+	return false;
 }

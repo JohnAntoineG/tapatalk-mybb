@@ -265,8 +265,9 @@ if($mybb->input['action'] == "do_lostpw" && $mybb->request_method == "post")
 					break;
 			}
 			my_mail($email, $emailsubject, $emailmessage);
+			$plugins->run_hooks("member_do_lostpw_end");
+			$result_text = $lang->redirect_lostpwsent;
 		}
-		$plugins->run_hooks("member_do_lostpw_end");
-		$result_text = $lang->redirect_lostpwsent;
+		
 	}
 }
