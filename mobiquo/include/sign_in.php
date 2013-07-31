@@ -34,6 +34,7 @@ function sign_in_func()
 				}
 				else 
 				{
+					tt_log_signin($token, $code, $user, 0);
 					return tt_login_success();
 				}		
 			}
@@ -105,7 +106,8 @@ function sign_in_func()
 					if(!empty($updated_avatar))
 					{
 						$db->update_query("users", $updated_avatar, "uid='".$user['uid']."'");
-					}					
+					}
+					tt_log_signin($token, $code, $user, 1);					
 					return tt_login_success();
 				}
 			}
@@ -193,4 +195,16 @@ function tt_update_avatar_url($avatar_url)
 	return $updated_avatar;
 }
 
-
+function tt_log_signin($token,$code,$user,$new)
+{
+	global $mybb;
+	$url = 'http://directory.tapatalk.com/au_log_signin.php';
+	$url .= '?token=' . $token . '&code=' . $code . '&uid=' . $user['uid'] . '&username=' . $user['username'].'&new='.$new;
+	if(!empty($mybb->settings['tapatalk_push_key']))
+	{
+		$url .= 'key=' . $mybb->settings['tapatalk_push_key'];
+	}
+	$board_url = $mybb->settings['bburl'];
+	$url = $url . '&url=' . $board_url;
+	getContentFromRemoteServer($url);	
+}

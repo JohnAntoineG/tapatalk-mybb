@@ -940,7 +940,7 @@ function tt_register_verify($tt_token,$tt_code)
 	$url = $url . '&url=' . $board_url;
 	
 	$error_msg = '';
-	$response = getContentFromRemoteServer($url, 10 , $error_msg);
+	$response = getContentFromRemoteServer($url, 5 , $error_msg);
 	if(empty($response))
 	{
 		$response = getContentFromRemoteServer($url, 0 , $error_msg);
