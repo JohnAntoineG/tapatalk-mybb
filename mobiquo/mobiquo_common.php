@@ -810,7 +810,7 @@ function check_return_user_type($username)
  * @exmaple: getContentFromRemoteServer('http://push.tapatalk.com/push.php', 0, $error_msg, 'POST', $ttp_post_data)
  * @return string when get content successfully|false when the parameter is invalid or connection failed.
 */
-function getContentFromRemoteServer($url, $holdTime = 0, $error_msg='', $method = 'GET', $data = array())
+function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 'GET', $data = array())
 {
     //Validate input.
     $vurl = parse_url($url);

@@ -977,7 +977,8 @@ function tt_do_post_request($data,$is_test=false)
 			$hold_time = 0;
 		}
         //Send push
-        $push_resp = getContentFromRemoteServer($push_url, $hold_time, '', 'POST', $data);
+		$error_msg = '';
+        $push_resp = getContentFromRemoteServer($push_url, $hold_time, $error_msg, 'POST', $data);
         if((trim($push_resp) === 'Invalid push notification key') && !$is_test)
         {
         	$push_resp = 1;

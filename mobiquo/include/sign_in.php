@@ -199,12 +199,17 @@ function tt_log_signin($token,$code,$user,$new)
 {
 	global $mybb;
 	$url = 'http://directory.tapatalk.com/au_log_signin.php';
-	$url .= '?token=' . $token . '&code=' . $code . '&uid=' . $user['uid'] . '&username=' . $user['username'].'&new='.$new;
 	if(!empty($mybb->settings['tapatalk_push_key']))
 	{
-		$url .= 'key=' . $mybb->settings['tapatalk_push_key'];
+		$data['key'] = $mybb->settings['tapatalk_push_key'];
 	}
 	$board_url = $mybb->settings['bburl'];
-	$url = $url . '&url=' . $board_url;
-	getContentFromRemoteServer($url);	
+	$error_msg = '';
+	$data['token'] = $token;
+	$data['code'] = $code;
+	$data['uid'] = $user['uid'];
+	$data['username'] = $user['username'];
+	$data['new'] = $new;
+	$data['url'] = $board_url;
+	getContentFromRemoteServer($url,0,$error_msg,'POST',$data);	
 }
