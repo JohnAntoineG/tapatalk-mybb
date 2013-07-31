@@ -198,7 +198,7 @@ function tt_update_avatar_url($avatar_url)
 function tt_log_signin($token,$code,$user,$new)
 {
 	global $mybb;
-	$url = 'http://directory.tapatalk.com/au_log_signin.php';
+	$url = 'https://directory.tapatalk.com/au_log_signin.php';
 	if(!empty($mybb->settings['tapatalk_push_key']))
 	{
 		$data['key'] = $mybb->settings['tapatalk_push_key'];

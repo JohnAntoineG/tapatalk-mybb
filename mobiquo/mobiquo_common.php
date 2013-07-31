@@ -814,7 +814,7 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
 {
     //Validate input.
     $vurl = parse_url($url);
-    if ($vurl['scheme'] != 'http')
+    if ($vurl['scheme'] != 'http' && $vurl['scheme'] != 'https')
     {
         $error_msg = 'Error: invalid url given: '.$url;
         return false;
