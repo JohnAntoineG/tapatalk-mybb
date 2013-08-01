@@ -84,7 +84,8 @@ function tapatalk_install()
               create_time int(11) unsigned NOT NULL DEFAULT '0',
               PRIMARY KEY (push_id),
               KEY user_id (user_id),
-              KEY create_time (create_time)
+              KEY create_time (create_time),
+              KEY author (author)
             )
         ");
     }

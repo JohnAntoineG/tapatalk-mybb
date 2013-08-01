@@ -940,11 +940,7 @@ function tt_register_verify($tt_token,$tt_code)
 	$url = $url . '&url=' . $board_url;
 	
 	$error_msg = '';
-	$response = getContentFromRemoteServer($url, 5 , $error_msg);
-	if(empty($response))
-	{
-		$response = getContentFromRemoteServer($url, 0 , $error_msg);
-	}
+	$response = getContentFromRemoteServer($url, 10 , $error_msg);
 	if(!empty($error_msg))
 	{
 		$response = '{"result":false,"result_text":"Contect timeout , please try again"}';
@@ -1009,7 +1005,7 @@ function tt_get_user_by_email($email)
 
 function tt_login_success()
 {
-	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $mobiquo_config,$user;
+	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $mobiquo_config,$user,$register;
 	if($user['coppauser'])
     {
 		error($lang->error_awaitingcoppa);
@@ -1073,8 +1069,8 @@ function tt_login_success()
 		'can_search'        => new xmlrpcval($mybb->usergroup['cansearch'] == 1, "boolean"),
 		'can_whosonline'    => new xmlrpcval($mybb->usergroup['canviewonline'] == 1, "boolean"),
 		'push_type'         => new xmlrpcval($push_type, 'array'),
+		'register'          => new xmlrpcval($register, "boolean"),
 	);
-	
 	
 	
 	return new xmlrpcresp(new xmlrpcval($result, 'struct'));

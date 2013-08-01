@@ -5,7 +5,7 @@ require_once MYBB_ROOT."inc/functions_user.php";
 require_once MYBB_ROOT."inc/class_parser.php";
 function sign_in_func()
 {
-	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $mobiquo_config,$user;
+	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $mobiquo_config,$user,$register;
 	// Load global language phrases
 	$lang->load("member");
 	$parser = new postParser;
@@ -18,7 +18,7 @@ function sign_in_func()
 	if(!empty($token) && !empty($code))
 	{
 		$result = tt_register_verify($token, $code);
-		
+	
 		if($result->result && !empty($result->email))
 		{
 			$email = $result->email;
@@ -34,7 +34,7 @@ function sign_in_func()
 				}
 				else 
 				{
-					tt_log_signin($token, $code, $user, 0);
+					$register = 0;
 					return tt_login_success();
 				}		
 			}
@@ -106,8 +106,8 @@ function sign_in_func()
 					if(!empty($updated_avatar))
 					{
 						$db->update_query("users", $updated_avatar, "uid='".$user['uid']."'");
-					}
-					tt_log_signin($token, $code, $user, 1);					
+					}	
+					$register = 1;			
 					return tt_login_success();
 				}
 			}
@@ -195,7 +195,7 @@ function tt_update_avatar_url($avatar_url)
 	return $updated_avatar;
 }
 
-function tt_log_signin($token,$code,$user,$new)
+/*function tt_log_signin($token,$code,$user,$new)
 {
 	global $mybb;
 	$url = 'https://directory.tapatalk.com/au_log_signin.php';
@@ -212,4 +212,4 @@ function tt_log_signin($token,$code,$user,$new)
 	$data['new'] = $new;
 	$data['url'] = $board_url;
 	getContentFromRemoteServer($url,0,$error_msg,'POST',$data);	
-}
+}*/
