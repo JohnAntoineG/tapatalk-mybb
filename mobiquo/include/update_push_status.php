@@ -17,79 +17,21 @@ function update_push_status_func($xmlrpc_params)
     ), $xmlrpc_params);
     
     $userid = $mybb->user['uid'];
-    $status = false;
+    $status = true;
     
-    if ($db->table_exists('tapatalk_users'))
+ 	if ($userid)
     {
-        if (empty($uid) && $input['username'] && $input['password'])
-        {
-            $logins = login_attempt_check(1);
+        $data = array(
+            'url'  => $mybb->settings['bburl'],
+            'key'  => (!empty($mybb->settings['tapatalk_push_key']) ? $mybb->settings['tapatalk_push_key'] : ''),
+            'uid'  => $userid,
+            'data' => base64_encode(serialize($input['settings'])),
+        );
             
-            if(!username_exists($input['username']))
-            {
-                my_setcookie('loginattempts', $logins + 1);
-                error($lang->error_invalidpworusername);
-            }
-            
-            $user = validate_password_from_username($input['username'], $input['password']);
-            if(!$user['uid'])
-            {
-                $db->update_query("users", array('loginattempts' => 'loginattempts+1'), "LOWER(username) = '".my_strtolower($input['username_esc'])."'", 1, true);
-        
-                if($mybb->settings['failedlogincount'] != 0 && $mybb->settings['failedlogintext'] == 1)
-                {
-                    $login_text = $lang->sprintf($lang->failed_login_again, $mybb->settings['failedlogincount'] - $logins);
-                }
-                
-                error($lang->error_invalidpworusername.$login_text);
-            }
-            
-            $userid = $user['uid'];
-        }
-        
-        if ($userid)
-        {
-            $update_params = array();
-            if (isset($input['settings']['all']))
-            {
-                $update_params[] = 'announcement='.($input['settings']['all'] ? 1 : 0);
-                $update_params[] = 'pm='.($input['settings']['all'] ? 1 : 0);
-                $update_params[] = 'subscribe='.($input['settings']['all'] ? 1 : 0);
-                $update_params[] = 'newtopic='.($input['settings']['all'] ? 1 : 0);
-                $update_params[] = 'quote='.($input['settings']['all'] ? 1 : 0);
-                $update_params[] = 'tag='.($input['settings']['all'] ? 1 : 0);
-            }
-            else
-            {
-                if (isset($input['settings']['ann']))
-                    $update_params[] = 'announcement='.($input['settings']['ann'] ? 1 : 0);
-                
-                if (isset($input['settings']['pm']))
-                    $update_params[] = 'pm='.($input['settings']['pm'] ? 1 : 0);
-                
-                if (isset($input['settings']['sub']))
-                    $update_params[] = 'subscribe='.($input['settings']['sub'] ? 1 : 0);
-                if (isset($input['settings']['newtopic']))
-                    $update_params[] = 'newtopic='.($input['settings']['newtopic'] ? 1 : 0);
-                if (isset($input['settings']['quote']))
-                    $update_params[] = 'quote='.($input['settings']['quote'] ? 1 : 0);
-                if (isset($input['settings']['newtopic']))
-                    $update_params[] = 'tag='.($input['settings']['tag'] ? 1 : 0);
-            }
-            
-            if ($update_params)
-            {
-                $update_params_str = implode(', ', $update_params);
-                $db->write_query("
-                    UPDATE " . TABLE_PREFIX . "tapatalk_users
-                    SET $update_params_str
-                    WHERE userid = '$userid'
-                ");
-            }
-            
-            $status = true;
-        }
+        $url = 'https://directory.tapatalk.com/au_update_push_setting.php';
+        getContentFromRemoteServer($url, 0, $error_msg, 'POST', $data);
     }
+   
     
     return new xmlrpcresp(new xmlrpcval(array(
         'result' => new xmlrpcval($status, 'boolean'),
