@@ -360,7 +360,7 @@ function tapatalk_global_start()
 
     header('Mobiquo_is_login: ' . ($mybb->user['uid'] > 0 ? 'true' : 'false'));
 
-    if ($mybb->usergroup['canview'] != 1 && in_array($request_method, array('get_config', 'login','register','sign_in')))
+    if ($mybb->usergroup['canview'] != 1 && in_array($request_method, array('get_config', 'login','register','sign_in','prefetch_account')))
     {
         define("ALLOWABLE_PAGE", 1);
     }
