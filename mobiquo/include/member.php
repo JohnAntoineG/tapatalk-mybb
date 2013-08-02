@@ -8,7 +8,7 @@ $verify_result = false;
 $result_text = '';
 // Load global language phrases
 $lang->load("member");
-if(($mybb->input['action'] == "register" || $mybb->input['action'] == "do_register") && $mybb->usergroup['cancp'] != 1)
+/*if(($mybb->input['action'] == "register" || $mybb->input['action'] == "do_register") && $mybb->usergroup['cancp'] != 1)
 {
 	if($mybb->settings['disableregs'] == 1)
 	{
@@ -31,17 +31,18 @@ if(($mybb->input['action'] == "register" || $mybb->input['action'] == "do_regist
 		}
 	}
 }
-
+*/
 if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 {
 	if($mybb->settings['disableregs'] == 1 || $mybb->settings['tapatalk_allow_register'] != '1')
 	{
 		error($lang->registrations_disabled);
 	}
-	if($mybb->user['regdate'])
+	
+	/*if($mybb->user['regdate'])
 	{
 		error($lang->error_alreadyregistered);
-	}
+	}*/
 	if($mybb->settings['betweenregstime'] && $mybb->settings['maxregsbetweentime'])
 	{
 		$time = TIME_NOW;

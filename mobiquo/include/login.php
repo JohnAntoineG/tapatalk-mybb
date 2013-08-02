@@ -21,14 +21,14 @@ function login_func($xmlrpc_params)
 
     $logins = login_attempt_check(1);
     $login_text = '';
-
+	
     if(!username_exists($input['username']))
     {
         my_setcookie('loginattempts', $logins + 1);
         $status = 2;
     	$response = new xmlrpcval(array(
 	        'result'          => new xmlrpcval(0, 'boolean'),
-	        'result_text'     => new xmlrpcval($lang->error_invalidpworusername, 'base64'),
+	        'result_text'     => new xmlrpcval(strip_tags($lang->error_invalidpworusername), 'base64'),
 		 	'status'          => new xmlrpcval($status, 'string'),
 	    ), 'struct');
 	    return new xmlrpcresp($response);

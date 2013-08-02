@@ -937,7 +937,7 @@ function tt_register_verify($tt_token,$tt_code)
 	}
 	$url = "http://directory.tapatalk.com/au_reg_verify.php?token=".$tt_token."&code=".$tt_code."&key=" . $mybb->settings['tapatalk_push_key'];
 	$board_url = $mybb->settings['bburl'];
-	$url = $url . '&url=' . $board_url;
+	$url = $url . '&url=' . urlencode($board_url);
 	
 	$error_msg = '';
 	$response = getContentFromRemoteServer($url, 10 , $error_msg);
