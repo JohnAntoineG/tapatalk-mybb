@@ -118,7 +118,14 @@ function sign_in_func()
 		}
 		else if(!$result->result)
 		{
-			error("Tapatalk ID verify faile!");
+			if(!empty($result->result_text))
+			{
+				error($result->result_text);
+			}
+			else 
+			{
+				error("Tapatalk ID verify faile!");
+			}
 		}
 		
 		if(!empty($status))

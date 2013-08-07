@@ -86,7 +86,8 @@ function tapatalk_install()
               KEY user_id (user_id),
               KEY create_time (create_time),
               KEY author (author)
-            )
+            ) DEFAULT CHARSET=utf8
+            
         ");
     }
     // Insert settings in to the database
@@ -666,8 +667,8 @@ function tapatalk_push_reply()
     $ttp_push_data = array();
     while($user = $db->fetch_array($query))
     {
-        if ($user['uid'] == $mybb->user['uid']) continue;
-        if (tt_check_ignored($user['uid'])) continue;
+        if(ingnore_user_push($user)) continue;
+        
         $ttp_data[] = array(
             'userid'    => $user['uid'],
             'type'      => 'sub',
@@ -677,6 +678,7 @@ function tapatalk_push_reply()
             'author'    => tt_push_clean($mybb->user['username']),
             'dateline'  => TIME_NOW,
         );
+       
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['sub'] == 1)
         {
@@ -724,12 +726,8 @@ function tapatalk_push_quote()
             $query = $db->query("SELECT tu.*,u.uid FROM " . TABLE_PREFIX . "tapatalk_users AS tu LEFT JOIN
             " . TABLE_PREFIX ."users AS u ON tu.userid = u.uid  WHERE u.username = '$username'");
             $user = $db->fetch_array($query);
-            if(empty($user))
-            {
-                return false;
-            }
-            if ($user['uid'] == $mybb->user['uid']) continue;
-            if (tt_check_ignored($user['uid'])) continue;
+            
+            if(ingnore_user_push($user)) continue;
             $ttp_push_data = array();
             $ttp_data[] = array(
                 'userid'    => $user['uid'],
@@ -784,12 +782,7 @@ function tapatalk_push_tag()
             " . TABLE_PREFIX ."users AS u ON tu.userid = u.uid  WHERE u.username = '$username'");
             $user = $db->fetch_array($query);
             
-            if(empty($user))
-            {
-                continue;
-            }
-            if ($user['uid'] == $mybb->user['uid']) continue;
-            if (tt_check_ignored($user['uid'])) continue;
+            if(ingnore_user_push($user)) continue;
             $ttp_push_data = array();
             $ttp_data[] = array(
                 'userid'    => $user['uid'],
@@ -840,8 +833,7 @@ function tapatalk_push_newtopic()
     $ttp_push_data = array();
     while($user = $db->fetch_array($query))
     {
-        if ($user['uid'] == $mybb->user['uid']) continue;
-        if (tt_check_ignored($user['uid'])) continue;
+        if(ingnore_user_push($user)) continue;
         $ttp_data[] = array(
             'userid'    => $user['uid'],
             'type'      => 'newtopic',
@@ -904,7 +896,6 @@ function tapatalk_push_pm()
     while($user = $db->fetch_array($query))
     {
         if ($user['toid'] == $mybb->user['uid']) continue;
-
         if (tt_check_ignored($user['toid'])) continue;
         
         $ttp_data[] = array(
@@ -1128,4 +1119,18 @@ function tt_check_ignored($uid)
 		return true;
 	}
 	return false;
+}
+
+function ingnore_user_push($user)
+{
+	global $mybb;
+	if(empty($user['uid'])) return true;
+	if ($user['uid'] == $mybb->user['uid']) return true;
+    if (tt_check_ignored($user['uid'])) return true;
+    if(defined("TAPATALK_PUSH".$user['uid']))
+	{
+	    return true;
+	}
+    define("TAPATALK_PUSH".$user['uid'], 1);
+    return false;    
 }

@@ -943,7 +943,7 @@ function tt_register_verify($tt_token,$tt_code)
 	$response = getContentFromRemoteServer($url, 10 , $error_msg);
 	if(!empty($error_msg))
 	{
-		$response = '{"result":false,"result_text":"Contect timeout , please try again"}';
+		$response = '{"result":false,"result_text":"'.$error_msg.'"}';
 	}
 	if(empty($response))
 	{

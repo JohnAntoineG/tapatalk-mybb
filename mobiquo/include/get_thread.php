@@ -382,7 +382,8 @@ function get_thread_func($xmlrpc_params)
         'topic_id'        => new xmlrpcval($thread['tid'], 'string'),
         'topic_title'     => new xmlrpcval(basic_clean($thread['subject']), 'base64'),
         'can_upload'      => new xmlrpcval($forumpermissions['canpostattachments'] != 0, 'boolean'),
-    	'can_report'      => new xmlrpcval(true,'boolean')
+    	'can_report'      => new xmlrpcval(true,'boolean'),
+    	'can_reply'       => new xmlrpcval($can_reply, 'boolean'),
         //'can_subscribe'   => new xmlrpcval(true, 'boolean'), // default as true, so don't need to return
     );
 	if($forumpermissions['canview'] == 0 || $forumpermissions['canviewthreads'] == 0)
@@ -400,7 +401,6 @@ function get_thread_func($xmlrpc_params)
     if ($subscribed)        $result['is_subscribed'] = new xmlrpcval(true, 'boolean');
     else                    $result['is_subscribed'] = new xmlrpcval(false, 'boolean');
     if ($isbanned)          $result['is_ban']        = new xmlrpcval(true, 'boolean');
-    if ($can_reply)         $result['can_reply']     = new xmlrpcval(true, 'boolean');
     if ($position)          $result['position']      = new xmlrpcval(intval($position), 'int');
     if (is_moderator($fid, "canopenclosethreads"))  $result['can_close']    = new xmlrpcval(true, 'boolean');
     if (is_moderator($fid, "candeleteposts"))       $result['can_delete']   = new xmlrpcval(true, 'boolean');

@@ -154,11 +154,8 @@ switch ($request_method)
         
         if (!empty($request_params[2]))
         {
-            $_GET['action'] = 'results';
-            $_GET['sid'] = $request_params[2];
-        }
-        else
-        {
+            //$_GET['action'] = 'results';
+            //$_GET['sid'] = $request_params[2];
             $_GET['action'] = 'getunread';
             if (isset($request_params[3]))
             {
