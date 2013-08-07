@@ -186,11 +186,11 @@ function get_topic_func($xmlrpc_params)
     {
         // Start Getting Threads
         $query = $db->query("
-            SELECT t.*, {$ratingadd}{$select_rating_user}t.username AS threadusername, u.username, u.avatar, if({$mybb->user['uid']} > 0 and s.uid = {$mybb->user['uid']}, 1, 0) as subscribed, po.message, IF(b.lifted > UNIX_TIMESTAMP() OR b.lifted = 0, 1, 0) as isbanned
+            SELECT t.*, {$ratingadd}{$select_rating_user}t.username AS threadusername, u.username, u.avatar, s.sid as subscribed, po.message, IF(b.lifted > UNIX_TIMESTAMP() OR b.lifted = 0, 1, 0) as isbanned
             FROM ".TABLE_PREFIX."threads t
             LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid = t.uid){$select_voting}
-            LEFT JOIN ".TABLE_PREFIX."banned b ON (b.uid = t.uid)
-            LEFT JOIN ".TABLE_PREFIX."threadsubscriptions s ON (s.tid = t.tid)
+            LEFT JOIN ".TABLE_PREFIX."banned b ON (b.uid = t.uid) 
+            LEFT JOIN ".TABLE_PREFIX."threadsubscriptions s ON (s.tid = t.tid) AND (s.uid = '{$mybb->user['uid']}')
             LEFT JOIN ".TABLE_PREFIX."posts po ON (po.pid = t.firstpost)
             WHERE t.fid='$fid' $tuseronly $tvisibleonly $tstickyonly
             GROUP BY t.tid
@@ -409,7 +409,7 @@ function get_topic_func($xmlrpc_params)
 			
             if ($unreadpost)                                $new_topic['new_post']       = new xmlrpcval(true, 'boolean');
             if ($thread['sticky'])                          $new_topic['is_sticky']      = new xmlrpcval(true, 'boolean');
-            if ($thread['subscribed'])                      $new_topic['is_subscribed']  = new xmlrpcval(true, 'boolean');
+            if (!empty($thread['subscribed']))                      $new_topic['is_subscribed']  = new xmlrpcval(true, 'boolean');
             else                                            $new_topic['is_subscribed']  = new xmlrpcval(false, 'boolean');
             if ($thread['closed'])                          $new_topic['is_closed']      = new xmlrpcval(true, 'boolean');
             if ($thread['isbanned'])                        $new_topic['is_ban']         = new xmlrpcval(true, 'boolean');
