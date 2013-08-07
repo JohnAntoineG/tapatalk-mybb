@@ -28,7 +28,7 @@ function update_push_status_func($xmlrpc_params)
             'data' => base64_encode(serialize($input['settings'])),
         );
             
-        $url = 'https://directory.tapatalk.com/au_update_push_setting.php';
+        $url = 'http://directory.tapatalk.com/au_update_push_setting.php';
         getContentFromRemoteServer($url, 0, $error_msg, 'POST', $data);
     }
    

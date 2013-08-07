@@ -151,12 +151,14 @@ switch ($request_method)
         list($start, $limit, $page) = process_page($request_params[0], $request_params[1]);
         $_GET['page'] = $page;
         $_GET['perpage'] = $limit;
-        
+        $_GET['action'] = 'getunread';
         if (!empty($request_params[2]))
         {
             //$_GET['action'] = 'results';
             //$_GET['sid'] = $request_params[2];
-            $_GET['action'] = 'getunread';
+       
+           
+            
             if (isset($request_params[3]))
             {
                 if (isset($request_params[3]['only_in']) && is_array($request_params[3]['only_in']))
