@@ -1040,6 +1040,17 @@ function tt_login_success()
 	tt_update_push();
 	if ($settings['maxattachments'] == 0) $settings['maxattachments'] = 100;
 	
+	$userPushType = array('pm' => 1,'newtopic' => 1,'sub' => 1,'tag' => 1,'quote' => 1);
+    $push_type = array();
+    
+ 	foreach ($userPushType as $name=>$value)
+    {
+    	$push_type[] = new xmlrpcval(array(
+            'name'  => new xmlrpcval($name,'string'),
+    		'value' => new xmlrpcval($value,'boolean'),                    
+            ), 'struct');
+    }   
+    
 	$result = array(
 		'result'            => new xmlrpcval(true, 'boolean'),
 		'result_text'       => new xmlrpcval('', 'base64'),
@@ -1060,6 +1071,7 @@ function tt_login_success()
 		'can_search'        => new xmlrpcval($mybb->usergroup['cansearch'] == 1, "boolean"),
 		'can_whosonline'    => new xmlrpcval($mybb->usergroup['canviewonline'] == 1, "boolean"),
 		'register'          => new xmlrpcval($register, "boolean"),
+		'push_type'         => new xmlrpcval($push_type, 'array'), 
 	);
 	
 	
