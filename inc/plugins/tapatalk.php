@@ -114,12 +114,6 @@ function tapatalk_install()
     $gid_byo = $db->insert_id();
 
     $settings = array(
-        'enable' => array(
-            'title'         => 'Enable/Disable',
-            'description'   => 'Enable/Disable the Tapatalk',
-            'optionscode'   => 'onoff',
-            'value'         => '1'
-        ),
         'hide_forum' => array(
             'title'         => 'Hide Forums',
             'description'   => "Hide specific sub-forums from appearing in Tapatalk. Please enter a comma-separated sub-forum ID",

@@ -367,8 +367,6 @@ require_once './global.php';
 if (!isset($cache->cache['plugins']['active']['tapatalk']) && $request_method != 'get_config')
     get_error('Tapatalk will not work on this forum before forum admin Install & Activate tapatalk plugin on forum side!');
 
-if (!$mybb->settings['tapatalk_enable'] && $request_method != 'get_config')
-    error('Tapatalk was disabled by forum admin!');
 
 // hide forum option
 if ($mybb->settings['tapatalk_hide_forum'])
