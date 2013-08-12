@@ -832,7 +832,15 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
 
     if(!empty($holdTime) && function_exists('file_get_contents') && $method == 'GET')
     {
-        $response = @file_get_contents($url);
+        $opts = array(
+            $vurl['scheme'] => array(
+                'method' => "GET",
+                'timeout' => $holdTime,
+            )
+        );
+
+        $context = stream_context_create($opts);
+        $response = file_get_contents($url,false,$context);
     }
     else if (@ini_get('allow_url_fopen'))
     {
@@ -873,10 +881,12 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
         {
             if($method == 'POST')
             {
-                $params = array('http' => array(
-                    'method' => 'POST',
-                    'content' => http_build_query($data, '', '&'),
-                ));
+                $params = array(
+                    $vurl['scheme'] => array(
+                        'method' => 'POST',
+                        'content' => http_build_query($data, '', '&'),
+                    )
+                );
                
                 $ctx = stream_context_create($params);
                 $old = ini_set('default_socket_timeout', $holdTime);
