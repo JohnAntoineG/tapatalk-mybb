@@ -169,7 +169,12 @@ function get_box_func($xmlrpc_params)
 					{
 						$profilelink = get_profile_link($uid);
 						$user = $cached_users[$uid];
-						$msg_to[]=new xmlrpcval($user['username'], "base64");
+												
+						$msg_to[]=new xmlrpcval(array(
+							"username" => new xmlrpcval($user['username'], "base64"),
+							"user_id"  => new xmlrpcval($uid, "string"),
+							"user_type" => check_return_user_type($user['username']),
+						), "struct");
 						
 						if (($folder == 2 or $folder == 3) && !$outboxdisplayuserid)
 						{
@@ -191,13 +196,13 @@ function get_box_func($xmlrpc_params)
 				{
 					$tofromusername = $message['tousername'];
 					$tofromuid = $message['toid'];
-					$msg_to[]=new xmlrpcval(array("username" => new xmlrpcval($tofromusername, "base64")), "struct");
+					$msg_to[]=new xmlrpcval(array(
+						"username" => new xmlrpcval($tofromusername, "base64"),
+						"user_id"  => new xmlrpcval($message['toid'], "string"),
+						"user_type" => check_return_user_type($tofromusername),
+					), "struct");
 				}
-				else
-				{
-					$tofromusername = $lang->not_sent;
-					$msg_to[]=new xmlrpcval($tofromusername, "base64");
-				}
+				
 				$avatar = $message['tavatar'];
 			}
 			
