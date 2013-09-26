@@ -1,5 +1,14 @@
 <?php
 
+if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI']))
+{
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+    $app_ads_refferer = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+}
+else
+    $app_ads_refferer = $board_url;
+
+
 // for those forum system which can not add js in html body, please set $functionCallAfterWindowLoad as 1
 $functionCallAfterWindowLoad = isset($functionCallAfterWindowLoad) && $functionCallAfterWindowLoad ? 1 : 0;
 
@@ -19,6 +28,8 @@ $app_kindle_url = isset($app_kindle_url) ? $app_kindle_url : '';
 $app_banner_message = isset($app_banner_message) && $app_banner_message ? preg_replace('/\r\n|\n|\r/si', '<br />', $app_banner_message) : 'Follow {your_forum_name} <br /> with {app_name} for [os_platform]';
 $is_mobile_skin = isset($is_mobile_skin) && $is_mobile_skin ? 1 : 0;
 
+
+// display twitter card
 $twitter_card_head = '';
 if ($app_ios_id != -1 || $app_android_id != -1)
 {
@@ -51,6 +62,7 @@ if ($app_ios_id != -1 || $app_android_id != -1)
     ';
 }
 
+// display smart banner
 $app_banner_head = '
     <!-- Tapatalk Banner head start -->
     <link href="'.$tapatalk_dir_url.'/smartbanner/appbanner.css" rel="stylesheet" type="text/css" media="screen" />
@@ -68,4 +80,20 @@ $app_banner_head = '
     <!-- Tapatalk Banner head end-->
 ';
 
-$app_head_include = $twitter_card_head.$app_banner_head;
+// display full app ads
+$full_view_ads = '';
+if (file_exists($tapatalk_dir . '/smartbanner/ads.php') && $app_ads_enable)
+{
+    $full_view_ads = '
+        <!-- tapatalk full view ads -->
+        <script type="text/javascript">
+            var app_forum_code = "'.md5($api_key).'";
+            var app_board_url = "'.addslashes(urlencode($board_url)).'";
+            var app_ads_refferer = "'.addslashes(urlencode($app_ads_refferer)).'";
+            var app_ads_url = "'.addslashes($tapatalk_dir_url.'/smartbanner/ads.php').'";
+        </script>
+        <script src="'.$tapatalk_dir_url.'/smartbanner/ads.js" type="text/javascript"></script>
+    ';
+}
+
+$app_head_include = $twitter_card_head.$app_banner_head.$full_view_ads;

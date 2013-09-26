@@ -28,8 +28,8 @@ if (app_ios_id == '-1')
 }
 else
 {
-    var app_ios_url = 'https://itunes.apple.com/us/app/id'+app_ios_id;
-    var app_ios_hd_url = 'https://itunes.apple.com/us/app/id'+app_ios_hd_id;
+    var app_ios_url = 'https://itunes.apple.com/us/app/id'+app_ios_id+'?mt=8';
+    var app_ios_hd_url = 'https://itunes.apple.com/us/app/id'+app_ios_hd_id+'?mt=8';
 }
 
 // compatibility code
@@ -104,14 +104,13 @@ if (app_ios_id != '-1' && navigator.userAgent.match(/Safari/i) != null &&
 }
 
 // for those forum system which can not add js in html body
-if (!empty(functionCallAfterWindowLoad)) addWindowOnload(tapatalkDetect)
+if (typeof (functionCallAfterWindowLoad) != 'undefined' && functionCallAfterWindowLoad == 1) addWindowOnload(tapatalkDetect)
 
 var bannerLoaded = false
 
 function tapatalkDetect()
 {
-    var standalone = navigator.standalone // Check if it's already a standalone web app or running within a webui view of an app (not mobile safari)
-    if (empty(functionCallAfterWindowLoad)) addtrack();
+    var standalone = navigator.standalone // Check if it's already a standalone web app or running within a web ui view of an app (not mobile safari)
     
     // work only when browser support cookie
     if (!navigator.cookieEnabled 
@@ -276,11 +275,6 @@ function empty(a){
         return true;
     }
     return false;
-}
-
-function addtrack()
-{
-    document.write('<img src="https://activate.tapatalk.com/i.gif?host='+window.location.host+'" style="display:none;" border="0" >');
 }
 
 /* to get element outer height */

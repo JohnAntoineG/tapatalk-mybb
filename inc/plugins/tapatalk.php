@@ -169,6 +169,13 @@ function tapatalk_install()
             'description'   => '',
             'optionscode'   => 'php',
             'value'         => '0',
+        ),
+        
+        'app_ads_enable' => array(
+        	'title'         => 'Mobile Welcome Screen',
+            'description'   => 'Tapatalk will show a one time welcoming screen to mobile users to download the free app, the screen will contain your forum logo and branding only, with a button to get the free app. ',
+            'optionscode'   => 'onoff',
+            'value'         => '1',
         )
     );
 	
@@ -531,8 +538,8 @@ function tapatalk_pre_output_page(&$page)
 	
     $app_forum_name = $settings['homename'];
     $board_url = $mybb->settings['bburl'];
-    $tapatalk_dir = $mybb->settings['tapatalk_directory'];  // default as 'mobiquo'
-    $tapatalk_dir_url = $board_url.'/'.$tapatalk_dir;
+    $tapatalk_dir = MYBB_ROOT.$mybb->settings['tapatalk_directory'];  // default as 'mobiquo'
+    $tapatalk_dir_url = $board_url.'/'.$mybb->settings['tapatalk_directory'];
     $is_mobile_skin = 0;
     $app_location_url = tapatalk_get_url();
     
@@ -541,8 +548,11 @@ function tapatalk_pre_output_page(&$page)
     $app_android_id = $settings['tapatalk_android_url'];
     $app_kindle_url = $settings['tapatalk_kindle_url'];
     
-    if (file_exists(MYBB_ROOT.$tapatalk_dir . '/smartbanner/head.inc.php'))
-        include(MYBB_ROOT.$tapatalk_dir . '/smartbanner/head.inc.php');
+    //full screen ads
+    $api_key = $settings['tapatalk_push_key'];
+    $app_ads_enable = $settings['tapatalk_app_ads_enable'];
+    if (file_exists($tapatalk_dir . '/smartbanner/head.inc.php'))
+        include($tapatalk_dir . '/smartbanner/head.inc.php');
 	
     $str = $app_head_include;
     $tapatalk_smart_banner_body = " 
