@@ -1,7 +1,7 @@
 
 if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone/i) &&
     typeof(Storage) !== "undefined" &&
-    typeof(app_ads_refferer) !== "undefined" && app_ads_refferer &&
+    typeof(app_ads_referer) !== "undefined" && app_ads_referer &&
     typeof(app_ads_url) !== "undefined" && app_ads_url && (
     (typeof(app_board_url) !== "undefined" && app_board_url) || 
     (typeof(app_forum_code) !== "undefined" && app_forum_code)))
@@ -16,6 +16,6 @@ if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Ph
         localStorage.hide_until = current_timestamp+(86400*30);
         
         // redirect to ads page with referer
-        window.location.href=app_ads_url+'?referer='+app_ads_refferer+'&code='+app_forum_code+'&board_url='+app_board_url;
+        window.location.href=app_ads_url+'?referer='+app_ads_referer+'&code='+app_forum_code+'&board_url='+app_board_url;
     }
 }

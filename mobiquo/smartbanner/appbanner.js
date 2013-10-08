@@ -1,110 +1,49 @@
 
-var app_ios_id_default = '307880732';      // Tapatalk 1, 585178888 for Tapatalk 2
-var app_ios_hd_id_default = '307880732';   // Tapatalk 1, 481579541 for Tapatalk HD
-var app_android_id_default = 'com.quoord.tapatalkpro.activity';
-var app_android_hd_id_default = 'com.quoord.tapatalkHD';
+// make sure all variables are defined
+if (typeof(functionCallAfterWindowLoad) == "undefined") var functionCallAfterWindowLoad = false;
+if (typeof(is_mobile_skin)  == "undefined") var is_mobile_skin = false;
+if (typeof(app_ios_id)      == "undefined") var app_ios_id = '';
+if (typeof(app_android_id)  == "undefined") var app_android_id = '';
+if (typeof(app_kindle_url)  == "undefined") var app_kindle_url = '';
+if (typeof(app_board_url)   == "undefined") var app_board_url = '';
+if (typeof(app_forum_name)     == "undefined" || !app_forum_name) var app_forum_name = "this forum";
+if (typeof(app_banner_message) == "undefined" || !app_banner_message) var app_banner_message = "Follow {your_forum_name} <br /> with {app_name} for [os_platform]";
+if (typeof(app_location_url)   == "undefined" || !app_location_url) var app_location_url = "tapatalk://";
+var app_location_url_byo = app_location_url.replace('tapatalk://', 'tapatalk-byo://');
 
-var byo_ios_enable = false;
-var byo_android_enable = false;
-var byo_kindle_enable = false;
-
-if (empty(is_mobile_skin))
-    var is_mobile_skin = 0;
-
-if (empty(app_ios_id)) {
-    var app_ios_id = app_ios_id_default;
-    var app_ios_hd_id = app_ios_hd_id_default;
-} else if (app_ios_id != app_ios_id_default) {
-    byo_ios_enable = true;
-    var app_ios_hd_id = app_ios_id;
-} else
-    var app_ios_hd_id = app_ios_hd_id_default;
-
-
-if (app_ios_id == '-1')
-{
-    var app_ios_url = '-1';
-    var app_ios_hd_url = '-1';
-}
-else
-{
-    var app_ios_url = 'https://itunes.apple.com/us/app/id'+app_ios_id+'?mt=8';
-    var app_ios_hd_url = 'https://itunes.apple.com/us/app/id'+app_ios_hd_id+'?mt=8';
-}
-
-// compatibility code
-if (!empty(app_android_url)) app_android_id = app_android_url;
-
-if (empty(app_android_id)) {
-    var app_android_id = app_android_id_default;
-    var app_android_hd_id = app_android_hd_id_default;
-} else {
-    // compatibility code
-    if (app_android_id.match(/details\?id=/i)) {
-        var app_android_id = /details\?id=([^\s,&]+)/.exec(app_android_id)[1];
-    }
-    
-    if (app_android_id != app_android_id_default) {
-        byo_android_enable = true;
-        var app_android_hd_id = app_android_id;
-    } else
-        var app_android_hd_id = app_android_hd_id_default;
-}
-
-if (app_android_id == '-1') {
-    var app_android_url = '-1';
-    var app_android_hd_url = '-1';
-} else {
-    var app_android_url = "market://details?id="+app_android_id;
-    var app_android_hd_url = "market://details?id="+app_android_hd_id;
-}
-
-if (empty(app_kindle_url)) {
-    var app_kindle_url = "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkpro.activity";
-    var app_kindle_hd_url = "http://www.amazon.com/gp/mas/dl/android?p=com.quoord.tapatalkHD";
-} else {
-    byo_kindle_enable = true;
-    var app_kindle_hd_url = app_kindle_url;
-}
-
-if (empty(app_name))
-    var app_name = "Tapatalk";
-
-if (empty(app_location_url)){
-    var app_location_url = "tapatalk://";
-    var app_location_url_byo = "tapatalk-byo://";
-} else {
-    var app_location_url_byo = app_location_url.replace('tapatalk://', 'tapatalk-byo://');
-}
-
-if (empty(app_forum_name))
-    var app_forum_name = "this forum";
-
-if (empty(app_banner_message))
-    var app_banner_message = "Follow {your_forum_name} <br /> with {app_name} for [os_platform]";
-
+// set default iOS app for native smart banner
+var app_ios_id_default = '307880732';      // Tapatalk Free, 585178888 for Tapatalk Pro
+var app_ios_hd_id_default = '307880732';   // Tapatalk Free, 481579541 for Tapatalk HD
 
 // Support native iOS Smartbanner
 var native_ios_banner = false;
 if (app_ios_id != '-1' && navigator.userAgent.match(/Safari/i) != null &&
     (navigator.userAgent.match(/CriOS/i) == null && window.Number(navigator.userAgent.substr(navigator.userAgent.indexOf('OS ') + 3, 3).replace('_', '.')) >= 6))
 {
-    banner_location_url = byo_ios_enable ? app_location_url_byo : app_location_url;
+    banner_location_url = app_ios_id ? app_location_url_byo : app_location_url;
     
     if (navigator.userAgent.match(/iPad/i) != null)
     {
-        document.write('<meta name="apple-itunes-app" content="app-id='+app_ios_hd_id+', app-argument='+banner_location_url+', affiliate-data=partnerId=30&siteID=w5J2vu1UnxA" />');
+        document.write('<meta name="apple-itunes-app" content="app-id='+(app_ios_id ? app_ios_id : app_ios_hd_id_default)+', app-argument='+banner_location_url+', affiliate-data=partnerId=30&siteID=w5J2vu1UnxA" />');
         native_ios_banner = true;
     }
     else if (navigator.userAgent.match(/iPod|iPhone/i) != null)
     {
-        document.write('<meta name="apple-itunes-app" content="app-id='+app_ios_id+', app-argument='+banner_location_url+', affiliate-data=partnerId=30&siteID=w5J2vu1UnxA" />');
+        document.write('<meta name="apple-itunes-app" content="app-id='+(app_ios_id ? app_ios_id : app_ios_id_default)+', app-argument='+banner_location_url+', affiliate-data=partnerId=30&siteID=w5J2vu1UnxA" />');
         native_ios_banner = true;
     }
 }
 
+// initialize app download url
+var app_install_url = 'http://tapatalk.com/m/?id=6';
+if (app_ios_id)     app_install_url = app_install_url+'&app_ios_id='+app_ios_id;
+if (app_android_id) app_install_url = app_install_url+'&app_android_id='+app_android_id;
+if (app_kindle_url) app_install_url = app_install_url+'&app_kindle_url='+app_kindle_url;
+if (app_board_url)  app_install_url = app_install_url+'&referer='+app_board_url;
+
+
 // for those forum system which can not add js in html body
-if (typeof (functionCallAfterWindowLoad) != 'undefined' && functionCallAfterWindowLoad == 1) addWindowOnload(tapatalkDetect)
+if (functionCallAfterWindowLoad) addWindowOnload(tapatalkDetect)
 
 var bannerLoaded = false
 
@@ -123,56 +62,39 @@ function tapatalkDetect()
     bannerLoaded = true
     
     app_banner_message = app_banner_message.replace(/\{your_forum_name\}/gi, app_forum_name);
-    app_banner_message = app_banner_message.replace(/\{app_name\}/gi, app_name);
+    app_banner_message = app_banner_message.replace(/\{app_name\}/gi, "Tapatalk");
     
-    var app_install_url = '';
     if (navigator.userAgent.match(/iPhone|iPod/i)) {
+        if (app_ios_id == '-1') return;
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'iPhone');
-        app_install_url = app_ios_url;
-        
-        banner_location_url = byo_ios_enable ? app_location_url_byo : app_location_url;
+        banner_location_url = app_ios_id ? app_location_url_byo : app_location_url;
     }
     else if (navigator.userAgent.match(/iPad/i)) {
+        if (app_ios_id == '-1') return;
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'iPad');
-        app_install_url = app_ios_hd_url;
-        
-        banner_location_url = byo_ios_enable ? app_location_url_byo : app_location_url;
+        banner_location_url = app_ios_id ? app_location_url_byo : app_location_url;
     }
     else if (navigator.userAgent.match(/Silk/)) {
+        if (app_kindle_url == '-1') return;
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Kindle');
-        if (navigator.userAgent.match(/Android 2/i)) {
-            app_install_url = app_kindle_url;
-        } else {
-            app_install_url = app_kindle_hd_url;
-        }
-        banner_location_url = byo_kindle_enable ? app_location_url_byo : app_location_url;
+        banner_location_url = app_kindle_url ? app_location_url_byo : app_location_url;
     }
     else if (navigator.userAgent.match(/Android/i)) {
-        if(navigator.userAgent.match(/mobile/i)) {
-            app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Android');
-            app_install_url = app_android_url ;
-        }
-        else {
-            app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Android');
-            app_install_url = app_android_hd_url;
-        }
-        banner_location_url = byo_android_enable ? app_location_url_byo : app_location_url;
+        if (app_android_id == '-1') return;
+        app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Android');
+        banner_location_url = app_android_id ? app_location_url_byo : app_location_url;
     }
     else if (navigator.userAgent.match(/IEMobile|Windows Phone/i)) {
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Windows Phone');
-        app_install_url = "http://www.windowsphone.com/s?appid=913ffd61-3ba0-435c-a894-9d3ec7e78d6e";
         banner_location_url = app_location_url;
     }
     else if (navigator.userAgent.match(/BlackBerry/i)) {
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'BlackBerry');
-        app_install_url = "http://appworld.blackberry.com/webstore/content/46654?lang=en";
         banner_location_url = app_location_url;
     }
     else
         return
     
-    
-    if (app_install_url == '-1') return
     
     htmlElement = document.getElementsByTagName("html")[0]
     origHtmlMargin = parseFloat(htmlElement.style.marginTop)
@@ -267,15 +189,6 @@ function setBannerCookies(name, value, exdays)
     document.cookie=name+'='+value+'; path=/;';
 }
 
-function empty(a){
-    if(typeof(a) == "undefined" || a == '') {
-        return true;
-    }
-    if(a == '0' || a == false) {
-        return true;
-    }
-    return false;
-}
 
 /* to get element outer height */
 
