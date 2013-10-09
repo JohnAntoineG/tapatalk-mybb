@@ -80,6 +80,8 @@ function sign_in_func()
 					"user_fields" => $user_field,
 					"signature" => $profile->signature,
 					"option" => array(),
+					"regdate" => TIME_NOW,
+					"lastvisit" => TIME_NOW
 				);						
 				
 				if(!empty($profile->avatar_url))
