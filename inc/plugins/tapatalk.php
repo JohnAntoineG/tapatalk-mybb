@@ -126,12 +126,6 @@ function tapatalk_install()
             'optionscode'   => 'text',
             'value'         => 'member.php?action=register'
         ),
-        'allow_register' => array(
-            'title'         => 'In-app Registration',
-            'description'   => 'Allows Tapatalk users to create new account, change password and update email address in-app.',
-            'optionscode'   => 'onoff',
-            'value'         => '1'
-        ),
         'directory' => array(
             'title'         => 'Tapatalk Plugin Directory',
             'description'   => 'Never change it if you did not rename the Tapatalk plugin directory. And the default value is \'mobiquo\'. If you renamed the Tapatalk plugin directory, you also need to update the same setting in Tapatalk Forum Owner Area.',

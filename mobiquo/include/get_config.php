@@ -34,7 +34,7 @@ function get_config_func()
     {
         $config_list['reg_url'] = new xmlrpcval(basic_clean($mybb->settings['tapatalk_reg_url']), 'string');
     }
-    if(version_compare($mybb->version, '1.6.9','>=') && $mybb->settings['tapatalk_allow_register'])
+    if(version_compare($mybb->version, '1.6.9','>=') && !$mybb->settings['disableregs'])
     {
     	$config_list['inappreg'] = new xmlrpcval(1, 'string');
     }

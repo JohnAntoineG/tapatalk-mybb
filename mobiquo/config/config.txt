@@ -45,3 +45,8 @@ user_recommend = 1
 sign_in = 1
 inappsignin = 1
 ignore_user = 1
+inappreg = 0
+
+m_approve = 1
+m_delete = 0
+m_report = 1

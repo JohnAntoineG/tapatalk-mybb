@@ -34,7 +34,7 @@ $lang->load("member");
 */
 if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 {
-	if($mybb->settings['disableregs'] == 1 || $mybb->settings['tapatalk_allow_register'] != '1')
+	if($mybb->settings['disableregs'] == 1)
 	{
 		error($lang->registrations_disabled);
 	}

@@ -340,6 +340,7 @@ switch ($request_method)
     case 'get_recommended_user':
     	$_POST['page'] = !empty($request_params[0]) ? $request_params [0] : '1';
     	$_POST['perpage'] = isset($request_params[1]) ? $request_params[1] : '20';
+    	$_POST['mode'] = isset($request_params[2]) ? $request_params[2] : 1;
     	break;  
     case 'ignore_user':
     	$_GET['action'] = 'do_editlists';

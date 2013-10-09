@@ -9,10 +9,7 @@ $verify_result = false;
 $result_text = '';
 // Load global language phrases
 $lang->load("usercp");
-if($mybb->settings['tapatalk_allow_register'] != '1')
-{
-	error("No permission to change password(1) !");
-}
+
 if(!empty($_POST['tt_token']) && !empty($_POST['tt_code']))
 {
 	$result = tt_register_verify($_POST['tt_token'], $_POST['tt_code']); 

@@ -588,6 +588,7 @@ $server_param = array(
     	'function' => 'get_recommended_user_func',
     	'signature' => array(array($xmlrpcStruct),
     						 array($xmlrpcStruct,$xmlrpcInt ,$xmlrpcInt),
+    						 array($xmlrpcStruct,$xmlrpcInt ,$xmlrpcInt,$xmlrpcInt),
     						 ),
     ),
     
