@@ -4,6 +4,8 @@ require_once '../global.php';
 error_reporting(E_ALL & ~E_NOTICE);
 
 $return_status = tt_do_post_request(array('test' => 1 , 'key' => $mybb->settings['tapatalk_push_key']),true);
+if(empty($mybb->settings['tapatalk_push_key']))
+	$return_status = 'Please set Tapatalk API Key at forum option/setting';
 $return_ip = tt_do_post_request(array('ip' => 1),true);
 $board_url = $mybb->settings['bburl'];
 $option_status = 'On';

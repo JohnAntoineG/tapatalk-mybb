@@ -39,6 +39,13 @@ function get_config_func()
     	$config_list['inappreg'] = new xmlrpcval(1, 'string');
     }
     
+	if (!function_exists('curl_init') && !@ini_get('allow_url_fopen'))
+	{
+	    $mobiquo_config['sign_in'] = 0;
+	    $mobiquo_config['inappreg'] = 0;
+	    $mobiquo_config['inappsignin'] = 0;
+	}
+	
     foreach($mobiquo_config as $key => $value){
         if(!array_key_exists($key, $config_list) && $key != 'thlprefix'){
             $config_list[$key] = new xmlrpcval($value, 'string');
@@ -62,7 +69,7 @@ function get_config_func()
     }
     
     $config_list['min_search_length'] = new xmlrpcval(intval($mybb->settings['minsearchword']), 'int');
-    
+    $config_list['api_key'] = new xmlrpcval(md5($mybb->settings['tapatalk_push_key']), 'string');
     $response = new xmlrpcval($config_list, 'struct');
     return new xmlrpcresp($response);
 }

@@ -375,6 +375,7 @@ function get_thread_func($xmlrpc_params)
         }
     }
     
+    $is_poll = !empty($thread['poll']) ? true : false;
     $result = array(
         'total_post_num'  => new xmlrpcval($postcount, 'int'),
         'forum_id'        => new xmlrpcval($thread['fid'], 'string'),
@@ -384,6 +385,7 @@ function get_thread_func($xmlrpc_params)
         'can_upload'      => new xmlrpcval($forumpermissions['canpostattachments'] != 0, 'boolean'),
     	'can_report'      => new xmlrpcval(true,'boolean'),
     	'can_reply'       => new xmlrpcval($can_reply, 'boolean'),
+    	'is_poll'         => new xmlrpcval($is_poll, 'boolean'),
         //'can_subscribe'   => new xmlrpcval(true, 'boolean'), // default as true, so don't need to return
     );
 	if($forumpermissions['canview'] == 0 || $forumpermissions['canviewthreads'] == 0)
