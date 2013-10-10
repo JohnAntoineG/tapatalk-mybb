@@ -141,7 +141,7 @@ function get_recommended_user_list($sql,$type)
 	}
 }
 
-function tapa_rank_users($users, $max_num = 50)
+function tapa_rank_users($users, $max_num = 1000)
 {    
     // combine ranks for same user
     $combined_users = array();
