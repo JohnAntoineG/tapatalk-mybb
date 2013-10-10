@@ -74,7 +74,7 @@ function tapatalkDetect()
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'iPad');
         banner_location_url = app_ios_id ? app_location_url_byo : app_location_url;
     }
-    else if (navigator.userAgent.match(/Silk/)) {
+    else if (navigator.userAgent.match(/Silk|KFOT|KFTT|KFJWI|KFJWA/)) {
         if (app_kindle_url == '-1') return;
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Kindle');
         banner_location_url = app_kindle_url ? app_location_url_byo : app_location_url;
