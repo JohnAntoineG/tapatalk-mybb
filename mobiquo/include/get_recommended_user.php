@@ -119,7 +119,11 @@ function get_recommended_user_list($sql,$type)
 	global $db,$users,$mybb,$tapatalk_users;
 	$query = $db->query($sql);
 	while($user = $db->fetch_array($query))
-	{			
+	{		
+		if(empty($user['uid']))
+		{
+			continue;
+		}	
 		if($user['uid'] == $mybb->user['uid'])
 		{
 			continue;
