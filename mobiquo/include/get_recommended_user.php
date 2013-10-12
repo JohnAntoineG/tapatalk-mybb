@@ -28,6 +28,14 @@ function get_recommended_user_func()
 	LIMIT 0,1000";	
 	get_recommended_user_list($sql,'contact');
 	
+	// get pm me users 
+	$sql = "SELECT p.uid as uid
+	FROM ".TABLE_PREFIX."privatemessages p 
+	WHERE p.toid = ".$mybb->user['uid']."
+	GROUP BY p.uid
+	LIMIT 0,1000";	
+	get_recommended_user_list($sql,'contact');
+	
 	//get sub topic users 
 	$sql = "SELECT t.uid as uid
 	FROM " . TABLE_PREFIX . "threadsubscriptions ts 
@@ -36,7 +44,17 @@ function get_recommended_user_func()
 	GROUP BY t.uid
 	LIMIT 0,1000";
 	get_recommended_user_list($sql,'watch');
-
+	
+	//get sub me topic users 
+	$sql = "SELECT ts.uid as uid
+	FROM " . TABLE_PREFIX . "threadsubscriptions ts 
+	RIGHT JOIN " . TABLE_PREFIX . "threads t ON ts.tid = t.tid 
+	WHERE t.uid = " . $mybb->user['uid'] . "
+	GROUP BY ts.uid
+	LIMIT 0,1000";
+	
+	get_recommended_user_list($sql,'watch');
+	
 	//get like or thank users
 	$prefix = "g33k_thankyoulike_";
 	if(file_exists('thankyoulike.php') && $db->table_exists($prefix.'thankyoulike'))
@@ -224,5 +242,5 @@ function loadAPIKey()
         } 
         return false;    
     }
-    return md5($mobi_api_key);
+    return $mobi_api_key;
 }
