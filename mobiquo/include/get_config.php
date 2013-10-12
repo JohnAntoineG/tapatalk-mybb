@@ -69,7 +69,10 @@ function get_config_func()
     }
     
     $config_list['min_search_length'] = new xmlrpcval(intval($mybb->settings['minsearchword']), 'int');
-    $config_list['api_key'] = new xmlrpcval(md5($mybb->settings['tapatalk_push_key']), 'string');
+    if(!empty($mybb->settings['tapatalk_push_key'])) {
+    	$config_list['api_key'] = new xmlrpcval(md5($mybb->settings['tapatalk_push_key']), 'string');
+    }
+    
     $response = new xmlrpcval($config_list, 'struct');
     return new xmlrpcresp($response);
 }
