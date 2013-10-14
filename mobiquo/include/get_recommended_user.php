@@ -175,7 +175,7 @@ function tapa_rank_users($users, $max_num = 1000)
     
     foreach($users as $user)
     {
-        $hash['uid'] = $user['rank'];
+        $hash[$user['uid']] = $user['rank'];
     }
     
     arsort($hash);
