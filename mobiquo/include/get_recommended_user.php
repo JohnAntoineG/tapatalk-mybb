@@ -175,21 +175,18 @@ function tapa_rank_users($users, $max_num = 1000)
     
     foreach($users as $user)
     {
-        if(isset($hash[$user['rank']]))
-            $hash[$user['rank']+1] = $user;
-        else
-            $hash[$user['rank']] = $user;
+        $hash['uid'] = $user['rank'];
     }
     
-    krsort($hash);
+    arsort($hash);
     
     $users = array();
     $count = 0;
-    foreach($hash as $user)
+    foreach($hash as $key => $user)
     {
         if($count > $max_num || $count == $max_num)
             break;
-        $users[] = $user['uid'];
+        $users[] = $key;
         $count++;
     }
     
