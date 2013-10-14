@@ -25,6 +25,7 @@ $plugins->add_hook('postbit','tapatalk_postbit');
 $plugins->add_hook('postbit_prev','tapatalk_postbit');
 $plugins->add_hook('postbit_pm','tapatalk_postbit');
 $plugins->add_hook('postbit_announcement','tapatalk_postbit');
+$plugins->add_hook('parse_message_start', "tapatalk_parse_message");
 function tapatalk_info()
 {
     /**
@@ -1131,4 +1132,15 @@ function ingnore_user_push($user)
 	}
     define("TAPATALK_PUSH".$user['uid'], 1);
     return false;    
+}
+
+function tapatalk_parse_message(&$message)
+{
+	//add tapatalk thumbnail
+    $message = preg_replace_callback('/(\[img\])(http:\/\/img.tapatalk.com\/d\/[0-9]{2}\/[0-9]{2}\/[0-9]{2})(.*?)(\[\/img\])/i',
+            create_function(
+                '$matches',
+                'return \'[url=http://tapatalk.com/tapatalk_image.php?img=\'.base64_encode($matches[2].\'/original\'.$matches[3]).\']\'.$matches[1].$matches[2].\'/thumbnail\'.$matches[3].$matches[4].\'[/url]\';'
+            ),
+    $message);
 }
