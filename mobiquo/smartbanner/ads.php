@@ -3,6 +3,8 @@
 $board_url = isset($_GET['board_url']) ? $_GET['board_url'] : '';
 $referer = isset($_GET['referer']) ? $_GET['referer'] : '';
 $code = isset($_GET['app_forum_code']) ? $_GET['app_forum_code'] : '';
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+$ads_url = $protocol.'tapatalk.com/ads.php?referer='.urlencode($referer).'&code='.urlencode($code).'&board_url='.urlencode($board_url);
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
@@ -24,6 +26,6 @@ $code = isset($_GET['app_forum_code']) ? $_GET['app_forum_code'] : '';
 </head>
 <body>
     <div id="web_bg"><img src="ads_bg.jpg" /></div>
-    <iframe src="http://tapatalk.com/ads.php<?php echo '?referer='.urlencode($referer).'&code='.urlencode($code).'&board_url='.urlencode($board_url) ?>" seamless></iframe>
+    <iframe src="<?php echo $ads_url; ?>" seamless></iframe>
 </body>
 </html>

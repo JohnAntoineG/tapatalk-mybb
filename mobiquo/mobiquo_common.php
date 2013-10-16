@@ -443,13 +443,7 @@ function process_post($post, $returnHtml = false)
 			}	
 		}
 	}
-	//add tapatalk thumbnail
-    $post = preg_replace_callback('/(\[img\])(http:\/\/img.tapatalk.com\/d\/[0-9]{2}\/[0-9]{2}\/[0-9]{2})(.*?)(\[\/img\])/i',
-            create_function(
-                '$matches',
-                'return \'[url=http://tapatalk.com/tapatalk_image.php?img=\'.base64_encode($matches[2].\'/original\'.$matches[3]).\']\'.$matches[1].$matches[2].\'/thumbnail\'.$matches[3].$matches[4].\'[/url]\';'
-            ),
-    $post);
+	
     return $post;
 }
 function process_page($start_num, $end)

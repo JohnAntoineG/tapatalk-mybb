@@ -45,7 +45,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.7.0",
+        "version"       => "3.7.1",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -1136,6 +1136,10 @@ function ingnore_user_push($user)
 
 function tapatalk_parse_message(&$message)
 {
+	if(strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
+	{
+		return ;		
+	}
 	//add tapatalk thumbnail
     $message = preg_replace_callback('/(\[img\])(http:\/\/img.tapatalk.com\/d\/[0-9]{2}\/[0-9]{2}\/[0-9]{2})(.*?)(\[\/img\])/i',
             create_function(
