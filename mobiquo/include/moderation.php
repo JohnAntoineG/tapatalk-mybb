@@ -801,7 +801,7 @@ function m_ban_user_func($xmlrpc_params)
     $lang->load("modcp");
 
     // Get the users info from their Username
-    $query = $db->simple_select("users", "uid, usergroup, additionalgroups, displaygroup", "username = '{$input['user_name_esc']}'", array('limit' => 1));
+    $query = $db->simple_select("users", "uid, username,usergroup, additionalgroups, displaygroup", "username = '{$input['user_name_esc']}'", array('limit' => 1));
     $user = $db->fetch_array($query);
     if(!$user['uid'])
     {
@@ -872,7 +872,7 @@ function m_ban_user_func($xmlrpc_params)
 
 
     $cache->update_banned();
-
+	log_moderator_action(array("uid" => $user['uid'], "username" => $user['username']), $lang->banned_user);
 
     $response = new xmlrpcval(array(
         'result'        => new xmlrpcval(true, 'boolean'),

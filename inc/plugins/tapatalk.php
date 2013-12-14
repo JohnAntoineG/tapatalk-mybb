@@ -45,7 +45,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.7.1",
+        "version"       => "3.7.2",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -82,6 +82,7 @@ function tapatalk_install()
               data_type char(20) NOT NULL DEFAULT '',
               title varchar(200) NOT NULL DEFAULT '',
               data_id int(10) NOT NULL DEFAULT '0',
+              topic_id int(10) NOT NULL DEFAULT '0',
               create_time int(11) unsigned NOT NULL DEFAULT '0',
               PRIMARY KEY (push_id),
               KEY user_id (user_id),
@@ -248,7 +249,7 @@ function tapatalk_is_installed()
 function tapatalk_uninstall()
 {
     global $mybb, $db;
-    if(($mybb->settings['tapatalk_datakeep'] == 'delete') && $db->table_exists('tapatalk_push_data'))
+    if($db->table_exists('tapatalk_push_data') && ($mybb->settings['tapatalk_datakeep'] == 'delete' || !$db->field_exists('topic_id', 'tapatalk_push_data')))
     {
         $db->drop_table('tapatalk_push_data');
     }
@@ -511,7 +512,7 @@ function tapatalk_online_end()
     $temp_online = $online_rows;
     
     $str = '&nbsp;<a title="On Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
-    $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|<\/b><\/span>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
+    $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|<\/b><\/span>|</\s>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
 	if(empty($online_rows))
     {
         $online_rows = str_replace('[tapatalk_user]','',$temp_online);
@@ -1084,8 +1085,13 @@ function tt_insert_push_data($data)
 		'data_id' => $data['subid'],
 		'create_time' => $data['dateline']		
     );
+    if($data['type'] != 'pm')
+    {
+    	$sql_data['topic_id'] = $data['id'];
+    }
 	$db->insert_query('tapatalk_push_data', $sql_data);
 }
+
 function tt_push_clean($str)
 {
 	global $db;

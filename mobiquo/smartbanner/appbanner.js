@@ -1,10 +1,47 @@
 
-// make sure all variables are defined
-if (typeof(functionCallAfterWindowLoad) == "undefined") var functionCallAfterWindowLoad = false;
-if (typeof(is_mobile_skin)  == "undefined") var is_mobile_skin = false;
 if (typeof(app_ios_id)      == "undefined") var app_ios_id = '';
 if (typeof(app_android_id)  == "undefined") var app_android_id = '';
 if (typeof(app_kindle_url)  == "undefined") var app_kindle_url = '';
+
+// ---- welcome page display ----
+if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone/i) &&
+    typeof(Storage) !== "undefined" &&
+    (typeof(app_welcome_enable) === "undefined" || app_welcome_enable) &&
+    (typeof(localStorage.hide) === "undefined" || localStorage.hide == 'false') &&
+    typeof(app_referer) !== "undefined" && app_referer &&
+    typeof(app_welcome_url) !== "undefined" && app_welcome_url && (
+    (typeof(app_board_url) !== "undefined" && app_board_url) || 
+    (typeof(app_forum_code) !== "undefined" && app_forum_code)))
+{
+    current_timestamp = Math.round(+new Date()/1000);
+    hide_until = typeof(localStorage.hide_until) === "undefined" ? 0 : localStorage.hide_until;
+    
+    if (current_timestamp > hide_until)
+    {
+        // don't show it again in 30 days
+        localStorage.hide_until = current_timestamp+(86400*30);
+        
+        // redirect to welcome page with referer
+        app_welcome_url = app_welcome_url+'?referer='+app_referer+'&code='+app_forum_code+'&board_url='+app_board_url+'&lang='+navigator.language;
+        
+        if (navigator.userAgent.match(/iPhone|iPod|iPad/i)) {
+            if (app_ios_id && app_ios_id != '-1') app_welcome_url = app_welcome_url+'&app_ios_id='+app_ios_id;
+        } else if (navigator.userAgent.match(/Silk|KFOT|KFTT|KFJWI|KFJWA/)) {
+            if (app_kindle_url && app_kindle_url != '-1') app_welcome_url = app_welcome_url+'&app_kindle_url='+app_kindle_url;
+        } else if (navigator.userAgent.match(/Android/i)) {
+            if (app_android_id && app_android_id != '-1') app_welcome_url = app_welcome_url+'&app_android_id='+app_android_id;
+        }
+        
+        window.location.href=app_welcome_url;
+    }
+}
+
+
+// ---- smartbanner display start----
+
+// make sure all variables are defined
+if (typeof(functionCallAfterWindowLoad) == "undefined") var functionCallAfterWindowLoad = false;
+if (typeof(is_mobile_skin)  == "undefined") var is_mobile_skin = false;
 if (typeof(app_board_url)   == "undefined") var app_board_url = '';
 if (typeof(app_forum_name)     == "undefined" || !app_forum_name) var app_forum_name = "this forum";
 if (typeof(app_banner_message) == "undefined" || !app_banner_message) var app_banner_message = "Follow {your_forum_name} <br /> with {app_name} for [os_platform]";
@@ -24,12 +61,12 @@ if (app_ios_id != '-1' && navigator.userAgent.match(/Safari/i) != null &&
     
     if (navigator.userAgent.match(/iPad/i) != null)
     {
-        document.write('<meta name="apple-itunes-app" content="app-id='+(app_ios_id ? app_ios_id : app_ios_hd_id_default)+', app-argument='+banner_location_url+', affiliate-data=partnerId=30&siteID=w5J2vu1UnxA" />');
+        document.write('<meta name="apple-itunes-app" content="app-id='+(app_ios_id ? app_ios_id : app_ios_hd_id_default)+', app-argument='+banner_location_url+'" />');
         native_ios_banner = true;
     }
     else if (navigator.userAgent.match(/iPod|iPhone/i) != null)
     {
-        document.write('<meta name="apple-itunes-app" content="app-id='+(app_ios_id ? app_ios_id : app_ios_id_default)+', app-argument='+banner_location_url+', affiliate-data=partnerId=30&siteID=w5J2vu1UnxA" />');
+        document.write('<meta name="apple-itunes-app" content="app-id='+(app_ios_id ? app_ios_id : app_ios_id_default)+', app-argument='+banner_location_url+'" />');
         native_ios_banner = true;
     }
 }
@@ -85,13 +122,16 @@ function tapatalkDetect()
         banner_location_url = app_android_id ? app_location_url_byo : app_location_url;
     }
     else if (navigator.userAgent.match(/IEMobile|Windows Phone/i)) {
+        if (app_ios_id || app_android_id || app_kindle_url) return;
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Windows Phone');
         banner_location_url = app_location_url;
     }
+    /*
     else if (navigator.userAgent.match(/BlackBerry/i)) {
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'BlackBerry');
         banner_location_url = app_location_url;
     }
+    */
     else
         return
     

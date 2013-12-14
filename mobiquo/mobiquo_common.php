@@ -1019,6 +1019,19 @@ function tt_get_user_by_email($email)
 	return $user_info;
 }
 
+function tt_get_user_id_by_name($username)
+{
+	global $mybb, $db;
+
+	$query = $db->simple_select("users", "*", "username = '".$db->escape_string($username)."'");
+	$user_info = $db->fetch_array($query);
+	if(empty($user_info))
+	{
+		return false;
+	}
+	return $user_info;
+}
+
 function tt_login_success()
 {
 	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $mobiquo_config,$user,$register;

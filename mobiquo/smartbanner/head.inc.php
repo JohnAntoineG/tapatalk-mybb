@@ -3,10 +3,10 @@
 if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI']))
 {
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
-    $app_ads_referer = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $app_referer = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 }
 else
-    $app_ads_referer = $board_url;
+    $app_referer = $board_url;
 
 
 // for those forum system which can not add js in html body, please set $functionCallAfterWindowLoad as 1
@@ -61,38 +61,55 @@ if ($app_ios_id != -1 || $app_android_id != -1)
     ';
 }
 
-// display smart banner
-$app_banner_head = '
-    <!-- Tapatalk Banner head start -->
-    <link href="'.$tapatalk_dir_url.'/smartbanner/appbanner.css" rel="stylesheet" type="text/css" media="screen" />
-    <script type="text/javascript">
-        var is_mobile_skin     = '.$is_mobile_skin.';
-        var app_ios_id         = "'.$app_ios_id.'";
-        var app_android_id     = "'.addslashes($app_android_id).'";
-        var app_kindle_url     = "'.addslashes(urlencode($app_kindle_url)).'";
-        var app_banner_message = "'.addslashes($app_banner_message).'";
-        var app_forum_name     = "'.addslashes($app_forum_name).'";
-        var app_location_url   = "'.addslashes($app_location_url).'";
-        var app_board_url      = "'.addslashes(urlencode($board_url)).'";
-        var functionCallAfterWindowLoad = '.$functionCallAfterWindowLoad.'
-    </script>
-    <script src="'.$tapatalk_dir_url.'/smartbanner/appbanner.js" type="text/javascript"></script>
-    <!-- Tapatalk Banner head end-->
-';
-
-// display full app ads
-$full_view_ads = '';
-if (file_exists($tapatalk_dir . '/smartbanner/ads.php') && $app_ads_enable)
+// display smart banner and welcome page
+$app_banner_head = '';
+if (file_exists($tapatalk_dir . '/smartbanner/welcome.php') && file_exists($tapatalk_dir . '/smartbanner/appbanner.js'))
 {
-    $full_view_ads = '
-        <!-- tapatalk full view ads -->
+    $app_banner_head = '
+        <!-- Tapatalk Banner&Welcome head start -->
+        <link href="'.$tapatalk_dir_url.'/smartbanner/appbanner.css" rel="stylesheet" type="text/css" media="screen" />
         <script type="text/javascript">
+            var is_mobile_skin     = '.$is_mobile_skin.';
+            var app_ios_id         = "'.$app_ios_id.'";
+            var app_android_id     = "'.addslashes($app_android_id).'";
+            var app_kindle_url     = "'.addslashes(urlencode($app_kindle_url)).'";
+            var app_banner_message = "'.addslashes($app_banner_message).'";
+            var app_forum_name     = "'.addslashes($app_forum_name).'";
+            var app_location_url   = "'.addslashes($app_location_url).'";
+            var app_board_url      = "'.addslashes(urlencode($board_url)).'";
+            var functionCallAfterWindowLoad = '.$functionCallAfterWindowLoad.';
+            
             var app_forum_code = "'.md5($api_key).'";
-            var app_ads_referer = "'.addslashes(urlencode($app_ads_referer)).'";
-            var app_ads_url = "'.addslashes($tapatalk_dir_url.'/smartbanner/ads.php').'";
+            var app_referer = "'.addslashes(urlencode($app_referer)).'";
+            var app_welcome_url = "'.addslashes($tapatalk_dir_url.'/smartbanner/welcome.php').'";
+            var app_welcome_enable = "'.($app_ads_enable ? 1 : 0).'";
         </script>
-        <script src="'.$tapatalk_dir_url.'/smartbanner/ads.js" type="text/javascript"></script>
+        <script src="'.$tapatalk_dir_url.'/smartbanner/appbanner.js" type="text/javascript"></script>
+        <!-- Tapatalk Banner head end-->
     ';
 }
 
-$app_head_include = $twitter_card_head.$app_banner_head.$full_view_ads;
+
+// add App Indexing for Google Search
+$app_indexing = '';
+$host_path = preg_replace('#tapatalk://#si', '', $app_location_url);
+if ($host_path)
+{
+    if ($app_android_id == $app_android_id_default)
+    {
+        $app_indexing = '
+        <!-- App Indexing for Google Search -->
+        <link href="android-app://com.quoord.tapatalkHD/tapatalk/'.urlencode($host_path).'" rel="alternate" />
+        <link href="android-app://com.quoord.tapatalkpro.activity/tapatalk/'.urlencode($host_path).'" rel="alternate" />
+        ';
+    }
+    else
+    {
+        $app_indexing = '
+        <!-- App Indexing for Google Search -->
+        <link href="android-app://'.urlencode($app_android_id).'/tapatalk-byo/'.urlencode($host_path).'" rel="alternate" />
+        ';
+    }
+}
+
+$app_head_include = $twitter_card_head.$app_banner_head.$app_indexing;

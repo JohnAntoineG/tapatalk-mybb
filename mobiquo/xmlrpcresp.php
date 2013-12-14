@@ -129,7 +129,7 @@ function get_alert_func()
 	$return_array = array();
 	foreach ($alertData as $data)
 	{
-		$return_array[] =new xmlrpcval(array(
+		$xmlrpc_row = array(
 			'user_id' => new xmlrpcval($data['author_id'],'string'),
 			'username' => new xmlrpcval($data['author'],'base64'),
 			'user_type' => check_return_user_type($data['author']),
@@ -138,9 +138,12 @@ function get_alert_func()
 			'timestamp' => new xmlrpcval($data['create_time'],'string'),
 			'content_type' => new xmlrpcval($data['data_type'],'string'),
 			'content_id' => new xmlrpcval($data['data_id'],'string'),
-			)
-			,'struct'
 		);
+		if(!empty($data['topic_id']))
+		{
+			$xmlrpc_row['topic_id'] = new xmlrpcval($data['topic_id'],'string');
+		}
+		$return_array[] =new xmlrpcval($xmlrpc_row,'struct');
 	}
 	
 	$result = new xmlrpcval(array(

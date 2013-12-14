@@ -114,12 +114,14 @@ class Tapatalk_Parser extends postParser {
 		preg_match("#dateline=(?:&quot;|\"|')?([0-9]+)(?:&quot;|\"|')?#i", $username, $match);
 		if(intval($match[1]))
 		{
+			$dateline = intval($match[1]);
 			if($match[1] < TIME_NOW)
 			{
 				$postdate = my_date($mybb->settings['dateformat'], intval($match[1]));
 				$posttime = my_date($mybb->settings['timeformat'], intval($match[1]));
 				$date = " ({$postdate} {$posttime})";
 			}
+			
 			$username = preg_replace("#(?:&quot;|\"|')? dateline=(?:&quot;|\"|')?[0-9]+(?:&quot;|\"|')?#i", '', $username);
 			$delete_quote = false;
 		}
@@ -140,8 +142,15 @@ class Tapatalk_Parser extends postParser {
 			{
 				$span = "<span>{$date}</span>";
 			}
-
-			return "[quote]{$username} $lang->wrote\n{$message}[/quote]\n";
+			$userinfo= tt_get_user_id_by_name($username);
+			if(!empty($userinfo))
+			{
+				$uid = $userinfo['uid'];
+			}
+			return "[quote ".(isset($uid) ? "uid=$uid " : '').
+			(!empty($username) ? "name=\"$username\" " : '').
+			(isset($pid) ? "post=$pid " : '').
+			(isset($dateline) ? "timestamp=$dateline" : '')."]{$message}[/quote]\n";
 		}
 	}
 

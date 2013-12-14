@@ -20,7 +20,6 @@ else
 	$push_acc = 'OK';
 }
 echo '<span><b>Forum XMLRPC Interface for Tapatalk Application</b><br>';
-echo '<br>Forum system version: '.$mybb->version.'<br>';
 echo 'Current Tapatalk plugin version: '.substr($mobiquo_config['version'], 5).'<br>';
 echo 'Latest Tapatalk plugin version:<u>'.$latest_vrsion_link.'</u>';
 echo '<br>Attachment upload interface status: <a href="upload.php"><u>'.$upload_acc.'</u></a><br>';
