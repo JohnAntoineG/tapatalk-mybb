@@ -512,7 +512,7 @@ function tapatalk_online_end()
     $temp_online = $online_rows;
     
     $str = '&nbsp;<a title="On Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
-    $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|<\/b><\/span>|</\s>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
+    $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|<\/b><\/span>|<\/s>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
 	if(empty($online_rows))
     {
         $online_rows = str_replace('[tapatalk_user]','',$temp_online);
