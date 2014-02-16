@@ -2,6 +2,8 @@
 
 defined('IN_MOBIQUO') or exit;
 
+if (isset($_SERVER['HTTP_APP_VAR'] ) && $_SERVER['HTTP_APP_VAR'])
+    @header('App-Var: '.$_SERVER['HTTP_APP_VAR']);
 $mobiquo_config = get_mobiquo_config();
 mobi_parse_requrest();
 if ($_POST['method_name']) $request_method = $_POST['method_name'];

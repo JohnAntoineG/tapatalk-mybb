@@ -39,11 +39,48 @@ function get_config_func()
     	$config_list['inappreg'] = new xmlrpcval(1, 'string');
     }
     
+	if($mybb->settings['disableregs'] == 1)
+    {
+    	$mobiquo_config['sign_in'] = 0;
+	    $mobiquo_config['inappreg'] = 0;
+	    
+	    $mobiquo_config['sso_signin'] = 0;
+	    $mobiquo_config['sso_register'] = 0;
+	    $mobiquo_config['native_register'] = 0;
+    }
+    if($mybb->settings['regtype'] == 'admin')
+    {
+    	$mobiquo_config['sso_signin'] = 0;
+	    $mobiquo_config['sso_register'] = 0;
+    }
 	if (!function_exists('curl_init') && !@ini_get('allow_url_fopen'))
 	{
 	    $mobiquo_config['sign_in'] = 0;
 	    $mobiquo_config['inappreg'] = 0;
-	    $mobiquo_config['inappsignin'] = 0;
+	    
+	    $mobiquo_config['sso_login'] = 0;
+	    $mobiquo_config['sso_signin'] = 0;
+	    $mobiquo_config['sso_register'] = 0;
+	}
+	if(isset($mybb->settings['tapatalk_register_status']))
+	{
+		if($mybb->settings['tapatalk_register_status'] == 0)
+		{
+			$mobiquo_config['sign_in'] = 0;
+		    $mobiquo_config['inappreg'] = 0;
+
+		    $mobiquo_config['sso_signin'] = 0;
+		    $mobiquo_config['sso_register'] = 0;
+		    $mobiquo_config['native_register'] = 0;
+		}
+		elseif($mybb->settings['tapatalk_register_status'] == 1)
+		{
+			$mobiquo_config['inappreg'] = 0;
+			$mobiquo_config['sign_in'] = 0;
+
+		    $mobiquo_config['sso_signin'] = 0;
+		    $mobiquo_config['sso_register'] = 0;
+		}
 	}
 	
     foreach($mobiquo_config as $key => $value){

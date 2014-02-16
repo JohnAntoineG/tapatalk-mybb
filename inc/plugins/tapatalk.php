@@ -26,6 +26,7 @@ $plugins->add_hook('postbit_prev','tapatalk_postbit');
 $plugins->add_hook('postbit_pm','tapatalk_postbit');
 $plugins->add_hook('postbit_announcement','tapatalk_postbit');
 $plugins->add_hook('parse_message_start', "tapatalk_parse_message");
+$plugins->add_hook('parse_message_end', "tapatalk_parse_message_end");
 function tapatalk_info()
 {
     /**
@@ -45,7 +46,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.7.2",
+        "version"       => "3.8.0",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -110,11 +111,20 @@ function tapatalk_install()
         'disporder'     =>    0,
         'isdefault'     =>    0
     );
+    $setting_register_group = array(
+    	'name'          =>    'tapatalk_register',
+        'title'         =>    'Tapatalk - In App Registration',
+        'description'   =>    'Tapatalk - In App Registration Settings',
+        'disporder'     =>    0,
+        'isdefault'     =>    0
+    );
     $db->insert_query('settinggroups', $setting_group);
     $gid = $db->insert_id();
     $db->insert_query('settinggroups', $setting_byo_group);
     $gid_byo = $db->insert_id();
-
+	$db->insert_query('settinggroups', $setting_register_group);
+    $gid_register = $db->insert_id();
+    
     $settings = array(
         'hide_forum' => array(
             'title'         => 'Hide Forums',
@@ -122,12 +132,7 @@ function tapatalk_install()
             'optionscode'   => 'text',
             'value'         => ''
         ),
-        'reg_url' => array(
-            'title'         => 'Registration URL',
-            'description'   => "Default Registration URL: 'member.php?action=register'",
-            'optionscode'   => 'text',
-            'value'         => 'member.php?action=register'
-        ),
+        
         'directory' => array(
             'title'         => 'Tapatalk Plugin Directory',
             'description'   => 'Never change it if you did not rename the Tapatalk plugin directory. And the default value is \'mobiquo\'. If you renamed the Tapatalk plugin directory, you also need to update the same setting in Tapatalk Forum Owner Area.',
@@ -201,6 +206,43 @@ function tapatalk_install()
             'value'         => '',
         ),
     );
+    
+	$query = $db->simple_select("usergroups", "gid, title", "", array('order_by' => 'title'));
+	$display_group_options = array();
+	while($usergroup = $db->fetch_array($query))
+	{
+		$display_group_options[$usergroup['gid']] = $usergroup['title'];
+	}
+	$select_group_str = '';
+	foreach ($display_group_options as $gid => $title)
+	{
+		$select_group_str .= "\n".$gid . "=" . $title;
+	}
+	$settings_register = array(
+    	'register_status' => array(
+            'title'         => 'Registration Options',
+            'description'   => "Native Registration and Social Sign On (Recommended) - Facebook users can register for your forum using their Facebook credentials, and those not connected to Facebook can register for your forum via an in-app form.<br/>
+Native Registration Only - No SSO available for Facebook users. All users must register for the forum via an in-app form.<br/>
+Redirect to External Registration URL - All users registering for your forum will be redirected to a web browser outside of the app to continue registration.",
+            'optionscode'   => 'select
+            2=Native Registration and Social Sign On (Recommended)
+            1=Native Registration Only 
+            0=Redirect to External Registration URL',
+            'value'         => 2
+        ),
+    	'reg_url' => array(
+            'title'         => 'Registration URL',
+            'description'   => "Default Registration URL: 'member.php?action=register'",
+            'optionscode'   => 'text',
+            'value'         => 'member.php?action=register'
+        ),
+        'register_group' => array(
+            'title'         => 'User Group Assignment',
+            'description'   => "You can assign users registered with Tapatalk to specific user groups. If you do not assign them to a specific group, they will be assigned a default group. ",
+            'optionscode'   => 'select'.$select_group_str,
+            'value'         => 2
+        ),
+    );
     $s_index = 0;
     foreach($settings as $name => $setting)
     {
@@ -229,6 +271,22 @@ function tapatalk_install()
             'value'       => $db->escape_string($setting['value']),
             'disporder'   => $s_index,
             'gid'         => $gid_byo,
+            'isdefault'   => 0
+        );
+        $db->insert_query('settings', $insert_settings);
+    }
+	$s_index = 0;
+    foreach($settings_register as $name => $setting)
+    {
+        $s_index++;
+        $insert_settings = array(
+            'name'        => $db->escape_string('tapatalk_'.$name),
+            'title'       => $db->escape_string($setting['title']),
+            'description' => $db->escape_string($setting['description']),
+            'optionscode' => $db->escape_string($setting['optionscode']),
+            'value'       => $db->escape_string($setting['value']),
+            'disporder'   => $s_index,
+            'gid'         => $gid_register,
             'isdefault'   => 0
         );
         $db->insert_query('settings', $insert_settings);
@@ -270,6 +328,17 @@ function tapatalk_uninstall()
     }
 	// Remove byo settings
     $result = $db->simple_select('settinggroups', 'gid', "name = 'tapatalk_byo'", array('limit' => 1));
+    $group = $db->fetch_array($result);
+
+    if(!empty($group['gid']))
+    {
+        $db->delete_query('settinggroups', "gid='{$group['gid']}'");
+        $db->delete_query('settings', "gid='{$group['gid']}'");
+        rebuild_settings();
+    }
+    
+	// Remove register settings
+    $result = $db->simple_select('settinggroups', 'gid', "name = 'tapatalk_register'", array('limit' => 1));
     $group = $db->fetch_array($result);
 
     if(!empty($group['gid']))
@@ -511,7 +580,7 @@ function tapatalk_online_end()
     global $online_rows,$mybb;
     $temp_online = $online_rows;
     
-    $str = '&nbsp;<a title="On Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png" style="vertical-align:middle"></a>';
+    $str = '&nbsp;<a title="On Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png?new" style="vertical-align:middle"></a>';
     $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|<\/b><\/span>|<\/s>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
 	if(empty($online_rows))
     {
@@ -1153,4 +1222,11 @@ function tapatalk_parse_message(&$message)
                 'return \'[url=http://tapatalk.com/tapatalk_image.php?img=\'.base64_encode($matches[2].\'/original\'.$matches[3]).\']\'.$matches[1].$matches[2].\'/thumbnail\'.$matches[3].$matches[4].\'[/url]\';'
             ),
     $message);
+     
+}
+
+function tapatalk_parse_message_end(&$message)
+{
+	$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+	$message = preg_replace('/\[emoji(\d+)\]/i', '<img src="'.$protocol.'://s3.amazonaws.com/tapatalk-emoji/emoji\1.png" />', $message);
 }

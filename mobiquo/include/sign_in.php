@@ -61,6 +61,15 @@ function sign_in_func()
 					'fid1' => $profile->location,
 					'fid2' => $profile->description,
 				);
+				
+				if( $mybb->settings['regtype'] == "admin" )
+				{
+					$usergroup = 5;
+				}
+				else 
+				{
+					$usergroup = isset($mybb->settings['tapatalk_register_group']) ? $mybb->settings['tapatalk_register_group'] : 2;
+				}
 				// Set the data for the new user.
 				$user = array(
 					"username" => $mybb->input['username'],
@@ -68,7 +77,7 @@ function sign_in_func()
 					"password2" => $mybb->input['password'],
 					"email" => $email,
 					"email2" => $email,
-					"usergroup" => 2,
+					"usergroup" => $usergroup,
 					"referrer" => '',
 					"timezone" => $mybb->settings['timezoneoffset'],
 					"language" => '',
