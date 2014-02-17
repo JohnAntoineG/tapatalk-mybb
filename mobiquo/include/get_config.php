@@ -30,9 +30,13 @@ function get_config_func()
         'user'     => new xmlrpcval($stats['numusers'], 'int'),
     ), 'struct');
     
-    if ($mybb->settings['tapatalk_reg_url'])
+    if (!empty($mybb->settings['tapatalk_reg_url']))
     {
         $config_list['reg_url'] = new xmlrpcval(basic_clean($mybb->settings['tapatalk_reg_url']), 'string');
+    }
+    else 
+    {
+    	$config_list['reg_url'] = 'member.php?action=register';
     }
     if(version_compare($mybb->version, '1.6.9','>=') && !$mybb->settings['disableregs'])
     {
