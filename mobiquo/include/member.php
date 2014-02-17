@@ -80,16 +80,15 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 		}
 					
 	}
-    
-	if($verify_result && ($mybb->settings['regtype'] != "admin"))
+    if($mybb->settings['regtype'] == "admin")
+    {
+    	$usergroup = 5;
+    }
+	else if($verify_result && ($mybb->settings['regtype'] != "admin"))
 	{
 		$usergroup = isset($mybb->settings['tapatalk_register_group']) ? $mybb->settings['tapatalk_register_group'] : 2;
 	}
-	else if($verify_result)
-	{
-		$usergroup = isset($mybb->settings['tapatalk_register_group']) ? $mybb->settings['tapatalk_register_group'] : 2;
-	}
-    else if($mybb->settings['regtype'] == "verify" || $mybb->settings['regtype'] == "admin" || $mybb->input['coppa'] == 1)
+    else 
 	{
 		$usergroup = 5;
 	}
