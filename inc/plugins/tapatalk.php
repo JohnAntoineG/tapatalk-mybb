@@ -214,9 +214,9 @@ function tapatalk_install()
 		$display_group_options[$usergroup['gid']] = $usergroup['title'];
 	}
 	$select_group_str = '';
-	foreach ($display_group_options as $gid => $title)
+	foreach ($display_group_options as $groupid => $title)
 	{
-		$select_group_str .= "\n".$gid . "=" . $title;
+		$select_group_str .= "\n".$groupid . "=" . $title;
 	}
 	$settings_register = array(
     	'register_status' => array(
