@@ -36,7 +36,7 @@ function get_config_func()
     }
     if(version_compare($mybb->version, '1.6.9','>=') && !$mybb->settings['disableregs'])
     {
-    	$config_list['inappreg'] = new xmlrpcval(1, 'string');
+    	$mobiquo_config['inappreg'] = 1;
     }
     
 	if($mybb->settings['disableregs'] == 1)
@@ -88,7 +88,6 @@ function get_config_func()
             $config_list[$key] = new xmlrpcval($value, 'string');
         }
     }
-
     if (!$mybb->user['uid'])
     {
         if($mybb->usergroup['cansearch']) {

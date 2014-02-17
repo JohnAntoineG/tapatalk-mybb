@@ -788,9 +788,13 @@ function check_return_user_type($username)
 	{
 		$user_type = 'admin';
 	}
-	else if($user_groups['gid'] == 6)
+	else if($user_groups['gid'] == 6 || $user_groups['gid'] == 3)
 	{
 		$user_type = 'mod';
+	}
+	else if($user_groups['gid'] == 5)
+	{
+		$user_type = 'validating';
 	}
 	else
     {

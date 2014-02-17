@@ -27,6 +27,7 @@ $plugins->add_hook('postbit_pm','tapatalk_postbit');
 $plugins->add_hook('postbit_announcement','tapatalk_postbit');
 $plugins->add_hook('parse_message_start', "tapatalk_parse_message");
 $plugins->add_hook('parse_message_end', "tapatalk_parse_message_end");
+$plugins->add_hook("admin_config_settings_begin", "tapatalk_settings_update");
 function tapatalk_info()
 {
     /**
@@ -259,6 +260,7 @@ Redirect to External Registration URL - All users registering for your forum wil
         );
         $db->insert_query('settings', $insert_settings);
     }
+	
 	$s_index = 0;
     foreach($settings_byo as $name => $setting)
     {
@@ -1229,4 +1231,29 @@ function tapatalk_parse_message_end(&$message)
 {
 	$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 	$message = preg_replace('/\[emoji(\d+)\]/i', '<img src="'.$protocol.'://s3.amazonaws.com/tapatalk-emoji/emoji\1.png" />', $message);
+}
+
+function tapatalk_settings_update()
+{
+	global $db;
+	$result = $db->simple_select('settinggroups', 'gid', "name = 'tapatalk_register'", array('limit' => 1));
+    $group = $db->fetch_array($result);
+    
+    if(isset($_GET['gid']) && $_GET['gid'] == $group['gid'])
+    {
+	    $query = $db->simple_select("usergroups", "gid, title", "", array('order_by' => 'title'));
+		$display_group_options = array();
+		while($usergroup = $db->fetch_array($query))
+		{
+			$display_group_options[$usergroup['gid']] = $usergroup['title'];
+		}
+		$select_group_str = '';
+		foreach ($display_group_options as $groupid => $title)
+		{
+			$select_group_str .= "\n".$groupid . "=" . $title;
+		}
+		
+		$db->update_query("settings",array('optionscode' => 'select'.$select_group_str),"name = 'tapatalk_register_group'");
+    }
+		
 }
