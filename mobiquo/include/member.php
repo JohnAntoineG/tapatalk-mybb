@@ -81,7 +81,11 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 					
 	}
     
-	if($verify_result)
+	if($verify_result && ($mybb->settings['regtype'] != "admin"))
+	{
+		$usergroup = isset($mybb->settings['tapatalk_register_group']) ? $mybb->settings['tapatalk_register_group'] : 2;
+	}
+	else if($verify_result)
 	{
 		$usergroup = isset($mybb->settings['tapatalk_register_group']) ? $mybb->settings['tapatalk_register_group'] : 2;
 	}
@@ -89,10 +93,7 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 	{
 		$usergroup = 5;
 	}
-	else 
-	{
-		$usergroup = isset($mybb->settings['tapatalk_register_group']) ? $mybb->settings['tapatalk_register_group'] : 2;
-	}
+	
 	// Set the data for the new user.
 	$user = array(
 		"username" => $mybb->input['username'],
