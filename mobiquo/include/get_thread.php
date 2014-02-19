@@ -273,8 +273,10 @@ function get_thread_func($xmlrpc_params)
             $is_online = true;
         }
         $post['message'] = post_bbcode_clean($post['message']);
+        
         // Post content and attachments
         $post['message'] = $parser->parse_message($post['message'], $parser_options);
+        
         $attachment_list = process_post_attachments($post['pid'], $post);
         // add for thank/like support
         $post = $plugins->run_hooks("postbit", $post);

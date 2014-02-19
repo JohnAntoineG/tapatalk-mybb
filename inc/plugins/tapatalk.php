@@ -1229,6 +1229,10 @@ function tapatalk_parse_message(&$message)
 
 function tapatalk_parse_message_end(&$message)
 {
+	if(strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
+	{
+		return ;		
+	}
 	$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 	$message = preg_replace('/\[emoji(\d+)\]/i', '<img src="'.$protocol.'://s3.amazonaws.com/tapatalk-emoji/emoji\1.png" />', $message);
 }
