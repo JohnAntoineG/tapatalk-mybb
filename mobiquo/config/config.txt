@@ -26,7 +26,6 @@ report_pm = 0
 soft_delete = 0
 delete_reason = 0
 
-emoji = 1
 searchid = 1
 advanced_search = 1
 pm_load
@@ -54,3 +53,4 @@ sso_login = 1
 sso_signin = 1
 sso_register = 1
 native_register = 1
+emoji_support = 1
