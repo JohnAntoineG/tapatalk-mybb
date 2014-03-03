@@ -66,11 +66,11 @@ function get_online_users_func()
 	    }
 	    
 		// Stop links etc. 
-		unset($user['activity']['tid']);
+		/*unset($user['activity']['tid']);
 		unset($user['activity']['fid']);
 		unset($user['activity']['pid']);
 		unset($user['activity']['eid']);
-		unset($user['activity']['aid']);
+		unset($user['activity']['aid']);*/
 
 		$botkey = my_strtolower(str_replace("bot=", '', $user['sid']));
 

@@ -106,11 +106,11 @@ function get_user_info_func($xmlrpc_params)
         require_once MYBB_ROOT."inc/functions_online.php";
         $activity = fetch_wol_activity($session['location'], $session['nopermission']);
 
-        unset($activity['tid']);
+        /*unset($activity['tid']);
         unset($activity['fid']);
         unset($activity['pid']);
         unset($activity['eid']);
-        unset($activity['aid']);
+        unset($activity['aid']);*/
 
         $location = strip_tags(build_friendly_wol_location($activity));
         $location_time = my_date($mybb->settings['timeformat'], $memprofile['lastactive']);
