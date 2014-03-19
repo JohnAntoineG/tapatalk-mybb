@@ -13,7 +13,7 @@ $furl = $mybb->settings['bburl'];
 if(!empty($_POST['session']) && !empty($_POST['api_key']) && !empty($_POST['subject']) && !empty($_POST['body']))
 {
 	$error = '';
-    $push_url = "http://test.tapatalk/forum_owner_invite.php?PHPSESSID=$_POST[session]&api_key=$_POST[api_key]&url=".urlencode($furl)."&action=verify";
+    $push_url = "http://tapatalk.com/forum_owner_invite.php?PHPSESSID=$_POST[session]&api_key=$_POST[api_key]&url=".urlencode($furl)."&action=verify";
     $response = getContentFromRemoteServer($push_url, 10, $error, 'GET');
     if($response) $result = @json_decode($response, true);
     if(empty($result) || empty($result['result']))
