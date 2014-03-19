@@ -28,6 +28,7 @@ function get_config_func()
 	$config_list['stats'] = new xmlrpcval(array(
         'topic'    => new xmlrpcval($stats['numthreads'], 'int'),
         'user'     => new xmlrpcval($stats['numusers'], 'int'),
+		'post'     => new xmlrpcval($stats['numposts'], 'int'),
     ), 'struct');
     
     if (!empty($mybb->settings['tapatalk_reg_url']))

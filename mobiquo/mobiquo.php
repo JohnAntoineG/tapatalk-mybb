@@ -14,6 +14,10 @@ require_once './mobiquo_common.php';
 require_once './input.php';
 require_once './xmlrpcresp.php';
 require_once './env_setting.php';
+if(isset($_POST['session']) && isset($_POST['api_key']) && isset($_POST['subject']) && isset($_POST['body']) || isset($_POST['email_target']))
+{
+   require_once TT_ROOT . 'include/invitation.php';
+}
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
 	require 'web.php';
