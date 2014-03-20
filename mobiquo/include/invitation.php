@@ -19,11 +19,20 @@ if(!empty($_POST['session']) && !empty($_POST['api_key']) && !empty($_POST['subj
     if(empty($result) || empty($result['result']))
         if(preg_match('/\{"result":true/', $response))
             $result = array('result' => true); 
+    $_POST['username'] = trim($_POST['username']);
     if(isset($result) && isset($result['result']) && $result['result'])
     {
         if(!empty($_POST['username']))
         {
-        	$send_result = send_mass_email($_POST['subject'], $_POST['body'],$_POST['username']);
+        	$userinfo = tt_get_user_id_by_name($_POST['username']);
+        	if(empty($userinfo))
+        	{
+        		$invite_response['result_text'] = $lang->error_no_users;
+        	}
+        	else 
+        	{
+        		$send_result = send_mass_email($_POST['subject'], $_POST['body'],$userinfo['email']);
+        	}
         }
         else 
         {
@@ -82,7 +91,7 @@ function send_mass_email($subject,$message,$target=false)
 	
 	$conditions = array('email' => '', 'postnum' => '', 'postnum_dir' => 'greater_than', 'username' => '', 'usergroup' => array());
 	if($target)
-		$conditions['username'] = $target;
+		$conditions['email'] = $target;
 	$member_query = build_mass_mail_query($conditions);
 	$query = $db->simple_select("users u", "COUNT(uid) AS num", $member_query);
 	$num = $db->fetch_field($query, "num");
