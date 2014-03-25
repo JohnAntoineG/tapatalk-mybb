@@ -133,6 +133,7 @@ function get_alert_func()
 			'user_id' => new xmlrpcval($data['author_id'],'string'),
 			'username' => new xmlrpcval($data['author'],'base64'),
 			'user_type' => check_return_user_type($data['author']),
+			//'tapatalk'  => new xmlrpcval(is_tapatalk_user($data['author_id'])),
 			'icon_url' => new xmlrpcval($data['icon_url'],'string'),
 			'message' => new xmlrpcval($data['message'],'base64'),
 			'timestamp' => new xmlrpcval($data['create_time'],'string'),

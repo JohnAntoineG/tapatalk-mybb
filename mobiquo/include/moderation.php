@@ -13,7 +13,7 @@ require_once MYBB_ROOT."inc/class_parser.php";
 require_once MYBB_ROOT."inc/class_moderation.php";
 
 function mod_setup(){
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
      $parser = new postParser;
@@ -70,7 +70,7 @@ function m_login_mod_func($xmlrpc_params){
 
 function m_stick_topic_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -110,7 +110,7 @@ function m_stick_topic_func($xmlrpc_params)
 
 function m_close_topic_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -151,7 +151,7 @@ function m_close_topic_func($xmlrpc_params)
 
 function m_delete_topic_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -196,7 +196,7 @@ function m_undelete_topic_func($xmlrpc_params)
 
 
 function m_get_report_post_func($xmlrpc_params){
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -324,7 +324,7 @@ function m_get_report_post_func($xmlrpc_params){
 
 function m_move_topic_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -374,14 +374,58 @@ function m_move_topic_func($xmlrpc_params)
     return new xmlrpcresp($response);
 }
 
+function m_merge_post_func($xmlrpc_params)
+{
+	global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
+    $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
+    
+    $input = Tapatalk_Input::filterXmlInput(array(
+        'post_ids' => Tapatalk_Input::STRING,
+        'post_id'   => Tapatalk_Input::STRING,
+    ), $xmlrpc_params);
+    $post = get_post($input['post_id']);
+   	$tid = $post['tid'];
+    $post_ids = explode(',', $input['post_ids']);
+    
+	if(count($post_ids) <= 1)
+	{
+		error($lang->error_nomergeposts);
+	}
+	array_push($post_ids, $input['post_id']);
+	$postlist[] = array_unique($post_ids);
+
+	if(!is_moderator_by_pids($postlist, "canmanagethreads"))
+	{
+		error_no_permission();
+	}
+
+	foreach($postlist as $pid)
+	{
+		$pid = intval($pid);
+		$plist[] = $pid;
+	}
+
+	$masterpid = $moderation->merge_posts($plist, $tid, 'hr');
+
+	mark_reports($plist, "posts");
+	log_moderator_action($modlogdata, $lang->merged_selective_posts);
+	$response = new xmlrpcval(array(
+        'result'        => new xmlrpcval(true, 'boolean'),
+        'is_login_mod'  => new xmlrpcval(true, 'boolean'),
+        'result_text'   => new xmlrpcval("", 'base64')
+    ), 'struct');
+
+    return new xmlrpcresp($response);
+}
+
 function m_merge_topic_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
-        'topic_id_a' => XenForo_Input::STRING,
-        'topic_id'   => XenForo_Input::STRING,
+        'topic_id_a' => Tapatalk_Input::STRING,
+        'topic_id'   => Tapatalk_Input::STRING,
     ), $xmlrpc_params);
 
     mod_setup();
@@ -424,7 +468,7 @@ function m_merge_topic_func($xmlrpc_params)
 
 function m_approve_topic_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -464,7 +508,7 @@ function m_approve_topic_func($xmlrpc_params)
 
 function m_rename_topic_func($xmlrpc_params)
 {
-    global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups;
+    global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $modlogdata;
 		
 	$lang->load("editpost");
 
@@ -566,7 +610,7 @@ function m_rename_topic_func($xmlrpc_params)
 
 function m_delete_post_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -690,7 +734,7 @@ function m_undelete_post_func($xmlrpc_params)
 
 function m_move_post_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -753,7 +797,7 @@ function m_move_post_func($xmlrpc_params)
 
 function m_approve_post_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -787,7 +831,7 @@ function m_approve_post_func($xmlrpc_params)
 
 function m_ban_user_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -888,7 +932,7 @@ function m_ban_user_func($xmlrpc_params)
 
 function m_get_moderate_topic_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
@@ -1000,7 +1044,7 @@ function m_get_moderate_topic_func($xmlrpc_params)
 
 function m_get_moderate_post_func($xmlrpc_params)
 {
-    global $input, $post, $thread, $forum, $pid, $tid, $fid,
+    global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(

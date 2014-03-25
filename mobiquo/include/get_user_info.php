@@ -336,6 +336,7 @@ function get_user_info_func($xmlrpc_params)
         'username'           => new xmlrpcval(basic_clean($memprofile['username']), 'base64'),
         'user_name'          => new xmlrpcval(basic_clean($memprofile['username']), 'base64'),
 		'user_type'          => check_return_user_type($memprofile['username']),
+		//'tapatalk'           => new xmlrpcval(is_tapatalk_user($memprofile['uid'])),
         'post_count'         => new xmlrpcval($memprofile['postnum'], 'int'),
         'reg_time'           => new xmlrpcval(mobiquo_iso8601_encode($memprofile['regdate']), 'dateTime.iso8601'),
         'timestamp_reg'      => new xmlrpcval($memprofile['regdate'], 'string'),

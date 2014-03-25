@@ -47,7 +47,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.8.0",
+        "version"       => "3.8.1",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -610,6 +610,15 @@ function tapatalk_pre_output_page(&$page)
     $is_mobile_skin = 0;
     $app_location_url = tapatalk_get_url();
     
+	preg_match('/location=(\w+)/is', $app_location_url,$matches);
+    if(!empty($matches[1]))
+    {
+    	if($matches[1] == 'message')
+    	{
+    		$matches[1] = 'pm';
+    	}
+    	$page_type = $matches[1];
+    }
     $app_banner_message = $settings['tapatalk_app_banner_msg'];
     $app_ios_id = $settings['tapatalk_app_ios_id'];
     $app_android_id = $settings['tapatalk_android_url'];
@@ -618,13 +627,18 @@ function tapatalk_pre_output_page(&$page)
     //full screen ads
     $api_key = $settings['tapatalk_push_key'];
     $app_ads_enable = $settings['tapatalk_app_ads_enable'];
+    $app_head_include = '';
     if (file_exists($tapatalk_dir . '/smartbanner/head.inc.php'))
         include($tapatalk_dir . '/smartbanner/head.inc.php');
-	
+
     $str = $app_head_include;
     $tapatalk_smart_banner_body = " 
     <!-- Tapatalk smart banner body start --> \n".
-    '<script type="text/javascript">tapatalkDetect()</script>'."\n".' 
+    '<script type="text/javascript">
+    if(typeof(app_ios_id) != "undefined") {
+		tapatalkDetect();
+	}
+    </script>'."\n".' 
     <!-- Tapatalk smart banner body end --> ';
     $page = str_ireplace("</head>", $str . "\n</head>", $page);
     $page = preg_replace("/<body>/isU", "<body>\n".$tapatalk_smart_banner_body, $page,1);
@@ -711,7 +725,7 @@ function tapatalk_get_url()
             $param_arr['location'] = 'online';
             break;
         default:
-            $param_arr['location'] = 'index';
+            $param_arr['location'] = 'other';
             break;
     }
     $queryString = http_build_query($param_arr);

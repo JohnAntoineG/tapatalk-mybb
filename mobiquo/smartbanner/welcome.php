@@ -17,7 +17,7 @@ if (isset($_GET['app_ios_id']))
 }
 else if (isset($_GET['app_android_id']))
 {
-    $app_ios_id = $_GET['app_android_id'];
+    $app_android_id = $_GET['app_android_id'];
     if ($app_android_id && $app_android_id != '-1') $byo = "&app_android_id=$app_android_id";
 }
 else if (isset($_GET['app_kindle_url']))

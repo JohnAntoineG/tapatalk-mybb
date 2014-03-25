@@ -147,6 +147,7 @@ function get_online_users_func()
 				'display_text'  => new xmlrpcval($location, 'base64'),
 				'icon_url'      => new xmlrpcval(absolute_url($user['avatar']), 'string'),
 				'from'          => new xmlrpcval($user['from'], 'string'),
+				//'tapatalk'  => new xmlrpcval(is_tapatalk_user($user['uid'])),
 			), 'struct');
 		
 		}

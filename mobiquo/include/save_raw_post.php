@@ -17,6 +17,8 @@ function save_raw_post_func($xmlrpc_params)
 		'post_title' => Tapatalk_Input::STRING,
 		'post_content' => Tapatalk_Input::STRING,
 		'return_html' => Tapatalk_Input::INT,
+		'attachment_id_array' => Tapatalk_Input::RAW,
+		'group_id' => Tapatalk_Input::STRING,
 	), $xmlrpc_params);  
 
 	$parser = new postParser;
@@ -62,7 +64,7 @@ function save_raw_post_func($xmlrpc_params)
 	}
 
 	$forumpermissions = forum_permissions($fid);
-
+	
 	if(!is_moderator($fid, "caneditposts"))
 	{
 		if($thread['closed'] == 1)
@@ -97,9 +99,7 @@ function save_raw_post_func($xmlrpc_params)
 	// Set the post data that came from the input to the $post array.
 	$post = array(
 		"pid" => $pid,
-		"prefix" => 0,
 		"subject" => $input['post_title'],
-		"icon" => 0,
 		"uid" => $mybb->user['uid'],
 		"username" => $mybb->user['username'],
 		"edit_uid" => $mybb->user['uid'],
@@ -149,7 +149,12 @@ function save_raw_post_func($xmlrpc_params)
 			$state = 0;
 		}
 	}
-	
+	$pid = intval($pid);
+	if(!empty($input['group_id_esc']))
+		$db->update_query("attachments", array("pid" => $pid), "posthash='{$input['group_id_esc']}'");
+	// update thread attachment account
+	if (count($input['attachment_id_array']) > 0)
+	    update_thread_counters($tid, array("attachmentcount" => "+".count($input['attachment_id_array'])));
 	
 	$post = get_post($pid);
 	

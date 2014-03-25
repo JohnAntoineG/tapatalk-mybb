@@ -426,24 +426,7 @@ function process_post($post, $returnHtml = false)
     // remove link on img
     //$post = preg_replace('/\[url=[^\]]*?\]\s*(\[img\].*?\[\/img\])\s*\[\/url\]/si', '$1', $post);
     
-	if(!empty($mybb->settings['tapatalk_custom_replace']))
-	{
-		$replace_arr = explode("\n", $mybb->settings['tapatalk_custom_replace']);
-		foreach ($replace_arr as $replace)
-		{
-			preg_match('/^\s*(\'|")((\#|\/|\!).+\3[ismexuADUX]*?)\1\s*,\s*(\'|")(.*?)\4\s*$/', $replace,$matches);
-			if(count($matches) == 6)
-			{
-				$temp_post = $post;
-				$post = @preg_replace($matches[2], $matches[5], $post);
-				if(empty($post))
-				{
-					$post = $temp_post;
-				}
-			}	
-		}
-	}
-	
+	$post = preg_replace('/\[ttcode\](.*?)\[\/ttcode\]/sei', "'[code]'.base64_decode('$1').'[/code]'", $post);
     return $post;
 }
 function process_page($start_num, $end)
@@ -548,6 +531,7 @@ function process_post_attachments($id, &$post)
                         'content_type'  => new xmlrpcval($type, 'string'),
                         'thumbnail_url' => new xmlrpcval($thumbnail_url, 'string'),
                         'url'           => new xmlrpcval($url, 'string'),
+                    	'attachment_id' => new xmlrpcval($attachment['aid'], 'string'),
                     ), 'struct');
                 }
             }
@@ -647,8 +631,8 @@ function post_bbcode_clean($str)
 {
 	$array_reg = array(
 		array('reg' => '/\[color=(.*?)\](.*?)\[\/color\]/sei','replace' => "mobi_color_convert('$1','$2' ,false)"),
-		array('reg' => '/\[php\](.*?)\[\/php\]/si','replace' => '[quote]$1[/quote]'),
-		array('reg' => '/\[code\](.*?)\[\/code\]/si','replace' => '[quote]$1[/quote]'),
+		array('reg' => '/\[php\](.*?)\[\/php\]/sei','replace' => "'[ttcode]'.base64_encode('$1').'[/ttcode]'"),
+		array('reg' => '/\[code\](.*?)\[\/code\]/sei','replace' => "'[ttcode]'.base64_encode('$1').'[/ttcode]'"),
 		array('reg' => '/\[align=(.*?)\](.*?)\[\/align\]/si',replace=>" $2 "),
 		array('reg' => '/\[email\](.*?)\[\/email\]/si',replace=>"[url]$1[/url]"),
 		
@@ -659,6 +643,23 @@ function post_bbcode_clean($str)
 	}
 	$str = tt_covert_list($str, '/\[list=1\](.*?)\[\/list\]/si', '2');
 	$str = tt_covert_list($str, '/\[list\](.*?)\[\/list\]/si', '1');
+	if(!empty($mybb->settings['tapatalk_custom_replace']))
+	{
+		$replace_arr = explode("\n", $mybb->settings['tapatalk_custom_replace']);
+		foreach ($replace_arr as $replace)
+		{
+			preg_match('/^\s*(\'|")((\#|\/|\!).+\3[ismexuADUX]*?)\1\s*,\s*(\'|")(.*?)\4\s*$/', $replace,$matches);
+			if(count($matches) == 6)
+			{
+				$temp_post = $post;
+				$post = @preg_replace($matches[2], $matches[5], $post);
+				if(empty($post))
+				{
+					$post = $temp_post;
+				}
+			}	
+		}
+	}
 	return $str;
 }
 
@@ -1090,6 +1091,7 @@ function tt_login_success()
 		'user_id'           => new xmlrpcval($mybb->user['uid'], 'string'),
 		'username'          => new xmlrpcval(basic_clean($mybb->user['username']), 'base64'),
 		'user_type' 	    => check_return_user_type($mybb->user['username']),
+		//'tapatalk'          => new xmlrpcval(is_tapatalk_user($mybb->user['uid'])),
 		'email'             => new xmlrpcval(basic_clean($mybb->user['email']), 'base64'),
 		'icon_url'          => new xmlrpcval(absolute_url($mybb->user['avatar']), 'string'),
 		'post_count'        => new xmlrpcval(intval($mybb->user['postnum']), 'int'),
@@ -1127,4 +1129,21 @@ function tt_update_push()
             $db->write_query("UPDATE " . TABLE_PREFIX . "tapatalk_users SET updated = CURRENT_TIMESTAMP WHERE userid = '$uid'", 1);
         }
     }
+}
+
+function is_tapatalk_user($uid)
+{
+	global $db;
+	
+	$uid = intval($uid);
+	if($db->table_exists('tapatalk_users'))
+	{
+		$query = $db->simple_select("tapatalk_users", "*", "userid = '".$uid."'");
+		$user_info = $db->fetch_array($query);
+		if(!empty($user_info))
+		{
+			return true;
+		}
+	}
+	return false;
 }

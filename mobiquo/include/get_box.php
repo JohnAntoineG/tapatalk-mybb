@@ -174,6 +174,7 @@ function get_box_func($xmlrpc_params)
 							"username" => new xmlrpcval($user['username'], "base64"),
 							"user_id"  => new xmlrpcval($uid, "string"),
 							"user_type" => check_return_user_type($user['username']),
+							//'tapatalk'  => new xmlrpcval(is_tapatalk_user($uid)),
 						), "struct");
 						
 						if (($folder == 2 or $folder == 3) && !$outboxdisplayuserid)
@@ -200,6 +201,7 @@ function get_box_func($xmlrpc_params)
 						"username" => new xmlrpcval($tofromusername, "base64"),
 						"user_id"  => new xmlrpcval($message['toid'], "string"),
 						"user_type" => check_return_user_type($tofromusername),
+						//'tapatalk'  => new xmlrpcval(is_tapatalk_user($message['toid'])),
 					), "struct");
 				}
 				

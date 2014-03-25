@@ -155,6 +155,7 @@ function get_message_func($xmlrpc_params)
                 'user_id'   => new xmlrpcval($user['uid'], 'string'),
                 'username'  => new xmlrpcval(basic_clean($user['username']), 'base64'),
 				'user_type' => check_return_user_type($user['username']),
+				//'tapatalk'  => new xmlrpcval(is_tapatalk_user($user['uid'])),
             ), 'struct');
             
             if (($pm['folder'] == 2 or $pm['folder'] == 3) && !$avatar)
@@ -170,6 +171,7 @@ function get_message_func($xmlrpc_params)
             'user_id'   => new xmlrpcval($user['uid'], 'string'),
             'username'  => new xmlrpcval(basic_clean($user['username']), 'base64'),
 			'user_type' => check_return_user_type($user['username']),
+			//'tapatalk'  => new xmlrpcval(is_tapatalk_user($user['uid'])),
         ), 'struct');
         
         if (($pm['folder'] == 2 or $pm['folder'] == 3))
@@ -190,6 +192,7 @@ function get_message_func($xmlrpc_params)
                 'user_id'   => new xmlrpcval($user['uid'], 'string'),
                 'username'  => new xmlrpcval(basic_clean($user['username']), 'base64'),
 				'user_type' => check_return_user_type($user['username']),
+				//'tapatalk'  => new xmlrpcval(is_tapatalk_user($user['uid'])),
             ), 'struct');
 		}
 	}

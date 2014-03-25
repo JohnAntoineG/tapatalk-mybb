@@ -55,7 +55,7 @@ function get_raw_post_func($xmlrpc_params)
 	}
 
 	$forumpermissions = forum_permissions($fid);
-
+	
 	if(!is_moderator($fid, "caneditposts"))
 	{
 		if($thread['closed'] == 1)
@@ -81,11 +81,31 @@ function get_raw_post_func($xmlrpc_params)
 		
 	// Check if this forum is password protected and we have a valid password
 	tt_check_forum_password($forum['fid']);
+	
+	if($forumpermissions['canpostattachments'] != 0)
+	{ // Get a listing of the current attachments, if there are any
+		$attachcount = 0;
+		global $attachcache;
+		$query = $db->simple_select("attachments", "*", "pid='{$pid}'");
+		$attachments = '';
+		while($attachment = $db->fetch_array($query))
+		{
+			$attachcache[$attachment['pid']][$attachment['aid']] = $attachment;
+			$attachcount++;
+		}
+	}
+	$attachment_list = array();
+	if($attachcount)
+	{
+		$attachment_list = process_post_attachments($post['pid'], $post);
+	}
 
 	$result = new xmlrpcval(array(
 		'post_id'       => new xmlrpcval($post['pid'], 'string'),
 		'post_title'    => new xmlrpcval($post['subject'], 'base64'),
 		'post_content'  => new xmlrpcval(tapatalkEmoji::covertNameToEmoji($post['message']), 'base64'),
+		'attachments'   => new xmlrpcval($attachment_list, 'array'),
+		'group_id'      => new xmlrpcval($post['posthash']),
 	), 'struct');
 	
 	return new xmlrpcresp($result);
