@@ -242,6 +242,8 @@ function get_subscribed_topic_func($xmlrpc_params)
 				'can_close'         => new xmlrpcval(is_moderator($thread['fid'], "canopenclosethreads"), 'boolean'),
 				'can_approve'       => new xmlrpcval(is_moderator($thread['fid'], "canopenclosethreads"), 'boolean'),
 				'can_stick'         => new xmlrpcval(is_moderator($thread['fid'], "canmanagethreads"), 'boolean'),
+				'can_merge'         => new xmlrpcval(is_moderator($thread['fid'], "canmanagethreads"), 'boolean'),
+				'can_merge_post'    => new xmlrpcval(is_moderator($thread['fid'], "canmanagethreads"), 'boolean'),
 				'can_move'          => new xmlrpcval(is_moderator($thread['fid'], "canmovetononmodforum"), 'boolean'),
 				'can_ban'           => new xmlrpcval($mybb->usergroup['canmodcp'] == 1, 'boolean'),
 				'can_rename'        => new xmlrpcval(false, 'boolean'), // based on first post title, separate rename not needed

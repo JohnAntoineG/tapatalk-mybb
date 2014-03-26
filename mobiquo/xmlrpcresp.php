@@ -46,7 +46,12 @@ function search_func()
             if (is_moderator($fid, "canopenclosethreads"))  $return_thread['can_close']     = new xmlrpcval(true, 'boolean');
             if (is_moderator($fid, "candeleteposts"))       $return_thread['can_delete']    = new xmlrpcval(true, 'boolean');
             if (is_moderator($fid, "canmanagethreads"))     $return_thread['can_stick']     = new xmlrpcval(true, 'boolean');
-            if (is_moderator($fid, "canmanagethreads"))     $return_thread['can_move']      = new xmlrpcval(true, 'boolean');
+            if (is_moderator($fid, "canmanagethreads")) 
+			{
+				$return_thread['can_move']      = new xmlrpcval(true, 'boolean');
+				$return_thread['can_merge']     = new xmlrpcval(true, 'boolean');
+				$return_thread['can_merge_post']     = new xmlrpcval(true, 'boolean');
+			}
             if (is_moderator($fid, "canopenclosethreads"))  $return_thread['can_approve']   = new xmlrpcval(true, 'boolean');
             if (is_moderator($fid, "caneditposts"))         $return_thread['can_rename']    = new xmlrpcval(true, 'boolean');
             if ($mybb->usergroup['canmodcp'] == 1)          $return_thread['can_ban']       = new xmlrpcval(true, 'boolean');

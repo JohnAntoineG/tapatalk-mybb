@@ -414,7 +414,12 @@ function get_topic_func($xmlrpc_params)
             if ($thread['closed'])                          $new_topic['is_closed']      = new xmlrpcval(true, 'boolean');
             if ($thread['isbanned'])                        $new_topic['is_ban']         = new xmlrpcval(true, 'boolean');
             if ($mybb->usergroup['canmodcp'] == 1)          $new_topic['can_ban']        = new xmlrpcval(true, 'boolean');
-            if (is_moderator($fid, "canmanagethreads"))     $new_topic['can_move']       = new xmlrpcval(true, 'boolean');
+            if (is_moderator($fid, "canmanagethreads")) 
+			{
+				$new_topic['can_move']       = new xmlrpcval(true, 'boolean');
+				$new_topic['can_merge']      = new xmlrpcval(true, 'boolean');
+				$new_topic['can_merge_post'] = new xmlrpcval(true, 'boolean');
+			}
             if (is_moderator($fid, "canopenclosethreads"))  $new_topic['can_close']      = new xmlrpcval(true, 'boolean');
             if (is_moderator($fid, "candeleteposts"))       $new_topic['can_delete']     = new xmlrpcval(true, 'boolean');
             if (is_moderator($fid, "canmanagethreads"))     $new_topic['can_stick']      = new xmlrpcval(true, 'boolean');
