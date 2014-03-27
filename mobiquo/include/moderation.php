@@ -257,13 +257,14 @@ function m_get_report_post_func($xmlrpc_params){
 
     $reports = '';
     $query = $db->query("
-        SELECT r.*, u.username, up.username AS postusername, up.uid AS postuid, t.subject AS threadsubject, p.dateline as postdateline, up.avatar, p.message as postmessage, p.subject as postsubject, t.views, t.replies, IF(b.lifted > UNIX_TIMESTAMP() OR b.lifted = 0, 1, 0) as isbanned, p.visible
+        SELECT r.*, u.username, r.reason as report_reason, r.uid as report_uid, ur.username as report_username, up.username AS postusername, up.uid AS postuid, t.subject AS threadsubject, p.dateline as postdateline, up.avatar, p.message as postmessage, p.subject as postsubject, t.views, t.replies, IF(b.lifted > UNIX_TIMESTAMP() OR b.lifted = 0, 1, 0) as isbanned, p.visible
         FROM ".TABLE_PREFIX."reportedposts r
         LEFT JOIN ".TABLE_PREFIX."posts p ON (r.pid=p.pid)
         LEFT JOIN ".TABLE_PREFIX."threads t ON (p.tid=t.tid)
         LEFT JOIN ".TABLE_PREFIX."users u ON (r.uid=u.uid)
         LEFT JOIN ".TABLE_PREFIX."banned b ON (b.uid = p.uid)
         LEFT JOIN ".TABLE_PREFIX."users up ON (p.uid = up.uid)
+        LEFT JOIN ".TABLE_PREFIX."users ur ON (r.uid = ur.uid)
         WHERE r.reportstatus='0'
         ORDER BY r.dateline DESC
         LIMIT $start, $limit
@@ -288,7 +289,7 @@ function m_get_report_post_func($xmlrpc_params){
             }
         }
         $can_delete = (is_moderator($post['fid'], "candeleteposts") || $can_delete == 1) && $mybb->user['uid'] != 0;
-
+		
         $post_list[] = new xmlrpcval(array(
             'forum_id'          => new xmlrpcval($post['fid'], 'string'),
             'forum_name'        => new xmlrpcval(basic_clean($forums[$post['fid']]), 'base64'),
@@ -302,7 +303,7 @@ function m_get_report_post_func($xmlrpc_params){
             'short_content'     => new xmlrpcval(process_short_content($post['postmessage'], $parser), 'base64'),
             'reply_number'      => new xmlrpcval($post['replies'], 'int'),
             'view_number'       => new xmlrpcval($post['views'], 'int'),
-
+			
             'can_delete'        => new xmlrpcval($can_delete, 'boolean'),
             'can_approve'       => new xmlrpcval(is_moderator($post['fid'], "canmanagethreads"), 'boolean'),
             'can_move'          => new xmlrpcval(is_moderator($post['fid'], "canmovetononmodforum"), 'boolean'),
@@ -310,6 +311,9 @@ function m_get_report_post_func($xmlrpc_params){
             'is_ban'            => new xmlrpcval($post['isbanned'], 'boolean'),
             'is_approved'       => new xmlrpcval($post['visible'], 'boolean'),
             'is_deleted'        => new xmlrpcval(false, 'boolean'),
+        	'reported_by_id'    => new xmlrpcval($post['report_uid']),
+        	'reported_by_name'  => new xmlrpcval($post['report_username'], 'base64'),
+        	'report_reason'     => new xmlrpcval($post['report_reason'], 'base64'),
         ), "struct");
     }
 
