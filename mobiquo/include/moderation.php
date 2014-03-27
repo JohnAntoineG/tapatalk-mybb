@@ -387,13 +387,14 @@ function m_merge_post_func($xmlrpc_params)
    	$tid = $post['tid'];
     $post_ids = explode(',', $input['post_ids']);
     
-	if(count($post_ids) <= 1)
+    mod_setup();
+    
+	array_push($post_ids, $input['post_id']);
+	$postlist = array_unique($post_ids);
+	if(count($postlist) <= 1)
 	{
 		error($lang->error_nomergeposts);
 	}
-	array_push($post_ids, $input['post_id']);
-	$postlist[] = array_unique($post_ids);
-
 	if(!is_moderator_by_pids($postlist, "canmanagethreads"))
 	{
 		error_no_permission();
@@ -738,7 +739,7 @@ function m_move_post_func($xmlrpc_params)
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
     $input = Tapatalk_Input::filterXmlInput(array(
-        'post_id2'    => Tapatalk_Input::INT, // 2 so topic_id isn't overridden
+        'post_id2'    => Tapatalk_Input::STRING, // 2 so topic_id isn't overridden
         'topic_id'  => Tapatalk_Input::INT,
         'topic_title'  => Tapatalk_Input::STRING,
         'forum_id'   => Tapatalk_Input::INT,
@@ -750,15 +751,23 @@ function m_move_post_func($xmlrpc_params)
     {
         return tt_no_permission();
     }
-
+	
     $pid = $input['post_id2'];
-    $post = get_post($pid);
-    if(!$post['pid'])
+    $pids = explode(',', $pid);
+    if(empty($pids))
     {
-        return xmlrespfalse($lang->error_invalidpost);
+    	return xmlrespfalse($lang->error_invalidpost);
+    }
+    foreach ($pids as $pid) 
+    {
+	    $post = get_post($pid);
+	    if(!$post['pid'])
+	    {
+	        return xmlrespfalse($lang->error_invalidpost);
+	    }
     }
 
-    $query = $db->simple_select("posts", "COUNT(*) AS totalposts", "tid='{$tid}'");
+    $query = $db->simple_select("posts", "COUNT(*) AS totalposts", "tid='{$post['tid']}'");
     $count = $db->fetch_array($query);
 
     if($count['totalposts'] == 1)
@@ -781,8 +790,7 @@ function m_move_post_func($xmlrpc_params)
     }
 
     mark_reports($pid, "post");
-
-    $newtid = $moderation->split_posts(array($pid), $post['tid'], $moveto, $input['topic_title'], $input['topic_id']);
+    $newtid = $moderation->split_posts($pids, $post['tid'], $moveto, $input['topic_title'], $input['topic_id']);
 
     log_moderator_action($modlogdata, $lang->thread_split);
 
@@ -1168,4 +1176,38 @@ function m_get_moderate_post_func($xmlrpc_params)
     ), 'struct');
 
     return new xmlrpcresp($result);
+}
+
+function is_moderator_by_pids($posts, $permission='')
+{
+	global $db, $mybb;
+
+	// Speedy determination for supermods/admins and guests
+	if($mybb->usergroup['issupermod'])
+	{
+		return true;
+	}
+	elseif(!$mybb->user['uid'])
+	{
+		return false;
+	}
+	// Make an array of threads if not an array
+	if(!is_array($posts))
+	{
+		$posts = array($posts);
+	}
+	// Validate input
+	$posts = array_map('intval', $posts);
+	$posts[] = 0;
+	// Get forums
+	$posts_string = implode(',', $posts);
+	$query = $db->simple_select("posts", "DISTINCT fid", "pid IN ($posts_string)");
+	while($forum = $db->fetch_array($query))
+	{
+		if(!is_moderator($forum['fid'], $permission))
+		{
+			return false;
+		}
+	}
+	return true;
 }

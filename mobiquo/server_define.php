@@ -481,6 +481,12 @@ $server_param = array(
         'signature' => array(array($xmlrpcArray, $xmlrpcString, $xmlrpcString)),
         'docstring' => '',
     ),
+    
+    'm_merge_post' => array(
+        'function'  => 'm_merge_post_func',
+        'signature' => array(array($xmlrpcArray, $xmlrpcString, $xmlrpcString)),
+        'docstring' => '',
+    ),
 
     'm_get_moderate_topic' => array(
         'function'  => 'm_get_moderate_topic_func',
