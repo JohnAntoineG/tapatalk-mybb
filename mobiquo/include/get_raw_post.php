@@ -97,7 +97,7 @@ function get_raw_post_func($xmlrpc_params)
 	$attachment_list = array();
 	if($attachcount)
 	{
-		$attachment_list = process_post_attachments($post['pid'], $post);
+		$attachment_list = process_post_attachments($post['pid'], $post, true);
 	}
 
 	$result = new xmlrpcval(array(

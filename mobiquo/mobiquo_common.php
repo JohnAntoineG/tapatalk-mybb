@@ -484,7 +484,7 @@ function basic_clean($str)
 }
 
 
-function process_post_attachments($id, &$post)
+function process_post_attachments($id, &$post, $edit_post=false)
 {
     global $attachcache, $mybb, $theme, $templates, $forumpermissions, $lang;
 
@@ -511,7 +511,7 @@ function process_post_attachments($id, &$post)
 
                 $attachment['icon'] = get_attachment_icon($ext);
                 // Support for [attachment=id] code
-                if(stripos($post['message'], "[attachment=".$attachment['aid']."]") !== false)
+                if(stripos($post['message'], "[attachment=".$attachment['aid']."]") !== false && !$edit_post)
                 {
                     if($type == 'image')
                         $replace = '[img]'.absolute_url("attachment.php?aid={$attachment['aid']}").'[/img]';

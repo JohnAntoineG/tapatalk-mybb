@@ -1320,9 +1320,14 @@ function tt_is_spam()
         {        
             $params = "&email=$email";
         }
-        $resp = @file_get_contents("http://www.stopforumspam.com/api?f=json".$params);
+        if(!function_exists("getContentFromRemoteServer"))
+        {
+        	define('IN_MOBIQUO', true);
+			require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/mobiquo_common.php';
+        }
+        $resp = @getContentFromRemoteServer("http://www.stopforumspam.com/api?f=json".$params, 10);
         $resp = @json_decode($resp, true);
-        if(isset($resp['email']) && intval($resp['email']['frequency']) > 5)
+        if(isset($resp['email']) && intval($resp['email']['confidence']) > 50)
         {
             error('Your email or IP address matches that of a known spammer and therefore you cannot register here. If you feel this is an error, please contact the administrator or try again later.');
         }
