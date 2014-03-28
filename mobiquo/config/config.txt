@@ -56,3 +56,5 @@ native_register = 1
 emoji_support = 1
 advanced_edit = 1
 avatar = 1
+advanced_merge = 1
+advanced_move = 1
