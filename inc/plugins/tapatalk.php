@@ -28,6 +28,7 @@ $plugins->add_hook('postbit_announcement','tapatalk_postbit');
 $plugins->add_hook('parse_message_start', "tapatalk_parse_message");
 $plugins->add_hook('parse_message_end', "tapatalk_parse_message_end");
 $plugins->add_hook("admin_config_settings_begin", "tapatalk_settings_update");
+$plugins->add_hook('member_do_register_start', 'tt_is_spam');
 function tapatalk_info()
 {
     /**
@@ -242,6 +243,16 @@ Redirect to External Registration URL - All users registering for your forum wil
             'description'   => "You can assign users registered with Tapatalk to specific user groups. If you do not assign them to a specific group, they will be assigned a default group. ",
             'optionscode'   => 'select'.$select_group_str,
             'value'         => 2
+        ),
+        'spam_status' => array(
+            'title'         => 'Spam Prevention',
+            'description'   => "By enabling StopForumSpam integration, new user registration from Tapatalk app and/or from web will be screened with StopForumSpam database to prevent existing black-listed spammers.",
+            'optionscode'   => 'select
+            0=Disable
+            1=Enable StopForumSpam in Tapatalk in-app registration
+            2=Enable StopForumSpam in web registration
+        	3=Enable both',
+            'value'         => 1
         ),
     );
     $s_index = 0;
@@ -1274,4 +1285,46 @@ function tapatalk_settings_update()
 		$db->update_query("settings",array('optionscode' => 'select'.$select_group_str),"name = 'tapatalk_register_group'");
     }
 		
+}
+
+function tt_is_spam()
+{
+	global $mybb, $session;
+	
+	if(isset($mybb->settings['tapatalk_spam_status']))
+	{
+		$spam_status = $mybb->settings['tapatalk_spam_status'];
+		if($spam_status === '0')
+		{
+			return ;
+		}
+		if($spam_status === '1' && !strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
+		{
+			return ;
+		}
+		if($spam_status === '2' && strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
+		{
+			return ;
+		}
+	}
+	else 
+	{
+		return ;
+	}
+	$email = $mybb->input['email'];
+	$params = '';
+    if($email)
+    {
+        $email = @urlencode($email);    
+        if($email)
+        {        
+            $params = "&email=$email";
+        }
+        $resp = @file_get_contents("http://www.stopforumspam.com/api?f=json".$params);
+        $resp = @json_decode($resp, true);
+        if(isset($resp['email']) && intval($resp['email']['frequency']) > 5)
+        {
+            error('Your email or IP address matches that of a known spammer and therefore you cannot register here. If you feel this is an error, please contact the administrator or try again later.');
+        }
+    }
 }

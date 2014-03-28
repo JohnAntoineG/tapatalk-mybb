@@ -86,7 +86,10 @@ if($mybb->input['action'] == "do_register" && $mybb->request_method == "post")
 		$usergroup = isset($mybb->settings['tapatalk_register_group']) ? $mybb->settings['tapatalk_register_group'] : 2;
 	}
     
-	
+	if(!$verify_result)
+	{
+		tt_is_spam();
+	}
 	// Set the data for the new user.
 	$user = array(
 		"username" => $mybb->input['username'],
