@@ -29,6 +29,7 @@ function reply_post_func($xmlrpc_params)
 	$options = array(
 		"limit" => 1
 	);
+	
 	$query = $db->simple_select("threads", "*", "tid='".$tid."'");
 	if($db->num_rows($query) == 0)
 	{
@@ -145,8 +146,9 @@ function reply_post_func($xmlrpc_params)
 		"subscriptionmethod" => $mybb->user['subscriptionmethod'] == 0 ? '':$mybb->user['subscriptionmethod'],
 		"disablesmilies" => 0
 	);
+
 	$post['modoptions']['stickthread'] = $thread['sticky'];
-	$post['modoptions']['closethread'] = $thread['close'];
+	$post['modoptions']['closethread'] = $thread['closed'];
 	$posthandler->set_data($post);
 
 	// Now let the post handler do all the hard work.
