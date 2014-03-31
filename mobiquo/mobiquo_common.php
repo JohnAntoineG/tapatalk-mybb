@@ -425,8 +425,14 @@ function process_post($post, $returnHtml = false)
     $post = trim($post);
     // remove link on img
     //$post = preg_replace('/\[url=[^\]]*?\]\s*(\[img\].*?\[\/img\])\s*\[\/url\]/si', '$1', $post);
-    
-	$post = preg_replace('/\[ttcode\](.*?)\[\/ttcode\]/sei', "'[code]'.base64_decode('$1').'[/code]'", $post);
+    if($returnHtml)
+    {
+    	$post = preg_replace('/\[ttcode\](.*?)\[\/ttcode\]/sei', "'[code]'.base64_decode(html_entity_decode('$1', ENT_QUOTES, 'UTF-8')).'[/code]'", $post);
+    }
+	else 
+	{
+		$post = preg_replace('/\[ttcode\](.*?)\[\/ttcode\]/sei', "'[code]'.base64_decode('$1').'[/code]'", $post);
+	}
     return $post;
 }
 function process_page($start_num, $end)
@@ -629,10 +635,10 @@ function tp_get_forum_icon_by_name($icon_name)
 
 function post_bbcode_clean($str)
 {
+	$str = preg_replace('/\[php\](.*?)\[\/php\]/sei', "'[ttcode]'.base64_encode('$1').'[/ttcode]'", $str);
+	$str = preg_replace('/\[code\](.*?)\[\/code\]/sei', "'[ttcode]'.base64_encode('$1').'[/ttcode]'", $str);
 	$array_reg = array(
 		array('reg' => '/\[color=(.*?)\](.*?)\[\/color\]/sei','replace' => "mobi_color_convert('$1','$2' ,false)"),
-		array('reg' => '/\[php\](.*?)\[\/php\]/sei','replace' => "'[ttcode]'.base64_encode('$1').'[/ttcode]'"),
-		array('reg' => '/\[code\](.*?)\[\/code\]/sei','replace' => "'[ttcode]'.base64_encode('$1').'[/ttcode]'"),
 		array('reg' => '/\[align=(.*?)\](.*?)\[\/align\]/si',replace=>" $2 "),
 		array('reg' => '/\[email\](.*?)\[\/email\]/si',replace=>"[url]$1[/url]"),
 		
