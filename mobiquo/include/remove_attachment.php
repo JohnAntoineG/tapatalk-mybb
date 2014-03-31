@@ -4,6 +4,7 @@ defined('IN_MOBIQUO') or exit;
 
 require_once MYBB_ROOT."inc/functions_post.php";
 require_once MYBB_ROOT."inc/functions_user.php";
+require_once MYBB_ROOT."inc/class_parser.php";
 
 function remove_attachment_func($xmlrpc_params)
 {
@@ -45,15 +46,13 @@ function remove_attachment_func($xmlrpc_params)
 	tt_check_forum_password($forum['fid']);
    
 	$posthash = $input['group_id'];
-	if(empty($posthash)){
-		$posthash = md5($mybb->user['uid'].random_str());
-	}
 	$mybb->input['posthash'] = $posthash;    
 	
 	// If we're removing an attachment that belongs to an existing post, some security checks...
-	$query = $db->simple_select("attachments", "pid", "aid='{$input['attachment_id_esc']}'");
+	$query = $db->simple_select("attachments", "pid", "aid='{$input['attachment_id']}'");
 	$attachment = $db->fetch_array($query);
 	$pid = $attachment['pid'];
+
 	if($pid > 0){
 		
 		if($pid != $input['post_id']){
@@ -99,6 +98,7 @@ function remove_attachment_func($xmlrpc_params)
 	}
 	
 	require_once MYBB_ROOT."inc/functions_upload.php";
+
 	remove_attachment($pid, $mybb->input['posthash'], $input['attachment_id']);
 		
 	return xmlresptrue();

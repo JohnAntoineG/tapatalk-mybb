@@ -1294,15 +1294,15 @@ function tt_is_spam()
 	if(isset($mybb->settings['tapatalk_spam_status']))
 	{
 		$spam_status = $mybb->settings['tapatalk_spam_status'];
-		if($spam_status === '0')
+		if($spam_status == '0')
 		{
 			return ;
 		}
-		if($spam_status === '1' && !strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
+		if($spam_status == '1' && !strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
 		{
 			return ;
 		}
-		if($spam_status === '2' && strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
+		if($spam_status == '2' && strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
 		{
 			return ;
 		}
