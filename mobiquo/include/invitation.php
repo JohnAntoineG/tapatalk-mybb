@@ -38,10 +38,11 @@ if(!empty($_POST['session']) && !empty($_POST['api_key']) && !empty($_POST['subj
         {
         	$send_result = send_mass_email($_POST['subject'], $_POST['body']);
         }
-       	if($send_result === true)
+       	if(is_numeric($send_result))
        	{
        		$invite_response['result'] = true;
        		$invite_response['result_text'] = $lang->success_mass_mail_saved;
+       		$invite_response['number'] = $send_result;
        	}
        	else 
        	{
@@ -114,6 +115,6 @@ function send_mass_email($subject,$message,$target=false)
 			"senddate" => $delivery_date
 		);
 		$db->update_query("massemails", $updated_email, "mid='$mid'");
-		return true;
+		return $num;
 	}
 }
