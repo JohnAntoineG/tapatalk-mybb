@@ -169,14 +169,16 @@ function get_box_func($xmlrpc_params)
 					{
 						$profilelink = get_profile_link($uid);
 						$user = $cached_users[$uid];
-												
-						$msg_to[]=new xmlrpcval(array(
+						if(!empty($user['username']))
+						{
+							$msg_to[]=new xmlrpcval(array(
 							"username" => new xmlrpcval($user['username'], "base64"),
 							"user_id"  => new xmlrpcval($uid, "string"),
 							"user_type" => check_return_user_type($user['username']),
 							//'tapatalk'  => new xmlrpcval(is_tapatalk_user($uid)),
-						), "struct");
-						
+							), "struct");
+						}						
+											
 						if (($folder == 2 or $folder == 3) && !$outboxdisplayuserid)
 						{
 						    $outboxdisplayuserid = $uid;
@@ -197,12 +199,15 @@ function get_box_func($xmlrpc_params)
 				{
 					$tofromusername = $message['tousername'];
 					$tofromuid = $message['toid'];
-					$msg_to[]=new xmlrpcval(array(
+					if(!empty($tofromusername))
+					{
+						$msg_to[]=new xmlrpcval(array(
 						"username" => new xmlrpcval($tofromusername, "base64"),
 						"user_id"  => new xmlrpcval($message['toid'], "string"),
 						"user_type" => check_return_user_type($tofromusername),
 						//'tapatalk'  => new xmlrpcval(is_tapatalk_user($message['toid'])),
-					), "struct");
+						), "struct");
+					}					
 				}
 				
 				$avatar = $message['tavatar'];
