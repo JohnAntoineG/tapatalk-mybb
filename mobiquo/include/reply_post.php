@@ -5,7 +5,7 @@ defined('IN_MOBIQUO') or exit;
 require_once MYBB_ROOT."inc/functions_post.php";
 require_once MYBB_ROOT."inc/functions_user.php";
 require_once MYBB_ROOT."inc/class_parser.php";
-
+require_once TT_ROOT.'parser.php';
 
 function reply_post_func($xmlrpc_params)
 {
@@ -22,7 +22,7 @@ function reply_post_func($xmlrpc_params)
 	), $xmlrpc_params);
 
 	$lang->load("newreply");
-	$parser = new postParser;
+	$parser = new Tapatalk_Parser;
 
 	$tid = $input['topic_id'];
 
@@ -224,7 +224,8 @@ function reply_post_func($xmlrpc_params)
 	{
 		$parser_options['me_username'] = $post['username'];
 	}
-
+	$post['message'] = post_bbcode_clean($post['message']);
+	
 	$post['message'] = $parser->parse_message($post['message'], $parser_options);
 
 	global $attachcache;
