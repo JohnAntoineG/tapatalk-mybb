@@ -213,11 +213,6 @@ function get_box_func($xmlrpc_params)
 				$avatar = $message['tavatar'];
 			}
 			
-			if(empty($msg_to))
-			{
-				continue;
-			}
-			
 			if($folder != 2 && $folder != 3)
 			{
 				$tofromusername = $message['fromusername'];
