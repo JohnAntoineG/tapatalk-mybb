@@ -48,7 +48,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "3.8.1",
+        "version"       => "3.9.0",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -630,6 +630,7 @@ function tapatalk_pre_output_page(&$page)
     	}
     	$page_type = $matches[1];
     }
+    $app_location_url = str_replace("location=other", 'location=index', $app_location_url);
     $app_banner_message = $settings['tapatalk_app_banner_msg'];
     $app_ios_id = $settings['tapatalk_app_ios_id'];
     $app_android_id = $settings['tapatalk_android_url'];

@@ -257,14 +257,13 @@ function m_get_report_post_func($xmlrpc_params){
 
     $reports = '';
     $query = $db->query("
-        SELECT r.*, u.username, r.reason as report_reason, r.uid as report_uid, ur.username as report_username, up.username AS postusername, up.uid AS postuid, t.subject AS threadsubject, p.dateline as postdateline, up.avatar, p.message as postmessage, p.subject as postsubject, t.views, t.replies, IF(b.lifted > UNIX_TIMESTAMP() OR b.lifted = 0, 1, 0) as isbanned, p.visible
+        SELECT r.*, u.username, r.reason as report_reason, r.uid as report_uid, u.username as report_username, up.username AS postusername, up.uid AS postuid, t.subject AS threadsubject, p.dateline as postdateline, up.avatar, p.message as postmessage, p.subject as postsubject, t.views, t.replies, IF(b.lifted > UNIX_TIMESTAMP() OR b.lifted = 0, 1, 0) as isbanned, p.visible
         FROM ".TABLE_PREFIX."reportedposts r
         LEFT JOIN ".TABLE_PREFIX."posts p ON (r.pid=p.pid)
         LEFT JOIN ".TABLE_PREFIX."threads t ON (p.tid=t.tid)
         LEFT JOIN ".TABLE_PREFIX."users u ON (r.uid=u.uid)
         LEFT JOIN ".TABLE_PREFIX."banned b ON (b.uid = p.uid)
         LEFT JOIN ".TABLE_PREFIX."users up ON (p.uid = up.uid)
-        LEFT JOIN ".TABLE_PREFIX."users ur ON (r.uid = ur.uid)
         WHERE r.reportstatus='0'
         ORDER BY r.dateline DESC
         LIMIT $start, $limit
