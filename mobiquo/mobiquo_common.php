@@ -801,7 +801,14 @@ function check_return_user_type($username)
 	}
 	else if($user_groups['gid'] == 5)
 	{
-		$user_type = 'validating';
+		if($mybb->settings['regtype'] == "admin")
+		{
+			$user_type = 'unapproved';
+		}
+		else 
+		{
+			$user_type = 'inactive';
+		}
 	}
 	else
     {
