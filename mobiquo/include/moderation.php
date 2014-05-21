@@ -1016,6 +1016,10 @@ function m_get_moderate_topic_func($xmlrpc_params)
 
     while($thread = $db->fetch_array($query))
     {
+    	if(substr($thread['closed'], 0, 5) == "moved")
+        {
+            continue;
+        }
         $thread['subject'] = $parser->parse_badwords($thread['subject']);
 
         $topic_list[] = new xmlrpcval(array(

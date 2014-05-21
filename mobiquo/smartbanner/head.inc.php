@@ -56,7 +56,7 @@ if (in_array($page_type, array('index', 'forum', 'topic', 'post')) && $host_path
 
 // don't include it when the request was not from mobile device
 $useragent = tt_getenv('HTTP_USER_AGENT');
-if (!preg_match('/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone/i', $useragent))
+if (!preg_match('/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone|((Windows NT|Windows RT).*?ARM)/i', $useragent))
     return;
 
 
@@ -99,10 +99,14 @@ if (file_exists($tapatalk_dir . '/smartbanner/welcome.php') && file_exists($tapa
 {
     $GLOBALS['app_head_included'] = true;
     
+    $is_byo = $app_ios_id && $app_ios_id != -1 || $app_android_id && $app_android_id != -1 || $app_kindle_url && $app_kindle_url != -1 ? 1 : 0;
+    $welcome_page = $is_byo ? 'welcome.php' : 'app.php';
+    
     $app_banner_head = '
         <!-- Tapatalk Banner&Welcome head start -->
         <link href="'.$tapatalk_dir_url.'/smartbanner/appbanner.css" rel="stylesheet" type="text/css" media="screen" />
         <script type="text/javascript">
+            var is_byo             = '.$is_byo.';
             var is_mobile_skin     = '.$is_mobile_skin.';
             var app_ios_id         = "'.$app_ios_id.'";
             var app_android_id     = "'.addslashes($app_android_id).'";
@@ -115,7 +119,7 @@ if (file_exists($tapatalk_dir . '/smartbanner/welcome.php') && file_exists($tapa
             
             var app_forum_code = "'.(trim($api_key) ? md5(trim($api_key)) : '').'";
             var app_referer = "'.addslashes(urlencode($app_referer)).'";
-            var app_welcome_url = "'.addslashes($tapatalk_dir_url.'/smartbanner/welcome.php').'";
+            var app_welcome_url = "'.addslashes($tapatalk_dir_url.'/smartbanner/'.$welcome_page).'";
             var app_welcome_enable = '.(!isset($app_ads_enable) || $app_ads_enable ? 1 : 0).';
         </script>
         <script src="'.$tapatalk_dir_url.'/smartbanner/appbanner.js" type="text/javascript"></script>

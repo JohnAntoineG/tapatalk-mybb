@@ -46,7 +46,7 @@ $ads_url = $protocol.'tapatalk.com/welcome_screen.php'
 </head>
 <body>
     <script>$.getJSON("<?php echo $ads_url; ?>",function(data){
-        if (!data.html) window.location.href = "<?php echo $redirect_url; ?>";
+        if (!data.html) window.location.href = "<?php echo htmlspecialchars($redirect_url); ?>";
         $("body").append(data.html);
     });
     </script>

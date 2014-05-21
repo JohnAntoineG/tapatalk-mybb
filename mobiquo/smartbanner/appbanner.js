@@ -2,9 +2,19 @@
 if (typeof(app_ios_id)      == "undefined") var app_ios_id = '';
 if (typeof(app_android_id)  == "undefined") var app_android_id = '';
 if (typeof(app_kindle_url)  == "undefined") var app_kindle_url = '';
+if (typeof(is_byo)          == "undefined") var is_byo = 0;
+if (typeof(app_forum_name)  == "undefined" || !app_forum_name)
+{
+    var app_forum_name = "this forum";
+    var ads_title_name = 'Stay in touch with us via Tapatalk app';
+}
+else
+{
+    var ads_title_name = app_forum_name;
+}
 
 // ---- welcome page display ----
-if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone/i) &&
+if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone|Windows RT.*?ARM/i) &&
     typeof(Storage) !== "undefined" &&
     (typeof(app_welcome_enable) === "undefined" || app_welcome_enable) &&
     (typeof(localStorage.hide) === "undefined" || localStorage.hide == 'false') &&
@@ -22,7 +32,11 @@ if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Ph
         localStorage.hide_until = current_timestamp+(86400*30);
         
         // redirect to welcome page with referer
-        app_welcome_url = app_welcome_url+'?referer='+app_referer+'&code='+app_forum_code+'&board_url='+app_board_url+'&lang='+navigator.language;
+        app_welcome_url = app_welcome_url+'?referer='+app_referer+'&board_url='+app_board_url;
+        if (is_byo)
+            app_welcome_url = app_welcome_url+'&code='+app_forum_code+'&lang='+navigator.language;
+        else
+            app_welcome_url = app_welcome_url+'&name='+encodeURIComponent(ads_title_name);
         
         if (navigator.userAgent.match(/iPhone|iPod|iPad/i)) {
             if (app_ios_id && app_ios_id != '-1') app_welcome_url = app_welcome_url+'&app_ios_id='+app_ios_id;
@@ -43,7 +57,6 @@ if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Ph
 if (typeof(functionCallAfterWindowLoad) == "undefined") var functionCallAfterWindowLoad = false;
 if (typeof(is_mobile_skin)  == "undefined") var is_mobile_skin = false;
 if (typeof(app_board_url)   == "undefined") var app_board_url = '';
-if (typeof(app_forum_name)     == "undefined" || !app_forum_name) var app_forum_name = "this forum";
 if (typeof(app_banner_message) == "undefined" || !app_banner_message) var app_banner_message = "Follow {your_forum_name} <br /> with {app_name} for [os_platform]";
 if (typeof(app_location_url)   == "undefined" || !app_location_url) var app_location_url = "tapatalk://";
 var app_location_url_byo = app_location_url.replace('tapatalk://', 'tapatalk-byo://');
