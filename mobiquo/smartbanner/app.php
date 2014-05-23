@@ -50,7 +50,7 @@ if (!file_exists('images/close-32x32.png'))
             localStorage.hide = true;
             window.location.href='<?php echo htmlspecialchars($redirect_url)?>';
         });
-        $("#button a").attr("href","http://tapatalk.com/m?id=7&referer=<?php echo urlencode($board_url)?>");
+        $("#button a").attr("href","http://tapatalk.com/m?id=23&referer=<?php echo urlencode($board_url)?>");
     })
 </script>
 </head>
