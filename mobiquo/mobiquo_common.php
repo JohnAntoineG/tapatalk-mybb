@@ -2,6 +2,36 @@
 
 defined('IN_MOBIQUO') or exit;
 
+if (!function_exists('http_build_query')) 
+{
+    function http_build_query($data, $prefix = null, $sep = '', $key = '')
+    {
+        $ret = array();
+        foreach ((array )$data as $k => $v) {
+            $k = urlencode($k);
+            if (is_int($k) && $prefix != null) {
+                $k = $prefix . $k;
+            }
+ 
+            if (!empty($key)) {
+                $k = $key . "[" . $k . "]";
+            }
+ 
+            if (is_array($v) || is_object($v)) {
+                array_push($ret, http_build_query($v, "", $sep, $k));
+            } else {
+                array_push($ret, $k . "=" . urlencode($v));
+            }
+        }
+ 
+        if (empty($sep)) {
+            $sep = ini_get("arg_separator.output");
+        }
+ 
+        return implode($sep, $ret);
+    }
+}
+
 function get_error($error_message)
 {
     $r = new xmlrpcresp(
@@ -1098,11 +1128,16 @@ function tt_login_success()
             ), 'struct');
     }   
     
+    if($mybb->settings['postfloodsecs'] && !is_moderator(0, "", $mybb->user['uid']))
+    {
+    	$flood_interval = $mybb->settings['postfloodsecs'];
+    }
 	$result = array(
 		'result'            => new xmlrpcval(true, 'boolean'),
 		'result_text'       => new xmlrpcval('', 'base64'),
 		'user_id'           => new xmlrpcval($mybb->user['uid'], 'string'),
 		'username'          => new xmlrpcval(basic_clean($mybb->user['username']), 'base64'),
+		'login_name'        => new xmlrpcval(basic_clean($mybb->user['username']), 'base64'),
 		'user_type' 	    => check_return_user_type($mybb->user['username']),
 		//'tapatalk'          => new xmlrpcval(is_tapatalk_user($mybb->user['uid'])),
 		'email'             => new xmlrpcval(basic_clean($mybb->user['email']), 'base64'),
@@ -1121,6 +1156,7 @@ function tt_login_success()
 		'can_whosonline'    => new xmlrpcval($mybb->usergroup['canviewonline'] == 1, "boolean"),
 		'register'          => new xmlrpcval($register, "boolean"),
 		'push_type'         => new xmlrpcval($push_type, 'array'), 
+		'post_countdown'    => new xmlrpcval($flood_interval,'int'),
 	);
 	
 	

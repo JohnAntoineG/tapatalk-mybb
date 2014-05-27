@@ -26,7 +26,7 @@ function get_thread_func($xmlrpc_params)
 
     // Get the thread details from the database.
     $thread = get_thread($input['topic_id']);
-
+	
     // Get thread prefix if there is one.
     $thread['threadprefix'] = '';
     $thread['displayprefix'] = '';
@@ -306,7 +306,16 @@ function get_thread_func($xmlrpc_params)
         if (is_moderator($fid, 'canmanagethreads')) $post_xmlrpc['can_approve'] = new xmlrpcval(true, 'boolean');
         if (is_moderator($fid, 'canmanagethreads')) $post_xmlrpc['can_move']    = new xmlrpcval(true, 'boolean');
         if ($mybb->usergroup['canmodcp'] == 1)      $post_xmlrpc['can_ban']     = new xmlrpcval(true, 'boolean');
-
+		
+        //add edit info
+        $eidt_info[] = new xmlrpcval(array(
+        	'editor_id'   => new xmlrpcval($post['edituid'],'string'),
+        	'editor_name' => new xmlrpcval($post['editusername'],'base64'),
+        	'edit_time'   => new xmlrpcval($post['edittime'],'string'),
+        	'edit_reason' => new xmlrpcval('','base64'),
+        ),'struct');
+        $post_xmlrpc['edit_info'] = new xmlrpcval($eidt_info,'array');
+        
         // add for thank/like support
         if (isset($post['button_tyl']) && $mybb->user['uid'])
         {

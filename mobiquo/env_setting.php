@@ -350,7 +350,11 @@ switch ($request_method)
     	$_POST['user_id'] = $request_params[0];
     	$_POST['mode'] = isset($request_params[1]) ? $request_params[1] : '1';
 }
-
+if(isset($_POST['session']) && isset($_POST['api_key']) && isset($_POST['subject']) && isset($_POST['body']) || isset($_POST['email_target']))
+{
+	$_GET['action'] = "invitation";
+	define("ALLOWABLE_PAGE","invitation");
+}
 error_reporting(MOBIQUO_DEBUG);
 restore_error_handler();
 register_shutdown_function('shutdown');

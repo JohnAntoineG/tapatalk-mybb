@@ -1,5 +1,5 @@
 <?php
-
+defined('IN_MOBIQUO') or exit;
 
 class Tapatalk_xmlrpcs extends xmlrpc_server {
 	

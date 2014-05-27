@@ -1,6 +1,6 @@
 <?php
 if(!defined('IN_MOBIQUO')) exit;
-error_reporting(E_ALL);
+error_reporting(E_ERROR);
 require_once MYBB_ROOT."/inc/functions_massmail.php";
 if (function_exists('set_magic_quotes_runtime'))
 	@set_magic_quotes_runtime(0);
@@ -19,7 +19,7 @@ if(!empty($_POST['session']) && !empty($_POST['api_key']) && !empty($_POST['subj
     if(empty($result) || empty($result['result']))
         if(preg_match('/\{"result":true/', $response))
             $result = array('result' => true); 
-    $_POST['username'] = trim($_POST['username']);
+    $_POST['username'] = isset($_POST['username']) ? trim($_POST['username']) : '';
     if(isset($result) && isset($result['result']) && $result['result'])
     {
         if(!empty($_POST['username']))
