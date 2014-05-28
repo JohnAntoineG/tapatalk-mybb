@@ -606,6 +606,10 @@ $server_param = array(
     						 ),
     ),
     
+    'get_contact'   => array(
+    	'function' => 'get_contact_func',
+        'signature' => array(array($xmlrpcStruct,$xmlrpcString)),
+    ),
     //**********************************************
     // Puch related functions
     //**********************************************

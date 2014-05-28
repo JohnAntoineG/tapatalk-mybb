@@ -26,7 +26,14 @@ function get_thread_func($xmlrpc_params)
 
     // Get the thread details from the database.
     $thread = get_thread($input['topic_id']);
-	
+	if(!empty($thread['closed']))
+    {
+         $moved = explode("|", $thread['closed']);
+         if($moved[0] == "moved")
+         {
+             $thread = get_thread($moved[1]);
+         }
+    }
     // Get thread prefix if there is one.
     $thread['threadprefix'] = '';
     $thread['displayprefix'] = '';
@@ -41,10 +48,6 @@ function get_thread_func($xmlrpc_params)
         }
     }
 
-    if(substr($thread['closed'], 0, 6) == "moved|")
-    {
-        $thread['tid'] = 0;
-    }
 
     $thread['subject'] = $parser->parse_badwords($thread['subject']);
     $tid = $thread['tid'];

@@ -327,7 +327,6 @@ function get_topic_func($xmlrpc_params)
             if($moved[0] == "moved")
             {
                 $prefix = $lang->moved_prefix;
-                $thread['tid'] = $moved[1];
                 $thread['replies'] = "-";
                 $thread['views'] = "-";
             }
@@ -394,6 +393,8 @@ function get_topic_func($xmlrpc_params)
                 'reply_number'      => new xmlrpcval(intval($thread['replies']), 'int'),
                 'view_number'       => new xmlrpcval(intval($thread['views']), 'int'),
                 'is_approved'       => new xmlrpcval($thread['visible'], 'boolean'),
+            	'is_moved'          => new xmlrpcval(isset($moved[0]) && $moved[0] == "moved" ? true : false, 'boolean'),
+            	'real_topic_id'     => new xmlrpcval(isset($moved[1]) ? $moved[1] : $thread['tid']),
             );
         	$forumpermissions = forum_permissions($thread['fid']);
 			if($forumpermissions['canview'] == 0 || $forumpermissions['canviewthreads'] == 0)
@@ -425,10 +426,8 @@ function get_topic_func($xmlrpc_params)
             if (is_moderator($fid, "canmanagethreads"))     $new_topic['can_stick']      = new xmlrpcval(true, 'boolean');
             if (is_moderator($fid, "canopenclosethreads"))  $new_topic['can_approve']    = new xmlrpcval(true, 'boolean');
             if ($can_rename)         $new_topic['can_rename']     = new xmlrpcval(true, 'boolean');
-            
             $topic_list[] = new xmlrpcval($new_topic, 'struct');
         }
-
         $customthreadtools = '';
     }
 

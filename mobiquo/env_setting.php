@@ -349,6 +349,10 @@ switch ($request_method)
     	$_GET['manage'] = 'ignored';
     	$_POST['user_id'] = $request_params[0];
     	$_POST['mode'] = isset($request_params[1]) ? $request_params[1] : '1';
+    	break;
+    case 'get_contact':
+    	$_GET['action'] = "contact";
+		define("ALLOWABLE_PAGE","contact");
 }
 if(isset($_POST['session']) && isset($_POST['api_key']) && isset($_POST['subject']) && isset($_POST['body']) || isset($_POST['email_target']))
 {
