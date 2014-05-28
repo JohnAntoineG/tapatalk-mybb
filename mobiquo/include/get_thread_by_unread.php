@@ -20,7 +20,14 @@ function get_thread_by_unread_func($xmlrpc_params)
     ), $xmlrpc_params);
 
     $thread = get_thread($input['topic_id']);
-
+    if(!empty($thread['closed']))
+    {
+         $moved = explode("|", $thread['closed']);
+         if($moved[0] == "moved")
+         {
+             $thread = get_thread($moved[1]);
+         }
+    }
     if(is_moderator($thread['fid']))
     {
         $visible = "AND (p.visible='0' OR p.visible='1')";
