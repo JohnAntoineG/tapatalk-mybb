@@ -149,6 +149,43 @@ function m_close_topic_func($xmlrpc_params)
     return new xmlrpcresp($response);
 }
 
+function m_close_report_func($xmlrpc_params)
+{
+	global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
+     $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
+
+    $input = Tapatalk_Input::filterXmlInput(array(
+        'post_ids'  => Tapatalk_Input::STRING,
+    ), $xmlrpc_params);
+    
+	$lang->load("modcp");
+    mod_setup();
+
+	if($mybb->user['uid'] == 0 || $mybb->usergroup['canmodcp'] != 1)
+	{
+		error_no_permission();
+	}
+	
+	if(empty($input['post_ids']))
+	{
+		error($lang->error_noselected_reports);
+	}
+	
+	$pids = "'0','{$input['post_ids']}'";
+
+	$sql = "pid IN ({$pids})";
+
+	$plugins->run_hooks("modcp_do_reports");
+
+	$db->update_query("reportedposts", array('reportstatus' => 1), "{$sql}");
+	$cache->update_reportedposts();
+	$response = new xmlrpcval(array(
+        'result'        => new xmlrpcval(true, 'boolean'),
+        'result_text'   => new xmlrpcval("", 'base64')
+    ), 'struct');
+    return new xmlrpcresp($response);
+}
+
 function m_delete_topic_func($xmlrpc_params)
 {
     global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,

@@ -353,6 +353,7 @@ switch ($request_method)
     case 'get_contact':
     	$_GET['action'] = "contact";
 		define("ALLOWABLE_PAGE","contact");
+		break;
 }
 if(isset($_POST['session']) && isset($_POST['api_key']) && isset($_POST['subject']) && isset($_POST['body']) || isset($_POST['email_target']))
 {

@@ -523,7 +523,12 @@ $server_param = array(
         'signature' => array(array($xmlrpcArray, $xmlrpcBase64, $xmlrpcInt, $xmlrpcBase64)),
         'docstring' => '',
     ),
-
+	
+    'm_close_report' => array(
+    	'function'  => 'm_close_report_func',
+        'signature' => array(array($xmlrpcArray, $xmlrpcString))
+    ),
+    
     'm_get_report_post' => array(
         'function'  => 'm_get_report_post_func',
         'signature' => array(array($xmlrpcArray),
