@@ -53,11 +53,7 @@ function get_config_func()
 	    $mobiquo_config['sso_register'] = 0;
 	    $mobiquo_config['native_register'] = 0;
     }
-    if($mybb->settings['regtype'] == 'admin')
-    {
-    	$mobiquo_config['sso_signin'] = 0;
-	    $mobiquo_config['sso_register'] = 0;
-    }
+    
 	if (!function_exists('curl_init') && !@ini_get('allow_url_fopen'))
 	{
 	    $mobiquo_config['sign_in'] = 0;
