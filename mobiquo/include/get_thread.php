@@ -317,7 +317,6 @@ function get_thread_func($xmlrpc_params)
 	        	'editor_id'   => new xmlrpcval($post['edituid'],'string'),
 	        	'editor_name' => new xmlrpcval($post['editusername'],'base64'),
 	        	'edit_time'   => new xmlrpcval($post['edittime'],'string'),
-	        	'edit_reason' => new xmlrpcval('','base64'),
 	        );
 	        $post_xmlrpc = array_merge($post_xmlrpc,$edit_info);
         }
