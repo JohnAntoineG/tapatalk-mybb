@@ -886,10 +886,35 @@ function m_ban_user_func($xmlrpc_params)
         'user_name'   => Tapatalk_Input::STRING,
         'mode'        => Tapatalk_Input::INT,
         'reason_text' => Tapatalk_Input::STRING,
+    	'expired'     => Tapatalk_Input::INT,
     ), $xmlrpc_params);
-
+	
+    $ban_time = '---';
+    if(!empty($input['expired']))
+    {
+    	$expired = intval($input['expired']);
+    	$year = date("Y",$expired) - date("Y",time());
+    	$month = date("m",$expired) - date("m",time());
+    	$day = date("d",$expired) - date("d",time());
+    	if($year < 0)
+    	{
+    		$year = 0;
+    		$month = 0;
+    		$day = 0;
+    	}
+    	if($month < 0)
+    	{
+    		$month = 0;
+    	}
+    	if($day < 0)
+    	{
+    		$day = 0;
+    	}
+    	$ban_time = $day.'-'.$month.'-'.$year;
+    }
+    
     mod_setup();
-
+   
     $lang->load("modcp");
 
     // Get the users info from their Username
@@ -917,7 +942,7 @@ function m_ban_user_func($xmlrpc_params)
     {
         return xmlrespfalse($lang->error_nobanreason);
     }
-
+	
     // Check banned group
     $query = $db->simple_select("usergroups", "gid", "isbannedgroup=1", array('limit' => 1));
     $gid = $db->fetch_field($query, "gid");
@@ -941,7 +966,7 @@ function m_ban_user_func($xmlrpc_params)
         'olddisplaygroup' => $user['displaygroup'],
         'admin' => intval($mybb->user['uid']),
         'dateline' => TIME_NOW,
-        'bantime' => '---',
+        'bantime' => $ban_time,
         'lifted' => 0,
         'reason' => $input['reason_text_esc']
     );

@@ -26,8 +26,8 @@ if (!file_exists('images/close-32x32.png'))
 <meta name="apple-mobile-web-app-status-bar-style" content="white" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://tapatalk.com/resources/stylesheets/welcome_screen.css"/>
-<script src="https://tapatalk.com/resources/js/welcome.js"></script>
+<link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/welcome-screen/welcome_screen.css"/>
+<script src="https://s3.amazonaws.com/welcome-screen/welcome.js"></script>
 <script>
     $(document).ready(function() {
         check_device();
