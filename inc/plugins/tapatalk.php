@@ -1282,7 +1282,7 @@ function tapatalk_settings_update()
 		{
 			$select_group_str .= "\n".$groupid . "=" . $title;
 		}
-		
+		$select_group_str = $db->escape_string($select_group_str);
 		$db->update_query("settings",array('optionscode' => 'select'.$select_group_str),"name = 'tapatalk_register_group'");
     }
 		
