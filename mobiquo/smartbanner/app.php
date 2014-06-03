@@ -9,7 +9,7 @@ $redirect_url = $referer ? $referer : ($board_url ? $board_url : dirname(dirname
 $lang = isset($_GET['lang']) ? $_GET['lang'] : 'en';
 if (!preg_match('#^https?://#si', $redirect_url)) $redirect_url = '/';
 
-if (!file_exists('images/close-32x32.png'))
+if (!file_exists('images/close-50x50.png'))
 {
     header('Location: '.$redirect_url);
     exit;
