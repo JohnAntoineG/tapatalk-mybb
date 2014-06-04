@@ -294,7 +294,8 @@ function m_get_report_post_func($xmlrpc_params){
 
     $reports = '';
     $query = $db->query("
-        SELECT r.*, u.username, r.reason as report_reason, r.uid as report_uid, u.username as report_username, up.username AS postusername, up.uid AS postuid, t.subject AS threadsubject, p.dateline as postdateline, up.avatar, p.message as postmessage, p.subject as postsubject, t.views, t.replies, IF(b.lifted > UNIX_TIMESTAMP() OR b.lifted = 0, 1, 0) as isbanned, p.visible
+        SELECT r.*, u.username, r.reason as report_reason, r.uid as report_uid, u.username as report_username, up.username AS postusername, up.uid AS postuid, t.subject AS threadsubject, p.dateline as postdateline, up.avatar, p.message as postmessage, p.subject as postsubject, t.views, 
+        t.replies, IF(b.lifted > UNIX_TIMESTAMP() OR b.lifted = 0, 1, 0) as isbanned, p.visible, p.tid AS ptid
         FROM ".TABLE_PREFIX."reportedposts r
         LEFT JOIN ".TABLE_PREFIX."posts p ON (r.pid=p.pid)
         LEFT JOIN ".TABLE_PREFIX."threads t ON (p.tid=t.tid)
@@ -329,7 +330,7 @@ function m_get_report_post_func($xmlrpc_params){
         $post_list[] = new xmlrpcval(array(
             'forum_id'          => new xmlrpcval($post['fid'], 'string'),
             'forum_name'        => new xmlrpcval(basic_clean($forums[$post['fid']]), 'base64'),
-            'topic_id'          => new xmlrpcval($post['tid'], 'string'),
+            'topic_id'          => new xmlrpcval($post['ptid'], 'string'),
             'topic_title'       => new xmlrpcval($post['threadsubject'], 'base64'),
             'post_id'           => new xmlrpcval($post['pid'], 'string'),
             'post_title'        => new xmlrpcval($post['postsubject'], 'base64'),
