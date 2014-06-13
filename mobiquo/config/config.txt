@@ -1,4 +1,4 @@
-version = mb16_3.9.0
+version = mb16_4.0.0
 
 api_level = 3
 

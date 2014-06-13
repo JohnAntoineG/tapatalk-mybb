@@ -26,27 +26,33 @@ if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Ph
     current_timestamp = Math.round(+new Date()/1000);
     hide_until = typeof(localStorage.hide_until) === "undefined" ? 0 : localStorage.hide_until;
     
-    if (current_timestamp > hide_until)
-    {
-        // don't show it again in 30 days
-        localStorage.hide_until = current_timestamp+(86400*30);
-        
-        // redirect to welcome page with referer
-        app_welcome_url = app_welcome_url+'?referer='+app_referer+'&board_url='+app_board_url;
-        if (is_byo)
-            app_welcome_url = app_welcome_url+'&code='+app_forum_code+'&lang='+navigator.language;
-        else
-            app_welcome_url = app_welcome_url+'&name='+encodeURIComponent(ads_title_name);
-        
-        if (navigator.userAgent.match(/iPhone|iPod|iPad/i)) {
-            if (app_ios_id && app_ios_id != '-1') app_welcome_url = app_welcome_url+'&app_ios_id='+app_ios_id;
-        } else if (navigator.userAgent.match(/Silk|KFOT|KFTT|KFJWI|KFJWA/)) {
-            if (app_kindle_url && app_kindle_url != '-1') app_welcome_url = app_welcome_url+'&app_kindle_url='+app_kindle_url;
-        } else if (navigator.userAgent.match(/Android/i)) {
-            if (app_android_id && app_android_id != '-1') app_welcome_url = app_welcome_url+'&app_android_id='+app_android_id;
+    try {
+        if (current_timestamp > hide_until)
+        {
+            // don't show it again in 30 days
+            localStorage.hide_until = current_timestamp+(86400*30);
+            
+            // redirect to welcome page with referer
+            app_welcome_url = app_welcome_url+'?referer='+app_referer+'&board_url='+app_board_url;
+            if (is_byo)
+                app_welcome_url = app_welcome_url+'&code='+app_forum_code+'&lang='+navigator.language;
+            else
+                app_welcome_url = app_welcome_url+'&name='+encodeURIComponent(ads_title_name);
+            
+            if (navigator.userAgent.match(/iPhone|iPod|iPad/i)) {
+                if (app_ios_id && app_ios_id != '-1') app_welcome_url = app_welcome_url+'&app_ios_id='+app_ios_id;
+            } else if (navigator.userAgent.match(/Silk|KFOT|KFTT|KFJWI|KFJWA/)) {
+                if (app_kindle_url && app_kindle_url != '-1') app_welcome_url = app_welcome_url+'&app_kindle_url='+app_kindle_url;
+            } else if (navigator.userAgent.match(/Android/i)) {
+                if (app_android_id && app_android_id != '-1') app_welcome_url = app_welcome_url+'&app_android_id='+app_android_id;
+            }
+            
+            window.location.href=app_welcome_url;
         }
-        
-        window.location.href=app_welcome_url;
+    }
+    catch(e)
+    {
+        //alert(JSON.stringify(e, null, 4));
     }
 }
 
