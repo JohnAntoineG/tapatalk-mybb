@@ -687,11 +687,11 @@ function post_bbcode_clean($str)
 			preg_match('/^\s*(\'|")((\#|\/|\!).+\3[ismexuADUX]*?)\1\s*,\s*(\'|")(.*?)\4\s*$/', $replace,$matches);
 			if(count($matches) == 6)
 			{
-				$temp_post = $post;
-				$post = @preg_replace($matches[2], $matches[5], $post);
-				if(empty($post))
+				$temp_post = $str;
+				$str = @preg_replace($matches[2], $matches[5], $str);
+				if(empty($str))
 				{
-					$post = $temp_post;
+					$str = $temp_post;
 				}
 			}	
 		}
