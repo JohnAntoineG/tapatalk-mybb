@@ -665,6 +665,7 @@ function tp_get_forum_icon_by_name($icon_name)
 
 function post_bbcode_clean($str)
 {
+	global $mybb;
 	$str = preg_replace('/\[php\](.*?)\[\/php\]/sei', "'[ttcode]'.base64_encode('$1').'[/ttcode]'", $str);
 	$str = preg_replace('/\[code\](.*?)\[\/code\]/sei', "'[ttcode]'.base64_encode('$1').'[/ttcode]'", $str);
 	$array_reg = array(
