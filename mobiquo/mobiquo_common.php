@@ -464,24 +464,6 @@ function process_post($post, $returnHtml = false)
 		$post = preg_replace('/\[ttcode\](.*?)\[\/ttcode\]/sei', "'[code]'.base64_decode('$1').'[/code]'", $post);
 	}
 
-     if(!empty($mybb->settings['tapatalk_custom_replace']))
-    {
-        $replace_arr = explode("\n", $mybb->settings['tapatalk_custom_replace']);
-        foreach ($replace_arr as $replace)
-        {
-            preg_match('/^\s*(\'|")((\#|\/|\!).+\3[ismexuADUX]*?)\1\s*,\s*(\'|")(.*?)\4\s*$/', $replace,$matches);
-            if(count($matches) == 6)
-            {
-                $temp_post = $post;
-                $post = @preg_replace($matches[2], $matches[5], $post);
-                if(empty($post))
-                {
-                    $post = $temp_post;
-                }
-            }   
-        }
-    } 
-
     return $post;
 }
 function process_page($start_num, $end)
