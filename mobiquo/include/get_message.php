@@ -211,6 +211,7 @@ function get_message_func($xmlrpc_params)
 		'result'        => new xmlrpcval(true, 'boolean'),
 		'result_text'   => new xmlrpcval('', 'base64'),
 		'msg_from'      => new xmlrpcval($pm['username'], 'base64'),
+		'msg_from_id'   => new xmlrpcval($pm['fromid'], 'string'),
 		'msg_to'        => new xmlrpcval($msg_to_list, 'array'),
 		'icon_url'      => new xmlrpcval(absolute_url($avatar), 'string'),
 		'sent_date'     => new xmlrpcval(mobiquo_iso8601_encode($pm['dateline']), 'dateTime.iso8601'),

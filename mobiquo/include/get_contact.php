@@ -33,12 +33,25 @@ function get_contact_func($xmlrpc_params)
     {
         $member = $mybb->user;
     }
-
+	
     if(!$member['uid'])
     {
         error($lang->error_nomember);
     }
     
+	// Guests or those without permission can't email other users
+	if($mybb->usergroup['cansendemail'] == 0 || !$mybb->user['uid'])
+	{
+		error_no_permission();
+	}
+	
+	
+	if($member['hideemail'] != 0)
+	{
+		error($lang->error_hideemail);
+	}
+	
+	
 	$user_info = array(
     	'result'             => new xmlrpcval(true, 'boolean'),
         'user_id'            => new xmlrpcval($member['uid']),
@@ -82,8 +95,8 @@ function encrypt($txt,$key)
 
 function loadAPIKey()
 {
-    global $config;
-    $mobi_api_key = isset($config['tapatalk_push_key']) ? $config['tapatalk_push_key'] : '';
+    global $mybb;
+    $mobi_api_key = $mybb->settings['tapatalk_push_key'];
     if(empty($mobi_api_key))
     {   
         $boardurl = $mybb->settings['bburl'];

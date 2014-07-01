@@ -25,7 +25,7 @@ $plugins->add_hook('postbit','tapatalk_postbit');
 $plugins->add_hook('postbit_prev','tapatalk_postbit');
 $plugins->add_hook('postbit_pm','tapatalk_postbit');
 $plugins->add_hook('postbit_announcement','tapatalk_postbit');
-$plugins->add_hook('parse_message_start', "tapatalk_parse_message");
+//$plugins->add_hook('parse_message_start', "tapatalk_parse_message");
 $plugins->add_hook('parse_message_end', "tapatalk_parse_message_end");
 $plugins->add_hook("admin_config_settings_begin", "tapatalk_settings_update");
 $plugins->add_hook('member_do_register_start', 'tt_is_spam');
@@ -1237,7 +1237,7 @@ function ingnore_user_push($user)
     return false;    
 }
 
-function tapatalk_parse_message(&$message)
+/*function tapatalk_parse_message(&$message)
 {
 	if(strstr($_SERVER['PHP_SELF'],'mobiquo.php'))
 	{
@@ -1251,7 +1251,7 @@ function tapatalk_parse_message(&$message)
             ),
     $message);
      
-}
+}*/
 
 function tapatalk_parse_message_end(&$message)
 {

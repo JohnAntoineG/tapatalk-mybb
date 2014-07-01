@@ -295,6 +295,13 @@ $server_param = array(
         'docstring' => 'message id',
     ),
     
+    'mark_pm_read' => array(
+        'function'  => 'mark_pm_read_func',
+        'signature' => array(array($xmlrpcArray),
+                             array($xmlrpcStruct, $xmlrpcString)),
+        'docstring' => 'message id',
+    ),
+    
     'get_quote_pm' => array(
         'function'  => 'get_quote_pm_func',
         'signature' => array(array($xmlrpcStruct, $xmlrpcString)),
