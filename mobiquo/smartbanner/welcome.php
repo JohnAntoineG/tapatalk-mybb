@@ -17,12 +17,12 @@ if (isset($_GET['app_ios_id']))
 }
 else if (isset($_GET['app_android_id']))
 {
-    $app_android_id = $_GET['app_android_id'];
+    $app_android_id = urlencode($_GET['app_android_id']);
     if ($app_android_id && $app_android_id != '-1') $byo = "&app_android_id=$app_android_id";
 }
 else if (isset($_GET['app_kindle_url']))
 {
-    $app_kindle_url = $_GET['app_kindle_url'];
+    $app_kindle_url = urlencode($_GET['app_kindle_url']);
     if ($app_kindle_url && $app_kindle_url != '-1') $byo = "&app_kindle_url=$app_kindle_url";
 }
 
@@ -46,7 +46,7 @@ $ads_url = $protocol.'tapatalk.com/welcome_screen.php'
 </head>
 <body>
     <script>$.getJSON("<?php echo $ads_url; ?>",function(data){
-        if (!data.html) window.location.href = "<?php echo htmlspecialchars($redirect_url); ?>";
+        if (!data.html) window.location.href = "<?php echo addslashes(htmlspecialchars($redirect_url)); ?>";
         $("body").append(data.html);
     });
     </script>
