@@ -58,7 +58,7 @@ foreach($image_list as $image)
     // "key" and "value" will appear as custom_parameters in the JSON that the app receives
     // from the getConversionData callback. Set it to something like "forum-id", "123456".
     _tsq.push(["addCustomParameter", "key", app_api_key]);
-    _tsq.push(["addCustomParameter", "deeplink", app_deep_link]);
+    _tsq.push(["addCustomParameter", "referer", app_deep_link]);
     // The logic below attaches a Tapstream session ID to your Tapstream campaign links.
     // This is critical for chaining the impression on the forum domain to the click
     // on your Tapstream custom domain.
