@@ -666,7 +666,7 @@ function tapatalk_pre_output_page(&$page)
     </script>'."\n".' 
     <!-- Tapatalk smart banner body end --> ';
     $page = str_ireplace("</head>", $str . "\n</head>", $page);
-    $page = preg_replace("/<body(.*?)>/isU", "<body$1>\n".$tapatalk_smart_banner_body, $page,1);
+    $page = preg_replace("/<body(.*?)>/is", "<body$1>\n".$tapatalk_smart_banner_body, $page,1);
 }
 function tapatalk_postbit(&$post)
 {
