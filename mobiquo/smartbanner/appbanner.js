@@ -1,4 +1,6 @@
 
+// ---- params check ----
+if (typeof(app_api_key)     == "undefined") var app_api_key = '';
 if (typeof(app_ios_id)      == "undefined") var app_ios_id = '';
 if (typeof(app_android_id)  == "undefined") var app_android_id = '';
 if (typeof(app_kindle_url)  == "undefined") var app_kindle_url = '';
@@ -6,22 +8,61 @@ if (typeof(is_byo)          == "undefined") var is_byo = 0;
 if (typeof(app_forum_name)  == "undefined" || !app_forum_name)
 {
     var app_forum_name = "this forum";
-    var ads_title_name = 'Stay in touch with us via Tapatalk app';
 }
-else
-{
-    var ads_title_name = app_forum_name;
+
+if (typeof(app_location_url)   == "undefined" || !app_location_url) var app_location_url = "tapatalk://";
+var app_deep_link = app_location_url.replace('tapatalk://', '');
+
+
+// ---- tapstream track ----
+var _tsq = _tsq || [];
+_tsq.push(["setAccountName", "tapatalk"]);
+_tsq.push(["setPageUrl", document.location.protocol + "//" + document.location.hostname]);
+// "key" and "value" will appear as custom_parameters in the JSON that the app receives
+// from the getConversionData callback. Set it to something like "forum-id", "123456".
+_tsq.push(["addCustomParameter", "key", app_api_key]);
+_tsq.push(["addCustomParameter", "referer", app_deep_link]);
+// The logic below attaches a Tapstream session ID to your Tapstream campaign links.
+// This is critical for chaining the impression on the forum domain to the click
+// on your Tapstream custom domain.
+_tsq.push(["attachCallback", "init", function(cbType, sessionId){
+var links = document.getElementsByTagName('a');
+var tsidTemplate = '$TSID';
+for (var x = 0; x < links.length; x++){
+    var link = links[x];
+    if (link.href.indexOf(tsidTemplate) != -1 ){
+        link.href = link.href.replace(tsidTemplate, sessionId);
+    }
 }
+}]);
+_tsq.push(["trackPage"]);
+(function() {
+    function z(){
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.async = "async";
+        // Change the second string below (tapatalk.com/your-proxiy-URL.js) to a location you control
+        // that proxies the Tapstream JavaScript URL. The Tapstream JavaScript is available at
+        // http(s)://cdn.tapstream.com/static/js/tapstream.js
+        s.src = window.location.protocol + "//s3.amazonaws.com/welcome-screen/tapstream.js";
+        var x = document.getElementsByTagName("script")[0];
+        x.parentNode.insertBefore(s, x);
+    }
+    if (window.attachEvent)
+        window.attachEvent("onload", z);
+    else
+        window.addEventListener("load", z, false);
+})();
+
 
 // ---- welcome page display ----
 if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone|Windows RT.*?ARM/i) &&
+    is_byo == 0 &&
     typeof(Storage) !== "undefined" &&
     (typeof(app_welcome_enable) === "undefined" || app_welcome_enable) &&
-    (typeof(localStorage.hide) === "undefined" || localStorage.hide == 'false') &&
     typeof(app_referer) !== "undefined" && app_referer &&
-    typeof(app_welcome_url) !== "undefined" && app_welcome_url && (
-    (typeof(app_board_url) !== "undefined" && app_board_url) || 
-    (typeof(app_forum_code) !== "undefined" && app_forum_code)))
+    typeof(tapatalk_dir_name) !== "undefined" && tapatalk_dir_name &&
+    typeof(app_board_url) !== "undefined" && app_board_url)
 {
     current_timestamp = Math.round(+new Date()/1000);
     hide_until = typeof(localStorage.hide_until) === "undefined" ? 0 : localStorage.hide_until;
@@ -33,19 +74,12 @@ if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Ph
             localStorage.hide_until = current_timestamp+(86400*30);
             
             // redirect to welcome page with referer
-            app_welcome_url = app_welcome_url+'?referer='+app_referer+'&board_url='+app_board_url;
-            if (is_byo)
-                app_welcome_url = app_welcome_url+'&code='+app_forum_code+'&lang='+navigator.language;
-            else
-                app_welcome_url = app_welcome_url+'&name='+encodeURIComponent(ads_title_name);
-            
-            if (navigator.userAgent.match(/iPhone|iPod|iPad/i)) {
-                if (app_ios_id && app_ios_id != '-1') app_welcome_url = app_welcome_url+'&app_ios_id='+app_ios_id;
-            } else if (navigator.userAgent.match(/Silk|KFOT|KFTT|KFJWI|KFJWA/)) {
-                if (app_kindle_url && app_kindle_url != '-1') app_welcome_url = app_welcome_url+'&app_kindle_url='+app_kindle_url;
-            } else if (navigator.userAgent.match(/Android/i)) {
-                if (app_android_id && app_android_id != '-1') app_welcome_url = app_welcome_url+'&app_android_id='+app_android_id;
-            }
+            app_welcome_url = app_board_url+'/'+tapatalk_dir_name+'/mobiquo.php?welcome=1'
+                              +'&referer='+encodeURIComponent(app_referer)
+                              +'&board_url='+encodeURIComponent(app_board_url)
+                              +'&code='+encodeURIComponent(app_api_key)
+                              +'&name='+encodeURIComponent(app_forum_name)
+                              +'&deeplink='+encodeURIComponent(app_deep_link);
             
             window.location.href=app_welcome_url;
         }
@@ -60,11 +94,9 @@ if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Ph
 // ---- smartbanner display start----
 
 // make sure all variables are defined
-if (typeof(functionCallAfterWindowLoad) == "undefined") var functionCallAfterWindowLoad = false;
 if (typeof(is_mobile_skin)  == "undefined") var is_mobile_skin = false;
 if (typeof(app_board_url)   == "undefined") var app_board_url = '';
 if (typeof(app_banner_message) == "undefined" || !app_banner_message) var app_banner_message = "Follow {your_forum_name} <br /> with {app_name} for [os_platform]";
-if (typeof(app_location_url)   == "undefined" || !app_location_url) var app_location_url = "tapatalk://";
 var app_location_url_byo = app_location_url.replace('tapatalk://', 'tapatalk-byo://');
 
 // set default iOS app for native smart banner
@@ -73,7 +105,7 @@ var app_ios_hd_id_default = '307880732';   // Tapatalk Free, 481579541 for Tapat
 
 // Support native iOS Smartbanner
 var native_ios_banner = false;
-if (app_ios_id != '-1' && navigator.userAgent.match(/Safari/i) != null &&
+if (app_ios_id != '-1' && navigator.userAgent.match(/Safari/i) != null && (typeof(app_banner_enable) == "undefined" || app_banner_enable) &&
     (navigator.userAgent.match(/CriOS/i) == null && window.Number(navigator.userAgent.substr(navigator.userAgent.indexOf('OS ') + 3, 3).replace('_', '.')) >= 6))
 {
     banner_location_url = app_ios_id ? app_location_url_byo : app_location_url;
@@ -91,24 +123,34 @@ if (app_ios_id != '-1' && navigator.userAgent.match(/Safari/i) != null &&
 }
 
 // initialize app download url
-var app_install_url = 'http://tapatalk.com/m/?id=6';
-if (app_ios_id)     app_install_url = app_install_url+'&app_ios_id='+app_ios_id;
-if (app_android_id) app_install_url = app_install_url+'&app_android_id='+app_android_id;
-if (app_kindle_url) app_install_url = app_install_url+'&app_kindle_url='+app_kindle_url;
-if (app_board_url)  app_install_url = app_install_url+'&referer='+app_board_url;
-
+if (is_byo)
+{
+    var app_install_url = 'https://tapatalk.com/m/?id=6';
+    if (app_ios_id)     app_install_url = app_install_url+'&app_ios_id='+app_ios_id;
+    if (app_android_id) app_install_url = app_install_url+'&app_android_id='+app_android_id;
+    if (app_kindle_url) app_install_url = app_install_url+'&app_kindle_url='+app_kindle_url;
+    if (app_board_url)  app_install_url = app_install_url+'&referer='+app_board_url;
+}
+else
+    var app_install_url = 'http://tapstream.tapatalk.com/l43a-1/?__tsid=$TSID&__tsid_override=1&referer='+encodeURIComponent(app_deep_link);
 
 // for those forum system which can not add js in html body
-if (functionCallAfterWindowLoad) addWindowOnload(tapatalkDetect)
+addWindowOnload(tapatalkDetectAfterLoad)
 
 var bannerLoaded = false
 
-function tapatalkDetect()
+function tapatalkDetectAfterLoad()
+{
+    tapatalkDetect(true)
+}
+
+function tapatalkDetect(afterLoad)
 {
     var standalone = navigator.standalone // Check if it's already a standalone web app or running within a web ui view of an app (not mobile safari)
     
     // work only when browser support cookie
     if (!navigator.cookieEnabled 
+        || (typeof(app_banner_enable) !== "undefined" && !app_banner_enable)
         || bannerLoaded
         || standalone
         || document.cookie.indexOf("banner-closed=true") >= 0 
@@ -195,7 +237,7 @@ function tapatalkDetect()
                         '<div class="mobile_banner_controls">'+
                             '<a class="mobile_banner_button chrome white mobile_banner_open" href="'+banner_location_url+'" id="mobile_banner_open">'+'Open in app'+'</a>'+
                             '<a class="mobile_banner_button chrome blue mobile_banner_install" href="'+app_install_url+'" id="mobile_banner_install">'+'Install'+'</a>'+
-                            '<a class="mobile_banner_close" href="#" onclick="closeBanner()" id="mobile_banner_close">x</a>'+
+                            '<a class="mobile_banner_close" href="javascript:closeBanner()" id="mobile_banner_close">x</a>'+
                         '</div>'+
                     '</div>'
     bodyItem.insertBefore(appBanner, bodyItem.firstChild)
@@ -211,7 +253,10 @@ function tapatalkDetect()
     if (getComputedStyle(bodyItem, null).position !== 'static')
         appBanner.style.top = '-'+bannerTop
     
-    addWindowOnload(resetBannerTop)
+    if (typeof(afterLoad)!=='undefined'&&afterLoad)
+        resetBannerTop()
+    else
+        addWindowOnload(resetBannerTop)
 }
 
 function addWindowOnload(func)

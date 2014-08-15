@@ -2,6 +2,7 @@
 if(!defined('IN_MOBIQUO')) exit;
 error_reporting(E_ERROR);
 require_once MYBB_ROOT."/inc/functions_massmail.php";
+include_once TT_ROOT."lib/classTTJson.php";
 if (function_exists('set_magic_quotes_runtime'))
 	@set_magic_quotes_runtime(0);
 @ini_set('max_execution_time', '120');

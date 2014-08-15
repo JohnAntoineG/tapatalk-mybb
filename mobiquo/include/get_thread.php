@@ -277,6 +277,7 @@ function get_thread_func($xmlrpc_params)
         }
         $post['message'] = post_bbcode_clean($post['message']);
         
+        $plugins->remove_hook('parse_message','mybbirckeditor_parser');
         // Post content and attachments
         $post['message'] = $parser->parse_message($post['message'], $parser_options);
        

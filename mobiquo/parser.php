@@ -142,11 +142,14 @@ class Tapatalk_Parser extends postParser {
 			{
 				$span = "<span>{$date}</span>";
 			}
+			$username = preg_replace('/^\\\'/is', '', $username);
+			
 			$userinfo= tt_get_user_id_by_name($username);
 			if(!empty($userinfo))
 			{
 				$uid = $userinfo['uid'];
 			}
+			
 			return "[quote ".(isset($uid) ? "uid=$uid " : '').
 			(!empty($username) ? "name=\"$username\" " : '').
 			(isset($pid) ? "post=$pid " : '').

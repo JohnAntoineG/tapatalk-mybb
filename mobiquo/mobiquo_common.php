@@ -438,6 +438,7 @@ function process_post($post, $returnHtml = false)
 	
 	require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/emoji/emoji.class.php';
 	$post = tapatalkEmoji::covertHtmlToEmoji($post);
+
     if($returnHtml){
         //$post = str_replace("&", '&amp;', $post);
         //$post = str_replace("<", '&lt;', $post);
@@ -466,6 +467,7 @@ function process_post($post, $returnHtml = false)
 
     return $post;
 }
+
 function process_page($start_num, $end)
 {
     $start = intval($start_num);
@@ -1015,6 +1017,7 @@ function tt_register_verify($tt_token,$tt_code)
 	{
 		$response = '{"result":false,"result_text":"Connect timeout , please try again"}';
 	}
+	include_once TT_ROOT."lib/classTTJson.php";
 	$result = json_decode($response);
 	return $result;
 }
@@ -1161,6 +1164,35 @@ function tt_login_success()
 		'post_countdown'    => new xmlrpcval($flood_interval,'int'),
 	);
 	
+	if($mybb->usergroup['isbannedgroup'] == 1)
+	{
+		// Fetch details on their ban
+		$query = $db->simple_select("banned", "*", "uid='{$mybb->user['uid']}'", array('limit' => 1));
+		$ban = $db->fetch_array($query);
+		if($ban['uid'])
+		{
+			// Format their ban lift date and reason appropriately
+			if($ban['lifted'] > 0)
+			{
+				$banlift = my_date($mybb->settings['dateformat'], $ban['lifted']) . ", " . my_date($mybb->settings['timeformat'], $ban['lifted']);
+			}
+			else 
+			{
+				$banlift = $lang->banned_lifted_never;
+			}
+			$reason = htmlspecialchars_uni($ban['reason']);
+		}
+		if(empty($reason))
+		{
+			$reason = $lang->unknown;
+		}
+		if(empty($banlift))
+		{
+			$banlift = $lang->unknown;
+		}
+		$result_text = $lang->banned_warning . $lang->banned_warning2.": ". $reason."\n".$lang->banned_warning3.": ".$banlift;
+		$result['result_text'] = new xmlrpcval($result_text, 'base64');
+	}
 	
 	return new xmlrpcresp(new xmlrpcval($result, 'struct'));
 }

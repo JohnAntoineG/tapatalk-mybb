@@ -19,8 +19,8 @@ $plugins->add_hook('private_do_send_end', 'tapatalk_push_pm');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_newtopic');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_quote');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_tag');
-$plugins->add_hook('online_user','tapatalk_online_user');
-$plugins->add_hook('online_end','tapatalk_online_end');
+//$plugins->add_hook('online_user','tapatalk_online_user');
+//$plugins->add_hook('online_end','tapatalk_online_end');
 $plugins->add_hook('postbit','tapatalk_postbit');
 $plugins->add_hook('postbit_prev','tapatalk_postbit');
 $plugins->add_hook('postbit_pm','tapatalk_postbit');
@@ -48,7 +48,7 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "4.0.0",
+        "version"       => "4.0.1",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
         "compatibility" => "16*"
     );
@@ -160,6 +160,12 @@ function tapatalk_install()
             'optionscode'   => 'text',
             'value'         => ''
         ),
+        'ad_filter'      => array(
+            'title'         => 'Disable Ads for Group',
+            'description'   => "This option will prevent Tapatalk from displaying advertisements. Users in the selected groups will not be served ads when using the Tapatalk app. Please enter a comma-separated group ID",
+            'optionscode'   => 'text',
+            'value'         => ''
+        ),
         'custom_replace'    => array(
             'title'         => 'Thread Content Replacement (Advanced)',
             'description'   => 'Ability to match and replace thread content using PHP preg_replace function(http://www.php.net/manual/en/function.preg-replace.php). E.g. "\'pattern\', \'replacement\'" . You can define more than one replace rule on each line.',
@@ -176,11 +182,18 @@ function tapatalk_install()
         
         'app_ads_enable' => array(
         	'title'         => 'Mobile Welcome Screen',
-            'description'   => 'Tapatalk will show a one time welcoming screen to mobile users to download the free app, the screen will contain your forum logo and branding only, with a button to get the free app. ',
+            'description'   => 'Tapatalk will show a one time welcoming screen to mobile users to download the free app, with a button to get the free app. ',
             'optionscode'   => 'onoff',
             'value'         => '1',
-        )
-    );
+        ),
+        
+        'app_banner_enable' => array(
+        	'title'         => 'Mobile Smart Banner',
+            'description'   => 'Tapatalk will show a smart banner to mobile users, when your forum is viewed by a mobile web browser. The smart banner will contain two buttons: "Open in app" and "Install".',
+            'optionscode'   => 'onoff',
+            'value'         => '1',
+        ),             
+    ); 
 	
     $settings_byo = array(
     	'app_banner_msg'    => array(
@@ -653,7 +666,7 @@ function tapatalk_pre_output_page(&$page)
     </script>'."\n".' 
     <!-- Tapatalk smart banner body end --> ';
     $page = str_ireplace("</head>", $str . "\n</head>", $page);
-    $page = preg_replace("/<body>/isU", "<body>\n".$tapatalk_smart_banner_body, $page,1);
+    $page = preg_replace("/<body(.*?)>/isU", "<body$1>\n".$tapatalk_smart_banner_body, $page,1);
 }
 function tapatalk_postbit(&$post)
 {
@@ -691,6 +704,8 @@ function tapatalk_get_url()
         case "forumdisplay":
             $param_arr['fid'] = $parameters['fid'];
             $param_arr['location'] = 'forum';
+            $param_arr['page'] = isset($parameters['page']) ? intval($parameters['page']) : 1;
+            $param_arr['perpage'] = $mybb->settings['threadsperpage'];
             break;
         case "index":
         case '':
@@ -720,6 +735,8 @@ function tapatalk_get_url()
                 $param_arr['location'] = 'topic';
                 $param_arr['tid'] = $parameters['tid'];
             }
+            $param_arr['page'] = isset($parameters['page']) ? intval($parameters['page']) : 1;
+            $param_arr['perpage'] = $mybb->settings['postsperpage'];
             break;
         case "member":
             if($parameters['action'] == "login" || $parameters['action'] == "do_login")
@@ -1331,7 +1348,7 @@ function tt_is_spam()
         	define('IN_MOBIQUO', true);
 			require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/mobiquo_common.php';
         }
-    	$resp = @getContentFromRemoteServer("http://www.stopforumspam.com/api?f=serial".$params, 10);
+    	$resp = @getContentFromRemoteServer("http://www.stopforumspam.com/api?f=serial".$params, 3);
         $resp = @unserialize($resp);
         if((isset($resp['email']['confidence']) && $resp['email']['confidence'] > 50) ||
            (isset($resp['ip']['confidence']) && $resp['ip']['confidence'] > 60))

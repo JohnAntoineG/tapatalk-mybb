@@ -29,6 +29,7 @@ $app_location_url = isset($app_location_url) && preg_match('#^tapatalk://#i', $a
 $app_location_url_byo = str_replace('tapatalk://', 'tapatalk-byo://', $app_location_url);
 $tapatalk_dir_url = isset($tapatalk_dir_url) && $tapatalk_dir_url ? $tapatalk_dir_url : './mobiquo';
 $app_forum_name = isset($app_forum_name) && $app_forum_name ? $app_forum_name : 'this forum';
+$board_url = isset($board_url) ? preg_replace('#/$#', '', trim($board_url)) : '';
 
 $app_ios_id = isset($app_ios_id) && intval($app_ios_id) ? intval($app_ios_id) : '';
 $app_android_id = isset($app_android_id) && $app_android_id ? preg_replace('/^.*?details\?id=([^\s,&]+).*?$/si', '$1', $app_android_id) : '';
@@ -56,7 +57,7 @@ if (in_array($page_type, array('index', 'forum', 'topic', 'post')) && $host_path
 
 // don't include it when the request was not from mobile device
 $useragent = tt_getenv('HTTP_USER_AGENT');
-if (!preg_match('/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone|((Windows NT|Windows RT).*?ARM)/i', $useragent))
+if (!preg_match('/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone|Windows RT.*?ARM/i', $useragent))
     return;
 
 
@@ -95,12 +96,11 @@ if ($app_ios_id != -1 || $app_android_id != -1)
 
 // display smart banner and welcome page
 $app_banner_head = '';
-if (file_exists($tapatalk_dir . '/smartbanner/welcome.php') && file_exists($tapatalk_dir . '/smartbanner/appbanner.js'))
+if (file_exists(__DIR__ . '/appbanner.js') &&
+    file_exists(__DIR__ . '/app.php') &&
+    file_exists(__DIR__ . '/appbanner.css'))
 {
-    $GLOBALS['app_head_included'] = true;
-    
     $is_byo = $app_ios_id && $app_ios_id != -1 || $app_android_id && $app_android_id != -1 || $app_kindle_url && $app_kindle_url != -1 ? 1 : 0;
-    $welcome_page = $is_byo ? 'welcome.php' : 'app.php';
     
     $app_banner_head = '
         <!-- Tapatalk Banner&Welcome head start -->
@@ -114,13 +114,14 @@ if (file_exists($tapatalk_dir . '/smartbanner/welcome.php') && file_exists($tapa
             var app_banner_message = "'.addslashes($app_banner_message).'";
             var app_forum_name     = "'.addslashes($app_forum_name).'";
             var app_location_url   = "'.addslashes($app_location_url).'";
-            var app_board_url      = "'.addslashes(urlencode($board_url)).'";
+            var app_board_url      = "'.addslashes($board_url).'";
             var functionCallAfterWindowLoad = '.$functionCallAfterWindowLoad.';
             
-            var app_forum_code = "'.(trim($api_key) ? md5(trim($api_key)) : '').'";
-            var app_referer = "'.addslashes(urlencode($app_referer)).'";
-            var app_welcome_url = "'.addslashes($tapatalk_dir_url.'/smartbanner/'.$welcome_page).'";
+            var app_api_key        = "'.(trim($api_key) ? md5(trim($api_key)) : '').'";
+            var app_referer        = "'.addslashes($app_referer).'";
+            var tapatalk_dir_name  = "'.addslashes(basename(dirname(__DIR__))).'";
             var app_welcome_enable = '.(!isset($app_ads_enable) || $app_ads_enable ? 1 : 0).';
+            var app_banner_enable  = '.(!isset($app_banner_enable) || $app_banner_enable ? 1 : 0).';
         </script>
         <script src="'.$tapatalk_dir_url.'/smartbanner/appbanner.js" type="text/javascript"></script>
         <!-- Tapatalk Banner head end-->

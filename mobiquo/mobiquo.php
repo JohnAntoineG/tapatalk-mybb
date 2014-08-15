@@ -6,6 +6,11 @@ define('TT_PATH', basename(TT_ROOT));
 @ob_start();
 error_reporting(MOBIQUO_DEBUG);
 
+if (isset($_GET['welcome']))
+{
+   include(TT_ROOT .'smartbanner/app.php');
+   exit;
+}
 require_once './lib/xmlrpc.inc';
 require_once './lib/xmlrpcs.inc';
 require_once './xmlrpcs.php';

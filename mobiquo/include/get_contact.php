@@ -4,6 +4,7 @@ defined('IN_MOBIQUO') or exit;
 
 require_once MYBB_ROOT."inc/functions_modcp.php";
 require_once MYBB_ROOT."inc/class_parser.php";
+include_once TT_ROOT."lib/classTTJson.php";
 $parser = new postParser;
 
 

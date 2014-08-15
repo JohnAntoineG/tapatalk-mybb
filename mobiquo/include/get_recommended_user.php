@@ -1,6 +1,6 @@
 <?php
 defined('IN_MOBIQUO') or exit;
-
+include_once TT_ROOT."lib/classTTJson.php";
 function get_recommended_user_func()
 {
 	global $mybb,$db,$lang,$users,$tapatalk_users;
