@@ -187,12 +187,12 @@ function tapatalk_install()
             'value'         => '1',
         ),
         
-        'app_banner_enable' => array(
+        /*'app_banner_enable' => array(
         	'title'         => 'Mobile Smart Banner',
             'description'   => 'Tapatalk will show a smart banner to mobile users, when your forum is viewed by a mobile web browser. The smart banner will contain two buttons: "Open in app" and "Install".',
             'optionscode'   => 'onoff',
             'value'         => '1',
-        ),             
+        ), */          
     ); 
 	
     $settings_byo = array(
