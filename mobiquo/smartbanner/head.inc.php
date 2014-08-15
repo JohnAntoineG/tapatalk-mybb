@@ -60,6 +60,9 @@ $useragent = tt_getenv('HTTP_USER_AGENT');
 if (!preg_match('/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone|Windows RT.*?ARM/i', $useragent))
     return;
 
+// don't show welcome page and banner for googlebot
+if (preg_match('/googlebot/i', $useragent))
+    return;
 
 // display twitter card
 $twitter_card_head = '';
