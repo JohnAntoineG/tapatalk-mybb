@@ -19,8 +19,8 @@ $plugins->add_hook('private_do_send_end', 'tapatalk_push_pm');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_newtopic');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_quote');
 $plugins->add_hook('newthread_do_newthread_end', 'tapatalk_push_tag');
-//$plugins->add_hook('online_user','tapatalk_online_user');
-//$plugins->add_hook('online_end','tapatalk_online_end');
+$plugins->add_hook('online_user','tapatalk_online_user');
+$plugins->add_hook('online_end','tapatalk_online_end');
 $plugins->add_hook('postbit','tapatalk_postbit');
 $plugins->add_hook('postbit_prev','tapatalk_postbit');
 $plugins->add_hook('postbit_pm','tapatalk_postbit');
@@ -606,14 +606,14 @@ function tapatalk_online_end()
     global $online_rows,$mybb;
     $temp_online = $online_rows;
     
-    $str = '&nbsp;<a title="On Tapatalk" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png?new" style="vertical-align:middle"></a>';
+    $str = '&nbsp;<img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/tapatalk-online.png?new" style="vertical-align:middle">';
     $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|<\/b><\/span>|<\/s>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str, $online_rows);
 	if(empty($online_rows))
     {
         $online_rows = str_replace('[tapatalk_user]','',$temp_online);
     }
     $temp_online = $online_rows;
-    $str_byo =  '&nbsp;<a title="Own app of this forum" href="http://www.tapatalk.com" target="_blank" ><img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/byo-online.png" style="vertical-align:middle"></a>';
+    $str_byo =  '&nbsp;<img src="'.$mybb->settings['bburl'].'/'.$mybb->settings['tapatalk_directory'].'/images/byo-online.png" style="vertical-align:middle">';
     $online_rows = preg_replace('/<a href="(.*)">(.*)\[tapatalk_byo_user\](<\/em><\/strong><\/span>|<\/strong><\/span>|<\/span>|<\/b><\/span>|\s*)<\/a>/Usi', '<a href="$1">$2$3</a>'.$str_byo, $online_rows);
 	if(empty($online_rows))
     {
