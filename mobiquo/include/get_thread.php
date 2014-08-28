@@ -404,6 +404,7 @@ function get_thread_func($xmlrpc_params)
     	'can_report'      => new xmlrpcval(true,'boolean'),
     	'can_reply'       => new xmlrpcval($can_reply, 'boolean'),
     	'is_poll'         => new xmlrpcval($is_poll, 'boolean'),
+    	'view_number'     => new xmlrpcval(intval($thread['views']), 'int'),
         //'can_subscribe'   => new xmlrpcval(true, 'boolean'), // default as true, so don't need to return
     );
 	if($forumpermissions['canview'] == 0 || $forumpermissions['canviewthreads'] == 0)
