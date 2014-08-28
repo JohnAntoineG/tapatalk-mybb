@@ -1,4 +1,4 @@
-version = mb16_4.0.1
+version = mb16_4.0.2
 
 api_level = 3
 
@@ -59,3 +59,4 @@ native_register = 1
 emoji_support = 1
 advanced_edit = 1
 avatar = 1
+mark_pm_read = 1

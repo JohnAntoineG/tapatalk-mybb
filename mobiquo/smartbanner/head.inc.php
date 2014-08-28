@@ -28,7 +28,7 @@ $app_android_id_default = 'com.quoord.tapatalkpro.activity';
 $app_location_url = isset($app_location_url) && preg_match('#^tapatalk://#i', $app_location_url) ? $app_location_url : 'tapatalk://';
 $app_location_url_byo = str_replace('tapatalk://', 'tapatalk-byo://', $app_location_url);
 $tapatalk_dir_url = isset($tapatalk_dir_url) && $tapatalk_dir_url ? $tapatalk_dir_url : './mobiquo';
-$app_forum_name = isset($app_forum_name) && $app_forum_name ? $app_forum_name : 'this forum';
+$app_forum_name = isset($app_forum_name) && $app_forum_name ? html_entity_decode($app_forum_name) : 'this forum';
 $board_url = isset($board_url) ? preg_replace('#/$#', '', trim($board_url)) : '';
 
 $app_ios_id = isset($app_ios_id) && intval($app_ios_id) ? intval($app_ios_id) : '';
@@ -43,7 +43,7 @@ $page_type = isset($page_type) && $page_type ? $page_type : 'other';
 
 // add App Indexing for Google Search
 $host_path = preg_replace('#tapatalk://#si', '', $app_location_url);
-if (in_array($page_type, array('index', 'forum', 'topic', 'post')) && $host_path)
+if (in_array($page_type, array('topic', 'post')) && $host_path)
 {
     if ($app_android_id == $app_android_id_default || empty($app_android_id) || $app_android_id == -1)
     {
@@ -99,9 +99,9 @@ if ($app_ios_id != -1 || $app_android_id != -1)
 
 // display smart banner and welcome page
 $app_banner_head = '';
-if (file_exists(__DIR__ . '/appbanner.js') &&
-    file_exists(__DIR__ . '/app.php') &&
-    file_exists(__DIR__ . '/appbanner.css'))
+if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
+    file_exists(dirname(__FILE__) . '/app.php') &&
+    file_exists(dirname(__FILE__) . '/appbanner.css'))
 {
     $is_byo = $app_ios_id && $app_ios_id != -1 || $app_android_id && $app_android_id != -1 || $app_kindle_url && $app_kindle_url != -1 ? 1 : 0;
     
@@ -122,7 +122,7 @@ if (file_exists(__DIR__ . '/appbanner.js') &&
             
             var app_api_key        = "'.(trim($api_key) ? md5(trim($api_key)) : '').'";
             var app_referer        = "'.addslashes($app_referer).'";
-            var tapatalk_dir_name  = "'.addslashes(basename(dirname(__DIR__))).'";
+            var tapatalk_dir_name  = "'.addslashes(basename(dirname(dirname(__FILE__)))).'";
             var app_welcome_enable = '.(!isset($app_ads_enable) || $app_ads_enable ? 1 : 0).';
             var app_banner_enable  = '.(!isset($app_banner_enable) || $app_banner_enable ? 1 : 0).';
         </script>

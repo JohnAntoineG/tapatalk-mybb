@@ -286,9 +286,10 @@ function get_thread_func($xmlrpc_params)
         $post = $plugins->run_hooks("postbit", $post);
 
         if(is_array($ignored_users) && $post['uid'] != 0 && $ignored_users[$post['uid']] == 1){
-            $post['message'] = $lang->sprintf($lang->postbit_currently_ignoring_user, $post['username']);
+            $show_spoiler = "[spoiler]".$post['message']."[/spoiler]";
+            $post['message'] = $lang->sprintf($lang->postbit_currently_ignoring_user, $post['username']) . $show_spoiler;
         }
-
+		
         $post_xmlrpc = array(
             'post_id'           => new xmlrpcval($post['pid'], 'string'),
             'post_title'        => new xmlrpcval(basic_clean($post['subject']), 'base64'),
