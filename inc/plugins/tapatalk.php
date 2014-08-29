@@ -759,7 +759,7 @@ function tapatalk_get_url()
     }
     $queryString = http_build_query($param_arr);
     $url = $mybb->settings['bburl'] . '/?' .$queryString;
-    $url = preg_replace('/^(http|https)/isU', 'tapatalk', $url);
+    $url = preg_replace('/^(https|http)/isU', 'tapatalk', $url);
     return $url;
 }
 
