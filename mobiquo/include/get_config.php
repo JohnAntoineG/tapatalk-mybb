@@ -43,7 +43,10 @@ function get_config_func()
     {
     	$mobiquo_config['inappreg'] = 1;
     }
-    
+    if(version_compare($mybb->version, '1.8.0','>='))
+    {
+    	$mobiquo_config['announcement'] = 1;
+    }
 	if($mybb->settings['disableregs'] == 1)
     {
     	$mobiquo_config['sign_in'] = 0;

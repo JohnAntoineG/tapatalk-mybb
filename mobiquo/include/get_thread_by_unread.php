@@ -14,11 +14,15 @@ function get_thread_by_unread_func($xmlrpc_params)
     global $db, $mybb;
 
     $input = Tapatalk_Input::filterXmlInput(array(
-        'topic_id'          => Tapatalk_Input::INT,
+        'topic_id'          => Tapatalk_Input::STRING,
         'posts_per_request' => Tapatalk_Input::INT,
         'return_html'       => Tapatalk_Input::INT
     ), $xmlrpc_params);
-
+	if (preg_match('/^ann_/', $input['topic_id']))
+    {
+        $_GET["aid"] = intval(str_replace('ann_', '', $input['topic_id']));
+        return get_announcement_func($xmlrpc_params);
+    }
     $thread = get_thread($input['topic_id']);
     if(!empty($thread['closed']))
     {

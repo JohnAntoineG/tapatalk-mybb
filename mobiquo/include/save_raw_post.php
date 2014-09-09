@@ -19,8 +19,9 @@ function save_raw_post_func($xmlrpc_params)
 		'return_html' => Tapatalk_Input::INT,
 		'attachment_id_array' => Tapatalk_Input::RAW,
 		'group_id' => Tapatalk_Input::STRING,
+		'editreason' =>  Tapatalk_Input::STRING,
 	), $xmlrpc_params);  
-
+	
 	$parser = new postParser;
 	
 	// No permission for guests
@@ -34,7 +35,10 @@ function save_raw_post_func($xmlrpc_params)
 	
 	$query = $db->simple_select("posts", "*", "pid='$pid'");
 	$post = $db->fetch_array($query);
-		
+	if(empty($input['post_title']))
+	{
+		$input['post_title'] = $post['subject'];
+	}	
 	if(!$post['pid'])
 	{
 		return xmlrespfalse($lang->error_invalidpost);
@@ -50,7 +54,7 @@ function save_raw_post_func($xmlrpc_params)
 	}
 
 	$thread['subject'] = htmlspecialchars_uni($thread['subject']);
-
+	
 	// Get forum info
 	$fid = $post['fid'];
 	$forum = get_forum($fid);
@@ -105,7 +109,10 @@ function save_raw_post_func($xmlrpc_params)
 		"edit_uid" => $mybb->user['uid'],
 		"message" => $input['post_content'],
 	);
-	
+	if(version_compare($mybb->version, '1.8.0','>=') && !empty($input['editreason']))
+	{
+		$post["editreason"] = $input['editreason'];
+	}
 	// get subscription status
 	$query = $db->simple_select("threadsubscriptions", 'notification', "uid='".intval($mybb->user['uid'])."' AND tid='".intval($tid)."'");
 	$substatus = $db->fetch_array($query);
@@ -128,6 +135,7 @@ function save_raw_post_func($xmlrpc_params)
 	// No errors were found, we can call the update method.
 	else
 	{
+		
 		$postinfo = $posthandler->update_post();
 		$visible = $postinfo['visible'];
 		$first_post = $postinfo['first_post'];

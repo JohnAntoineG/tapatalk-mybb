@@ -46,9 +46,8 @@ function get_topic_func($xmlrpc_params)
             $stickyonly = " AND sticky=1 ";
             $tstickyonly = " AND t.sticky=1 ";
             break;
-        case 'ANN':
-            $stickyonly = " AND 0=1 ";
-            $tstickyonly = " AND 0=1 ";
+        case 'ANN':	
+        	return get_announcement_list($foruminfo, $fid);	
             break;
         default:
             $stickyonly = " AND sticky=0 ";
@@ -659,4 +658,134 @@ if (!function_exists('build_prefixes'))
         
         return $threadprefix;
     }
+}
+
+function get_announcement_list($foruminfo, $fid)
+{
+    // Gather forum stats
+	global $db, $lang, $theme, $plugins, $mybb, $session, $settings, $time, $mybbgroups,$cache;
+	$has_announcements = $has_modtools = false;
+	$forum_stats = $cache->read("forumsdisplay");
+	$parser = new postParser;
+	if(is_array($forum_stats))
+	{
+		if(!empty($forum_stats[-1]['modtools']) || !empty($forum_stats[$fid]['modtools']))
+		{
+			// Mod tools are specific to forums, not parents
+			$has_modtools = true;
+		}
+	
+		if(!empty($forum_stats[-1]['announcements']) || !empty($forum_stats[$fid]['announcements']))
+		{
+			// Global or forum-specific announcements
+			$has_announcements = true;
+		}
+	}
+	$parentlist = $foruminfo['parentlist'];
+	$parentlistexploded = explode(",", $parentlist);
+
+	foreach($parentlistexploded as $mfid)
+	{
+		if(!empty($forum_stats[$mfid]['announcements']))
+		{
+			$has_announcements = true;
+		}
+	}
+	$announcementlist = '';
+	if($has_announcements == true)
+	{
+		$limit = '';
+		$announcements = '';
+		if($mybb->settings['announcementlimit'])
+		{
+			$limit = "LIMIT 0, ".$mybb->settings['announcementlimit'];
+		}
+	
+		$sql = build_parent_list($fid, "fid", "OR", $parentlist);
+		$time = TIME_NOW;
+		$query = $db->query("
+			SELECT a.*, u.username
+			FROM ".TABLE_PREFIX."announcements a
+			LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=a.uid)
+			WHERE a.startdate<='$time' AND (a.enddate>='$time' OR a.enddate='0') AND ($sql OR fid='-1')
+			ORDER BY a.startdate DESC $limit
+		");
+	
+		// See if this announcement has been read in our announcement array
+		$cookie = array();
+		if(isset($mybb->cookies['mybb']['announcements']))
+		{
+			$cookie = my_unserialize(stripslashes($mybb->cookies['mybb']['announcements']));
+		}
+	
+		$announcementlist = '';
+		$bgcolor = alt_trow(true); // Reset the trow colors
+		while($announcement = $db->fetch_array($query))
+		{
+			if($announcement['startdate'] > $mybb->user['lastvisit'] && !$cookie[$announcement['aid']])
+			{
+				$new_class = ' class="subject_new"';
+				$folder = "newfolder";
+			}
+			else
+			{
+				$new_class = ' class="subject_old"';
+				$folder = "folder";
+			}
+	
+			// Mmm, eat those announcement cookies if they're older than our last visit
+			if(isset($cookie[$announcement['aid']]) && $cookie[$announcement['aid']] < $mybb->user['lastvisit'])
+			{
+				unset($cookie[$announcement['aid']]);
+			}
+	
+			$announcement['announcementlink'] = get_announcement_link($announcement['aid']);
+			$announcement['subject'] = $parser->parse_badwords($announcement['subject']);
+			$announcement['subject'] = htmlspecialchars_uni($announcement['subject']);
+			$postdate = my_date('relative', $announcement['startdate']);
+			$announcement['profilelink'] = build_profile_link($announcement['username'], $announcement['uid']);
+			$announcementlist[] = $announcement;
+		}	
+		
+		if(empty($cookie))
+		{
+			// Clean up cookie crumbs
+			my_setcookie('mybb[announcements]', 0, (TIME_NOW - (60*60*24*365)));
+		}
+		else if(!empty($cookie))
+		{
+			my_setcookie("mybb[announcements]", addslashes(serialize($cookie)), -1);
+		}
+		
+		foreach ($announcementlist as $announce)
+		{
+			$user_info = get_user($announce['uid']);
+			$icon_url = absolute_url($user_info['avatar']);
+			$xmlrpc_topic = new xmlrpcval(array(
+                'forum_id'          => new xmlrpcval($fid, 'string'),
+				'topic_id'          => new xmlrpcval('ann_' . $announce['aid'], 'string'),
+				'topic_title'       => new xmlrpcval(basic_clean($announce['subject']) , 'base64'),
+				'topic_author_id'   => new xmlrpcval($announce['uid'], 'string'),
+				'topic_author_name' => new xmlrpcval(basic_clean($announce['username']), 'base64'),
+				'icon_url'          => new xmlrpcval(absolute_url($icon_url), 'string'),
+				'reply_number'      => new xmlrpcval(0, 'int'),
+				'view_number'       => new xmlrpcval(0, 'int'),
+				'short_content'     => new xmlrpcval(process_short_content($announce['message'], $parser), 'base64'),
+			), 'struct');
+		
+			$topic_list[] = $xmlrpc_topic;
+		}
+		
+		$response = new xmlrpcval(
+	        array(
+	            'total_topic_num' => new xmlrpcval(count($announcementlist), 'int'),
+	            'forum_id'        => new xmlrpcval($fid),
+	            'forum_name'      => new xmlrpcval(basic_clean($foruminfo['name']) , 'base64'),
+	            'can_post'        => new xmlrpcval(false, 'boolean'),
+	            'can_upload'      => new xmlrpcval(false, 'boolean'),
+	            'topics'          => new xmlrpcval($topic_list, 'array'),
+	        ), 'struct'
+	   ); 	
+       return new xmlrpcresp($response);
+	}
 }

@@ -378,7 +378,6 @@ function cutstr($string, $length)
 function process_short_content($post_text, $parser = null, $length = 200)
 {
 	global $parser,$mybb;
-	
 	require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/emoji/emoji.class.php';
 	$post_text = tapatalkEmoji::covertNameToEmpty($post_text);
     
@@ -394,7 +393,7 @@ function process_short_content($post_text, $parser = null, $length = 200)
 		array('reg' => '/\[quote(.*?)\](.*?)\[\/quote\]/si','replace' => '[quote]'),
 		array('reg' => '/\[code\](.*?)\[\/code\]/si','replace' => ''),
 		array('reg' => '/\[url=(.*?)\](.*?)\[\/url\]/sei','replace' => "mobi_url_convert('$1','$2')"),
-		array('reg' => '/\[img\](.*?)\[\/img\]/si','replace' => '[img]'),
+		array('reg' => '/\[img(.*?)\](.*?)\[\/img\]/si','replace' => '[img]'),
 		array('reg' => '/\[video=(.*?)\](.*?)\[\/video\]/si','replace' => '[V]'),
 		array('reg' => '/\[attachment=(.*?)\]/si','replace' => '[attach]'),
 	);
@@ -452,6 +451,18 @@ function process_post($post, $returnHtml = false)
         $post = html_entity_decode($post, ENT_QUOTES, 'UTF-8');
         $post = str_replace('[hr]', "\n____________________________________\n", $post);
     }
+   
+    //mybb 1.8
+	$array_reg = array(
+		array('reg' => '/\[img(.*?)\](.*?)\[\/img\]/si','replace' => "[img]$2[/img]"),
+		array('reg' => '/\[video=(.*?)\](.*?)\[\/video\]/si','replace' => '[url=$2]$1[/url]'),
+		array('reg' => '/\[s\](.*?)\[\/s\]/si','replace' => '$1'),
+	);
+	foreach ($array_reg as $arr)
+	{
+		$post = preg_replace($arr['reg'], $arr['replace'], $post);
+	}
+	
 	$post = str_replace("&#36;", '$', $post);
     $post = trim($post);
     // remove link on img

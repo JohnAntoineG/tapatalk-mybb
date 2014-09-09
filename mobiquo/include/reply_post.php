@@ -105,17 +105,22 @@ function reply_post_func($xmlrpc_params)
 		}
 	}
 
-		$username = $mybb->user['username'];
-		$uid = $mybb->user['uid'];
-
-		$user_check = "p.uid='{$uid}'";
-		$query = $db->simple_select("posts p", "p.pid, p.visible", "{$user_check} AND p.tid='{$thread['tid']}' AND p.subject='".$db->escape_string($mybb->input['subject'])."' AND p.message='".$db->escape_string($mybb->input['message'])."' AND p.posthash='".$db->escape_string($mybb->input['posthash'])."' AND p.visible != '-2'");
-		$duplicate_check = $db->fetch_field($query, "pid");
-		if($duplicate_check)
-		{
-			return xmlrespfalse($lang->error_post_already_submitted);
-		}
-
+	$username = $mybb->user['username'];
+	$uid = $mybb->user['uid'];
+	$user_check = "p.uid='{$uid}'";
+	if(version_compare($mybb->version, '1.8.0','<'))
+	{
+		$query = $db->simple_select("posts p", "p.pid, p.visible", "{$user_check} AND p.tid='{$thread['tid']}' AND p.subject='".$db->escape_string($mybb->input['subject'])."' AND p.message='".$db->escape_string($mybb->input['message'])."' AND p.posthash='".$db->escape_string($mybb->input['posthash'])."' AND p.visible != '-2'");	
+	}
+	else 
+	{
+		$query = $db->simple_select("posts p", "p.pid, p.visible", "{$user_check} AND p.tid='{$thread['tid']}' AND p.subject='".$db->escape_string($mybb->get_input('subject'))."' AND p.message='".$db->escape_string($mybb->get_input('message'))."' AND p.visible != '-2' AND p.dateline>".(TIME_NOW-600));	
+	}
+	$duplicate_check = $db->fetch_field($query, "pid");	
+    if($duplicate_check)
+	{
+		return xmlrespfalse($lang->error_post_already_submitted);
+	}
 
 	require_once MYBB_ROOT."inc/datahandlers/post.php";
 	$posthandler = new PostDataHandler("insert");

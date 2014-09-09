@@ -48,9 +48,9 @@ function tapatalk_info()
         "website"       => "http://tapatalk.com",
         "author"        => "Quoord Systems Limited",
         "authorsite"    => "http://tapatalk.com",
-        "version"       => "4.0.2",
+        "version"       => "4.1.0",
         "guid"          => "e7695283efec9a38b54d8656710bf92e",
-        "compatibility" => "16*"
+        "compatibility" => "1*"
     );
 }
 
@@ -1277,7 +1277,7 @@ function tapatalk_parse_message_end(&$message)
 		return ;		
 	}
 	$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-	$message = preg_replace('/\[emoji(\d+)\]/i', '<img src="'.$protocol.'://s3.amazonaws.com/tapatalk-emoji/emoji\1.png" />', $message);
+	$message = preg_replace('/\[emoji(\d+)\]/i', '<img style="vertical-align: middle;" src="'.$protocol.'://s3.amazonaws.com/tapatalk-emoji/emoji\1.png" />', $message);
 }
 
 function tapatalk_settings_update()

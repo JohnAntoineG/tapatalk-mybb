@@ -235,7 +235,10 @@ function m_undelete_topic_func($xmlrpc_params)
 function m_get_report_post_func($xmlrpc_params){
     global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
      $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
-
+	if(version_compare($mybb->version, '1.8.0','>='))
+	{
+		return m_get_new_report_func($xmlrpc_params);
+	}
     $input = Tapatalk_Input::filterXmlInput(array(
         'start_num' => Tapatalk_Input::INT,
         'last_num'  => Tapatalk_Input::INT,
@@ -362,7 +365,249 @@ function m_get_report_post_func($xmlrpc_params){
     return new xmlrpcresp($result);
 }
 
+function m_get_new_report_func($xmlrpc_params)
+{
+	global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,
+     $db, $lang, $theme, $plugins, $mybb, $session, $settings, $cache, $time, $mybbgroups, $moderation, $parser;
 
+    $input = Tapatalk_Input::filterXmlInput(array(
+        'start_num' => Tapatalk_Input::INT,
+        'last_num'  => Tapatalk_Input::INT,
+    ), $xmlrpc_params);
+
+    mod_setup();
+
+    list($start, $limit) = process_page($input['start_num'], $input['last_num']);
+	
+	$query = $db->simple_select("moderators", "*", "(id='{$mybb->user['uid']}' AND isgroup = '0') OR (id='{$mybb->user['usergroup']}' AND isgroup = '1')");
+
+	$numreportedposts = 0;
+	while($m_forum = $db->fetch_array($query))
+	{
+		// For Reported posts
+		if($m_forum['canmanagereportedposts'] == 1)
+		{
+			$flist_reports .= ",'{$m_forum['fid']}'";
+
+			$children = get_child_list($m_forum['fid']);
+			if(!empty($children))
+			{
+				$flist_reports .= ",'".implode("','", $children)."'";
+			}
+			++$numreportedposts;
+		}
+	}
+    // Load global language phrases
+	if($mybb->usergroup['canmanagereportedcontent'] == 0)
+	{
+		error_no_permission();
+	}
+
+	if($numreportedposts == 0 && $mybb->usergroup['issupermod'] != 1)
+	{
+		error($lang->you_cannot_view_reported_posts);
+	}
+
+	$lang->load('report');
+	add_breadcrumb($lang->mcp_nav_report_center, "modcp.php?action=reports");
+
+	$perpage = $limit;
+	if(!$perpage)
+	{
+		$perpage = 20;
+	}
+	$query = $db->simple_select("forums", "fid, name");
+    while($forum = $db->fetch_array($query))
+    {
+        $forums[$forum['fid']] = $forum['name'];
+    }
+	// Multipage
+	if($mybb->usergroup['cancp'] || $mybb->usergroup['issupermod'])
+	{
+		$query = $db->simple_select("reportedcontent", "COUNT(rid) AS count", "reportstatus ='0'");
+		$report_count = $db->fetch_field($query, "count");
+	}
+	else
+	{
+		$query = $db->simple_select('reportedcontent', 'id3', "reportstatus='0' AND (type = 'post' OR type = '')");
+
+		$report_count = 0;
+		while($fid = $db->fetch_field($query, 'id3'))
+		{
+			if(is_moderator($fid, "canmanagereportedposts"))
+			{
+				++$report_count;
+			}
+		}
+		unset($fid);
+	}
+
+
+	$plugins->run_hooks("modcp_reports_start");
+	if($flist_reports)
+	{
+		$wflist_reports = "WHERE r.id3 IN (0{$flist_reports})";
+		$tflist_reports = " AND r.id3 IN (0{$flist_reports})";
+		$flist_reports = " AND id3 IN (0{$flist_reports})";
+	}
+	// Reports
+	$reports = '';
+	$query = $db->query("
+		SELECT r.*, u.username
+		FROM ".TABLE_PREFIX."reportedcontent r
+		LEFT JOIN ".TABLE_PREFIX."users u ON (r.uid = u.uid)
+		WHERE r.reportstatus = '0'{$tflist_reports}
+		ORDER BY r.reports DESC
+		LIMIT {$start}, {$perpage}
+	");
+
+	if(!$db->num_rows($query))
+	{
+		// No unread reports
+		//eval("\$reports = \"".$templates->get("modcp_reports_noreports")."\";");
+		$reportcache = array();
+	}
+	else
+	{
+		$reportedcontent = $cache->read("reportedcontent");
+		$reportcache = $usercache = $postcache = array();
+
+		while($report = $db->fetch_array($query))
+		{
+			if($report['type'] == 'profile' || $report['type'] == 'reputation')
+			{
+				// Profile UID is in ID
+				if(!isset($usercache[$report['id']]))
+				{
+					$usercache[$report['id']] = $report['id'];
+				}
+
+				// Reputation comment? The offender is the ID2
+				if($report['type'] == 'reputation')
+				{
+					if(!isset($usercache[$report['id2']]))
+					{
+						$usercache[$report['id2']] = $report['id2'];
+					}
+					if(!isset($usercache[$report['id3']]))
+					{
+						// The user who was offended
+						$usercache[$report['id3']] = $report['id3'];
+					}
+				}
+			}
+			else if(!$report['type'] || $report['type'] == 'post')
+			{
+				// This (should) be a post
+				$postcache[$report['id']] = $report['id'];
+			}
+
+			// Lastpost info - is it missing (pre-1.8)?
+			$lastposter = $report['uid'];
+			if(!$report['lastreport'])
+			{
+				// Last reporter is our first reporter
+				$report['lastreport'] = $report['dateline'];
+			}
+
+			if($report['reporters'])
+			{
+				$reporters = my_unserialize($report['reporters']);
+
+				if(is_array($reporters))
+				{
+					$lastposter = end($reporters);
+				}
+			}
+
+			if(!isset($usercache[$lastposter]))
+			{
+				$usercache[$lastposter] = $lastposter;
+			}
+
+			$report['lastreporter'] = $lastposter;
+			$reportcache[$report['id']] = $report;
+		}
+		// Report Center gets messy
+		// Find information about our users (because we don't log it when they file a report)
+		if(!empty($usercache))
+		{
+			$sql = implode(',', array_keys($usercache));
+			$query = $db->simple_select("users", "uid, username", "uid IN ({$sql})");
+
+			while($user = $db->fetch_array($query))
+			{
+				$usercache[$user['uid']] = $user;
+			}
+		}
+		
+		// Messy * 2
+		// Find out post information for our reported posts
+		if(!empty($postcache))
+		{
+			$sql = implode(',', array_keys($postcache));
+			$query = $db->query("
+				SELECT p.pid, p.uid, p.username, p.tid, p.subject as postsubject,p.username as postusername,t.subject,t.fid,up.avatar,p.dateline as postdateline,
+				p.message as postmessage,t.replies,t.views,IF(b.lifted > UNIX_TIMESTAMP() OR b.lifted = 0, 1, 0) as isbanned,p.visible
+				FROM ".TABLE_PREFIX."posts p
+				LEFT JOIN ".TABLE_PREFIX."threads t ON (p.tid = t.tid)
+				LEFT JOIN ".TABLE_PREFIX."users up ON (p.uid = up.uid)
+				LEFT JOIN ".TABLE_PREFIX."banned b ON (b.uid = p.uid)
+				WHERE p.pid IN ({$sql})
+			");
+			while($post = $db->fetch_array($query))
+			{						
+				$can_delete = 0;
+				$forumpermissions = forum_permissions($post['fid']);
+		        if($mybb->user['uid'] == $post['uid'])
+		        {
+		            if($forumpermissions['candeletethreads'] == 1 && $post['replies'] == 0)
+		            {
+		                $can_delete = 1;
+		            }
+		            else if($forumpermissions['candeleteposts'] == 1 && $post['replies'] > 0)
+		            {
+		                $can_delete = 1;
+		            }
+		        }
+		        $can_delete = (is_moderator($post['fid'], "candeleteposts") || $can_delete == 1) && $mybb->user['uid'] != 0;
+				$post_list[] = new xmlrpcval(array(
+		            'forum_id'          => new xmlrpcval($post['fid'], 'string'),
+		            'forum_name'        => new xmlrpcval(basic_clean($forums[$post['fid']]), 'base64'),
+		            'topic_id'          => new xmlrpcval($post['tid'], 'string'),
+		            'topic_title'       => new xmlrpcval($post['subject'], 'base64'),
+		            'post_id'           => new xmlrpcval($post['pid'], 'string'),
+		            'post_title'        => new xmlrpcval($post['postsubject'], 'base64'),
+		            'post_author_name'  => new xmlrpcval($post['postusername'], 'base64'),
+		            'icon_url'          => new xmlrpcval(absolute_url($post['avatar']), 'string'),
+		            'post_time'         => new xmlrpcval(mobiquo_iso8601_encode($post['postdateline']), 'dateTime.iso8601'),
+		            'short_content'     => new xmlrpcval(process_short_content($post['postmessage'], $parser), 'base64'),
+		            'reply_number'      => new xmlrpcval($post['replies'], 'int'),
+		            'view_number'       => new xmlrpcval($post['views'], 'int'),
+					
+		            'can_delete'        => new xmlrpcval($can_delete, 'boolean'),
+		            'can_approve'       => new xmlrpcval(is_moderator($post['fid'], "canmanagethreads"), 'boolean'),
+		            'can_move'          => new xmlrpcval(is_moderator($post['fid'], "canmovetononmodforum"), 'boolean'),
+		            'can_ban'           => new xmlrpcval($mybb->usergroup['canmodcp'] == 1, 'boolean'),
+		            'is_ban'            => new xmlrpcval($post['isbanned'], 'boolean'),
+		            'is_approved'       => new xmlrpcval($post['visible'], 'boolean'),
+		            'is_deleted'        => new xmlrpcval(false, 'boolean'),
+		        	'reported_by_id'    => new xmlrpcval($reportcache[$post['pid']]['uid']),
+		        	'reported_by_name'  => new xmlrpcval($reportcache[$post['pid']]['username'], 'base64'),
+		        	'report_reason'     => new xmlrpcval($reportcache[$post['pid']]['reason'], 'base64'),
+		        ), "struct");
+		    }
+		}
+	
+	    $result = new xmlrpcval(array(
+	        'total_report_num'  => new xmlrpcval(count($reportcache), 'int'),
+	        'reports'           => new xmlrpcval($post_list, 'array'),
+	    ), 'struct');
+	
+	    return new xmlrpcresp($result);
+		
+	}
+}
 function m_move_topic_func($xmlrpc_params)
 {
     global $input, $post, $thread, $forum, $pid, $tid, $fid, $modlogdata,

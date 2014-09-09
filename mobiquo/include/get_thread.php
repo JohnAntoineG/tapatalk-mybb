@@ -14,12 +14,17 @@ function get_thread_func($xmlrpc_params)
 	global $pforumcache, $currentitem, $forum_cache, $navbits, $base_url, $archiveurl;
 	
     $input = Tapatalk_Input::filterXmlInput(array(
-        'topic_id'    => Tapatalk_Input::INT,
+        'topic_id'    => Tapatalk_Input::STRING,
         'start_num'   => Tapatalk_Input::INT,
         'last_num'    => Tapatalk_Input::INT,
         'return_html' => Tapatalk_Input::INT
     ), $xmlrpc_params);
-
+	
+	if (preg_match('/^ann_/', $input['topic_id']))
+    {
+        $_GET["aid"] = intval(str_replace('ann_', '', $input['topic_id']));
+        return get_announcement_func($xmlrpc_params);
+    }
     $lang->load("showthread");
 	global $parser;
     $parser = new Tapatalk_Parser;
@@ -320,6 +325,10 @@ function get_thread_func($xmlrpc_params)
 	        	'editor_name' => new xmlrpcval($post['editusername'],'base64'),
 	        	'edit_time'   => new xmlrpcval($post['edittime'],'string'),
 	        );
+        	if(!empty($post['editreason']))
+	        {
+	        	$edit_info['edit_reason'] = new xmlrpcval($post['editreason'],'base64');
+	        }
 	        $post_xmlrpc = array_merge($post_xmlrpc,$edit_info);
         }
         
@@ -518,4 +527,143 @@ function build_tt_breadcrumb($fid, $multipage=array())
 	}
 
 	return 1;
+}
+
+function get_announcement_func($xmlrpc_params)
+{
+	global $db, $lang, $mybb, $position, $plugins, $pids,$groupscache;
+	$input = Tapatalk_Input::filterXmlInput(array(
+        'topic_id'    => Tapatalk_Input::STRING,
+        'start_num'   => Tapatalk_Input::INT,
+        'last_num'    => Tapatalk_Input::INT,
+        'return_html' => Tapatalk_Input::INT
+    ), $xmlrpc_params);
+	
+    $parser = new Tapatalk_Parser;
+	// Load global language phrases
+	$lang->load("announcements");
+	
+	$aid = intval($_GET['aid']);
+	
+	// Get announcement fid
+	$query = $db->simple_select("announcements", "fid", "aid='$aid'");
+	$announcement = $db->fetch_array($query);
+	
+	$plugins->run_hooks("announcements_start");
+	
+	if(!$announcement)
+	{
+		error($lang->error_invalidannouncement);
+	}
+	
+	// Get forum info
+	$fid = $announcement['fid'];
+	if($fid > 0)
+	{
+		$forum = get_forum($fid);
+	
+		if(!$forum)
+		{
+			error($lang->error_invalidforum);
+		}
+	
+		// Make navigation
+		build_forum_breadcrumb($forum['fid']);
+	
+		// Permissions
+		$forumpermissions = forum_permissions($forum['fid']);
+	
+		if($forumpermissions['canview'] == 0 || $forumpermissions['canviewthreads'] == 0)
+		{
+			error_no_permission();
+		}
+	
+		// Check if this forum is password protected and we have a valid password
+		check_forum_password($forum['fid']);
+	}
+	add_breadcrumb($lang->nav_announcements);
+	
+	$archive_url = build_archive_link("announcement", $aid);
+	
+	// Get announcement info
+	$time = TIME_NOW;
+	
+	$query = $db->query("
+		SELECT u.*, u.username AS userusername, a.*, f.*
+		FROM ".TABLE_PREFIX."announcements a
+		LEFT JOIN ".TABLE_PREFIX."users u ON (u.uid=a.uid)
+		LEFT JOIN ".TABLE_PREFIX."userfields f ON (f.ufid=u.uid)
+		WHERE a.startdate<='$time' AND (a.enddate>='$time' OR a.enddate='0') AND a.aid='$aid'
+	");
+	
+	$announcementarray = $db->fetch_array($query);
+	
+	if(!$announcementarray)
+	{
+		error($lang->error_invalidannouncement);
+	}
+	
+	// Gather usergroup data from the cache
+	// Field => Array Key
+	$data_key = array(
+		'title' => 'grouptitle',
+		'usertitle' => 'groupusertitle',
+		'stars' => 'groupstars',
+		'starimage' => 'groupstarimage',
+		'image' => 'groupimage',
+		'namestyle' => 'namestyle',
+		'usereputationsystem' => 'usereputationsystem'
+	);
+	
+	foreach($data_key as $field => $key)
+	{
+		$announcementarray[$key] = $groupscache[$announcementarray['usergroup']][$field];
+	}
+	
+	$announcementarray['dateline'] = $announcementarray['startdate'];
+	$announcementarray['userusername'] = $announcementarray['username'];
+	$announcement = build_postbit($announcementarray, 3);
+	$announcementarray['subject'] = $parser->parse_badwords($announcementarray['subject']);
+	$lang->forum_announcement = $lang->sprintf($lang->forum_announcement, htmlspecialchars_uni($announcementarray['subject']));
+	
+	if($announcementarray['startdate'] > $mybb->user['lastvisit'])
+	{
+		$setcookie = true;
+		if(isset($mybb->cookies['mybb']['announcements']) && is_scalar($mybb->cookies['mybb']['announcements']))
+		{
+			$cookie = my_unserialize(stripslashes($mybb->cookies['mybb']['announcements']));
+	
+			if(isset($cookie[$announcementarray['aid']]))
+			{
+				$setcookie = false;
+			}
+		}
+	
+		if($setcookie)
+		{
+			my_set_array_cookie('announcements', $announcementarray['aid'], $announcementarray['startdate'], -1);
+		}
+	}
+	$user_info = get_user($announcementarray['aid']);
+	$icon_url = absolute_url($user_info['avatar']);
+	// prepare xmlrpc return
+	$xmlrpc_post = new xmlrpcval(array(
+		'topic_id'          => new xmlrpcval('ann_' . $announcementarray['aid']),
+		'post_title'        => new xmlrpcval(basic_clean($announcementarray['subject']), 'base64'),
+		'post_content'      => new xmlrpcval(process_post($announcementarray['message'], $input['return_html']), 'base64'),
+		'post_author_id'    => new xmlrpcval($announcementarray['uid']),
+		'post_author_name'  => new xmlrpcval(basic_clean($announcementarray['username']), 'base64'),
+		'user_type'         => new xmlrpcval(check_return_user_type($announcementarray['username']),'base64'),
+		'icon_url'          => new xmlrpcval(absolute_url($icon_url)),
+		'post_time'         => new xmlrpcval(mobiquo_iso8601_encode($announcementarray['dateline']), 'dateTime.iso8601'),
+        'timestamp'         => new xmlrpcval($announcementarray['dateline'], 'string'),
+	), 'struct');
+
+	$result = array (
+		'total_post_num'=> new xmlrpcval(1, 'int'),
+		'can_reply'     => new xmlrpcval(false, 'boolean'),
+		'can_subscribe' => new xmlrpcval(false, 'boolean'),
+		'posts'         => new xmlrpcval(array($xmlrpc_post), 'array'),
+	);	
+	return new xmlrpcresp(new xmlrpcval($result, 'struct'));	
 }

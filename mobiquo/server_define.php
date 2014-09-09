@@ -65,7 +65,9 @@ $server_param = array(
         'function'  => 'save_raw_post_func',
         'signature' => array(array($xmlrpcArray, $xmlrpcString, $xmlrpcBase64, $xmlrpcBase64),
                              array($xmlrpcArray, $xmlrpcString, $xmlrpcBase64, $xmlrpcBase64, $xmlrpcBoolean),
-                             array($xmlrpcStruct, $xmlrpcString, $xmlrpcBase64, $xmlrpcBase64, $xmlrpcBoolean, $xmlrpcArray,$xmlrpcString)),
+                             array($xmlrpcStruct, $xmlrpcString, $xmlrpcBase64, $xmlrpcBase64, $xmlrpcBoolean, $xmlrpcArray,$xmlrpcString),
+                             array($xmlrpcStruct, $xmlrpcString, $xmlrpcBase64, $xmlrpcBase64, $xmlrpcBoolean, $xmlrpcArray,$xmlrpcString,$xmlrpcBase64)
+                       ),
         'docstring' => 'parameter should be array(post id(string), post title(base64), post content(base64), bbcode enable(boolean))',
     ),
 

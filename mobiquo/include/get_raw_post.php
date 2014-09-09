@@ -106,6 +106,8 @@ function get_raw_post_func($xmlrpc_params)
 		'post_content'  => new xmlrpcval(tapatalkEmoji::covertNameToEmoji($post['message']), 'base64'),
 		'attachments'   => new xmlrpcval($attachment_list, 'array'),
 		'group_id'      => new xmlrpcval($post['posthash']),
+		'show_reason'   => new xmlrpcval($mybb->settings['alloweditreason'] && version_compare($mybb->version, '1.8.0','>='),'boolean'),
+		'edit_reason'   => new xmlrpcval($post['editreason'], 'base64'),
 	), 'struct');
 	
 	return new xmlrpcresp($result);
