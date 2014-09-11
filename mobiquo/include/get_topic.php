@@ -691,7 +691,7 @@ function get_announcement_list($foruminfo, $fid)
 			$has_announcements = true;
 		}
 	}
-	$announcementlist = '';
+	$announcementlist = $topic_list = array();
 	if($has_announcements == true)
 	{
 		$limit = '';
@@ -775,17 +775,16 @@ function get_announcement_list($foruminfo, $fid)
 		
 			$topic_list[] = $xmlrpc_topic;
 		}
-		
-		$response = new xmlrpcval(
-	        array(
-	            'total_topic_num' => new xmlrpcval(count($announcementlist), 'int'),
-	            'forum_id'        => new xmlrpcval($fid),
-	            'forum_name'      => new xmlrpcval(basic_clean($foruminfo['name']) , 'base64'),
-	            'can_post'        => new xmlrpcval(false, 'boolean'),
-	            'can_upload'      => new xmlrpcval(false, 'boolean'),
-	            'topics'          => new xmlrpcval($topic_list, 'array'),
-	        ), 'struct'
-	   ); 	
-       return new xmlrpcresp($response);
 	}
+	$response = new xmlrpcval(
+        array(
+            'total_topic_num' => new xmlrpcval(count($announcementlist), 'int'),
+            'forum_id'        => new xmlrpcval($fid),
+            'forum_name'      => new xmlrpcval(basic_clean($foruminfo['name']) , 'base64'),
+            'can_post'        => new xmlrpcval(false, 'boolean'),
+            'can_upload'      => new xmlrpcval(false, 'boolean'),
+            'topics'          => new xmlrpcval($topic_list, 'array'),
+        ), 'struct'
+	); 	
+    return new xmlrpcresp($response);
 }
