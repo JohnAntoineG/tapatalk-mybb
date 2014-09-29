@@ -28,6 +28,7 @@ $app_android_id_default = 'com.quoord.tapatalkpro.activity';
 $app_location_url = isset($app_location_url) && preg_match('#^tapatalk://#i', $app_location_url) ? $app_location_url : 'tapatalk://';
 $app_location_url_byo = str_replace('tapatalk://', 'tapatalk-byo://', $app_location_url);
 $tapatalk_dir_url = isset($tapatalk_dir_url) && $tapatalk_dir_url ? $tapatalk_dir_url : './mobiquo';
+$mobiquo_extension = isset($mobiquo_extension) && $mobiquo_extension ? $mobiquo_extension : 'php';
 $app_forum_name = isset($app_forum_name) && $app_forum_name ? html_entity_decode($app_forum_name) : 'this forum';
 $board_url = isset($board_url) ? preg_replace('#/$#', '', trim($board_url)) : '';
 
@@ -40,6 +41,7 @@ $is_mobile_skin = isset($is_mobile_skin) && $is_mobile_skin ? 1 : 0;
 // valid page_type: index, forum, topic, post, pm, search, profile, online, other
 $page_type = isset($page_type) && $page_type ? $page_type : 'other';
 
+$is_byo = $app_ios_id && $app_ios_id != -1 || $app_android_id && $app_android_id != -1 || $app_kindle_url && $app_kindle_url != -1 ? 1 : 0;
 
 // add App Indexing for Google Search
 $host_path = preg_replace('#tapatalk://#si', '', $app_location_url);
@@ -47,22 +49,25 @@ if (in_array($page_type, array('topic', 'post')) && $host_path)
 {
     if ($app_android_id == $app_android_id_default || empty($app_android_id) || $app_android_id == -1)
     {
-        $app_head_include = '
+        $app_head_include .= '
         <!-- App Indexing for Google Search -->
         <link href="android-app://com.quoord.tapatalkpro.activity/tapatalk/'.$host_path.'" rel="alternate" />
         ';
     }
+    
+    if (!$is_byo)
+    {
+        $app_head_include .= '
+        <meta property="al:android:package" content="'.$app_android_id_default.'" />
+        <meta property="al:android:url" content="'.$app_location_url.'" />
+        <meta property="al:android:app_name" content="Tapatalk" />
+        <meta property="al:ios:url" content="'.$app_location_url.'" />
+        <meta property="al:ios:app_store_id" content="'.$app_ios_id_default.'" />
+        <meta property="al:ios:app_name" content="Tapatalk" />
+        <meta property="al:web:should_fallback" content="false" />
+        ';
+    }
 }
-
-
-// don't include it when the request was not from mobile device
-$useragent = tt_getenv('HTTP_USER_AGENT');
-if (!preg_match('/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone|Windows RT.*?ARM/i', $useragent))
-    return;
-
-// don't show welcome page and banner for googlebot
-if (preg_match('/googlebot/i', $useragent))
-    return;
 
 // display twitter card
 $twitter_card_head = '';
@@ -97,14 +102,25 @@ if ($app_ios_id != -1 || $app_android_id != -1)
     ';
 }
 
+$app_head_include .= $twitter_card_head;
+
+
+// don't include it when the request was not from mobile device
+$useragent = tt_getenv('HTTP_USER_AGENT');
+if (!preg_match('/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Phone|Windows RT.*?ARM/i', $useragent))
+    return;
+
+// don't show welcome page and banner for googlebot
+if (preg_match('/googlebot|twitterbot/i', $useragent))
+    return;
+
+
 // display smart banner and welcome page
 $app_banner_head = '';
 if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
     file_exists(dirname(__FILE__) . '/app.php') &&
     file_exists(dirname(__FILE__) . '/appbanner.css'))
 {
-    $is_byo = $app_ios_id && $app_ios_id != -1 || $app_android_id && $app_android_id != -1 || $app_kindle_url && $app_kindle_url != -1 ? 1 : 0;
-    
     $app_banner_head = '
         <!-- Tapatalk Banner&Welcome head start -->
         <link href="'.$tapatalk_dir_url.'/smartbanner/appbanner.css" rel="stylesheet" type="text/css" media="screen" />
@@ -118,6 +134,7 @@ if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
             var app_forum_name     = "'.addslashes($app_forum_name).'";
             var app_location_url   = "'.addslashes($app_location_url).'";
             var app_board_url      = "'.addslashes($board_url).'";
+            var mobiquo_extension  = "'.addslashes($mobiquo_extension).'";
             var functionCallAfterWindowLoad = '.$functionCallAfterWindowLoad.';
             
             var app_api_key        = "'.(trim($api_key) ? md5(trim($api_key)) : '').'";
@@ -131,7 +148,7 @@ if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
     ';
 }
 
-$app_head_include .= $twitter_card_head.$app_banner_head;
+$app_head_include .= $app_banner_head;
 
 function tt_getenv($key)
 {

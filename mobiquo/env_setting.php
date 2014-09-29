@@ -182,13 +182,15 @@ switch ($request_method)
         list($start, $limit, $page) = process_page($request_params[1], $request_params[2]);
         $_GET['page'] = $page;
         $_GET['perpage'] = $limit;
-        
+        //$_GET['username'] = $request_params[0];    
         if (isset($request_params[3]) && $request_params[3])
         {
             $_GET['action'] = 'results';
             $_GET['sortby'] = 'lastpost';
             $_GET['order'] = 'desc';
             $_GET['sid'] = $request_params[3];
+            //$_GET['uid'] = intval($request_params[3]);
+            
         }
         else
         {
@@ -330,6 +332,8 @@ switch ($request_method)
     	$_POST['email'] = $request_params[2];
     	$_POST['username'] = $request_params[3];
     	$_POST['password'] = $request_params[4];
+    	define("ALLOWABLE_PAGE", "register,do_register,login,do_login");
+    	$_GET['action'] = "do_register";
     	break;
     case 'prefetch_account':
     	$_POST['email'] = $request_params[0];

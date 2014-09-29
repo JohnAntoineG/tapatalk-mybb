@@ -86,7 +86,18 @@ function get_config_func()
 		    $mobiquo_config['sso_register'] = 0;
 		}
 	}
-	
+	if($mybb->settings['username_method'] == 0)
+	{
+		$mobiquo_config['login_type'] = 'username';
+	}
+	else if($mybb->settings['username_method'] == 1)
+	{
+		$mobiquo_config['login_type'] = 'email';
+	}
+	else if($mybb->settings['username_method'] == 2)
+	{
+		$mobiquo_config['login_type'] = 'both';
+	}
     foreach($mobiquo_config as $key => $value){
         if(!array_key_exists($key, $config_list) && $key != 'thlprefix'){
             $config_list[$key] = new xmlrpcval($value, 'string');

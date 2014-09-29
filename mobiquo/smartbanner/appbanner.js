@@ -76,7 +76,7 @@ if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Ph
 {
     current_timestamp = Math.round(+new Date()/1000);
     hide_until = typeof(localStorage.hide_until) === "undefined" ? 0 : localStorage.hide_until;
-    
+    mobiquoextension = typeof (mobiquo_extension) === "undefined" ? "php" : mobiquo_extension;
     try {
         if (current_timestamp > hide_until)
         {
@@ -84,7 +84,7 @@ if (navigator.userAgent.match(/iPhone|iPod|iPad|Silk|Android|IEMobile|Windows Ph
             localStorage.hide_until = current_timestamp+(86400*30);
             
             // redirect to welcome page with referer
-            app_welcome_url = app_board_url+'/'+tapatalk_dir_name+'/mobiquo.php?welcome=1'
+            app_welcome_url = app_board_url + '/' + tapatalk_dir_name + '/mobiquo.' + mobiquoextension + '?welcome=1'
                               +'&referer='+encodeURIComponent(app_referer)
                               +'&board_url='+encodeURIComponent(app_board_url)
                               +'&code='+encodeURIComponent(app_api_key)

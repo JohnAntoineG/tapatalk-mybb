@@ -57,7 +57,11 @@ function tapatalk_info()
 function tapatalk_install()
 {
     global $db,$mybb;
-
+	if(!session_id())
+    {
+    	@session_start();
+    }
+  
     tapatalk_uninstall();
     if(!$db->table_exists('tapatalk_users'))
     {
@@ -152,7 +156,14 @@ function tapatalk_install()
             'title'         => 'Tapatalk API Key',
             'description'   => 'Formerly known as Push Key. This key is now required for secure connection between your community and Tapatalk server. Features such as Push Notification and Single Sign-On requires this key to work. ',
             'optionscode'   => 'text',
-            'value'         => ''
+            'value'         => isset($_SESSION['tapatalk_push_key']) ? $_SESSION['tapatalk_push_key'] : ''
+        ),
+        'push_type' => array(
+            'title'         => 'Push Notifications',
+            'description'   => '"Basic Message" - "Do not include post content and images preview in Push Notifications" , 
+"Rich Message" - "Includes post content and images preview in Push Notifications"',
+            'optionscode'   => "radio\n1=Rich Message\n0=Basic Message",
+            'value'         => 1
         ),
         'forum_read_only' => array(
             'title'         => 'Disable New Topic',
@@ -180,12 +191,12 @@ function tapatalk_install()
             'value'         => '0',
         ),
         
-        'app_ads_enable' => array(
+        /*'app_ads_enable' => array(
         	'title'         => 'Mobile Welcome Screen',
             'description'   => 'Tapatalk will show a one time welcoming screen to mobile users to download the free app, with a button to get the free app. ',
             'optionscode'   => 'onoff',
             'value'         => '1',
-        ),
+        ),*/
         
         /*'app_banner_enable' => array(
         	'title'         => 'Mobile Smart Banner',
@@ -333,6 +344,10 @@ function tapatalk_is_installed()
 function tapatalk_uninstall()
 {
     global $mybb, $db;
+    if(!session_id())
+    {
+    	@session_start();
+    }
     if($db->table_exists('tapatalk_push_data') && ($mybb->settings['tapatalk_datakeep'] == 'delete' || !$db->field_exists('topic_id', 'tapatalk_push_data')))
     {
         $db->drop_table('tapatalk_push_data');
@@ -341,7 +356,11 @@ function tapatalk_uninstall()
     {
         $db->drop_table('tapatalk_users');
     }
-
+    if(isset($mybb->settings['tapatalk_push_key']))
+    {
+		$_SESSION['tapatalk_push_key'] = $mybb->settings['tapatalk_push_key'];
+    }
+	
     // Remove settings
     $result = $db->simple_select('settinggroups', 'gid', "name = 'tapatalk'", array('limit' => 1));
     $group = $db->fetch_array($result);
@@ -651,7 +670,7 @@ function tapatalk_pre_output_page(&$page)
     
     //full screen ads
     $api_key = $settings['tapatalk_push_key'];
-    $app_ads_enable = $settings['tapatalk_app_ads_enable'];
+    $app_ads_enable = 1;
     $app_head_include = '';
     if (file_exists($tapatalk_dir . '/smartbanner/head.inc.php'))
         include($tapatalk_dir . '/smartbanner/head.inc.php');
@@ -766,7 +785,7 @@ function tapatalk_get_url()
 // push related functions
 function tapatalk_push_reply()
 {
-    global $mybb, $db, $tid, $pid, $visible, $thread;
+    global $mybb, $db, $tid, $pid, $visible, $thread, $post;
     if(!($tid && $pid && $visible == 1 && $db->table_exists('tapatalk_users')) )
     {
         return false;
@@ -790,9 +809,14 @@ function tapatalk_push_reply()
             'subid'     => $pid,
             'title'     => tt_push_clean($thread['subject']),
             'author'    => tt_push_clean($mybb->user['username']),
+        	'authorid'  => $mybb->user['uid'],
+        	'fid'       => $thread['fid'],
             'dateline'  => TIME_NOW,
         );
-       
+    	if(!empty($mybb->settings['tapatalk_push_type']))
+    	{
+    		$ttp_data['content'] = tt_push_covert_content($post);
+    	}
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['sub'] == 1)
         {
@@ -851,7 +875,13 @@ function tapatalk_push_quote()
                 'title'     => tt_push_clean($thread['subject']),
                 'author'    => tt_push_clean($mybb->user['username']),
                 'dateline'  => TIME_NOW,
+                'authorid'  => $mybb->user['uid'],
+        		'fid'       => $thread['fid'],
             );
+	        if(!empty($mybb->settings['tapatalk_push_type']))
+	    	{
+	    		$ttp_data['content'] = tt_push_covert_content($post);
+	    	}
             tt_insert_push_data($ttp_data[count($ttp_data)-1]);
             if($user['quote'] == 1)
             {
@@ -906,7 +936,13 @@ function tapatalk_push_tag()
                 'title'     => tt_push_clean($thread['subject']),
                 'author'    => tt_push_clean($mybb->user['username']),
                 'dateline'  => TIME_NOW,
+            	'authorid'  => $mybb->user['uid'],
+        		'fid'       => $thread['fid'],
             );
+        	if(!empty($mybb->settings['tapatalk_push_type']))
+	    	{
+	    		$ttp_data['content'] = tt_push_covert_content($post);
+	    	}
             tt_insert_push_data($ttp_data[count($ttp_data)-1]);
             if($user['tag'] == 1)
             {
@@ -956,7 +992,13 @@ function tapatalk_push_newtopic()
             'title'     => tt_push_clean($new_thread['subject']),
             'author'    => tt_push_clean($mybb->user['username']),
             'dateline'  => TIME_NOW,
+        	'authorid'  => $mybb->user['uid'],
+        	'fid'       => $fid,
         );
+    	if(!empty($mybb->settings['tapatalk_push_type']))
+	    {
+	    	$ttp_data['content'] = tt_push_covert_content($new_thread);
+	    }
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['newtopic'] == 1)
         {
@@ -1019,7 +1061,12 @@ function tapatalk_push_pm()
             'title'     => tt_push_clean($pm['subject']),
             'author'    => tt_push_clean($mybb->user['username']),
             'dateline'  => TIME_NOW,
+        	'authorid'  => $mybb->user['uid'],
         );
+        if(!empty($mybb->settings['tapatalk_push_type']))
+        {
+        	$ttp_data['content'] = tt_push_covert_content($pm['message']);
+        }
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['pm'] == 1)
         {
@@ -1084,7 +1131,7 @@ function tt_do_post_request($data,$is_test=false)
 		}
         //Send push
 		$error_msg = '';
-        $push_resp = getContentFromRemoteServer($push_url, $hold_time, $error_msg, 'POST', $data);
+        $push_resp = getContentFromRemoteServer($push_url, $hold_time, $error_msg, 'POST', $data, false);
         if((trim($push_resp) === 'Invalid push notification key') && !$is_test)
         {
         	$push_resp = 1;
@@ -1278,6 +1325,8 @@ function tapatalk_parse_message_end(&$message)
 	}
 	$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 	$message = preg_replace('/\[emoji(\d+)\]/i', '<img style="vertical-align: middle;" src="'.$protocol.'://s3.amazonaws.com/tapatalk-emoji/emoji\1.png" />', $message);
+	$message = preg_replace('#<a [^>]*?href="https?://(www\.)?vimeo\.com/(\d+)"[^>]*?>[^>]*?</a>#si', 
+	'<iframe src="https://player.vimeo.com/video/$2" width="500" height="300" frameborder="0"></iframe>', $message);
 }
 
 function tapatalk_settings_update()
@@ -1386,4 +1435,55 @@ if (!function_exists('http_build_query'))
  
         return implode($sep, $ret);
     }
+}
+
+function tt_push_covert_content($post)
+{
+	global $lang;
+	$parser_options = array();
+    $parser_options['allow_html'] = false;
+    $parser_options['allow_mycode'] = true;
+    $parser_options['allow_smilies'] = false;
+    $parser_options['allow_imgcode'] = true;
+    $parser_options['allow_videocode'] = true;
+    $parser_options['nl2br'] = true;
+    $parser_options['filter_badwords'] = 1;
+
+    if(!$post['username'])
+    {
+        $post['username'] = $lang->guest;
+    }
+
+    if($post['userusername'])
+    {
+        $parser_options['me_username'] = $post['userusername'];
+    }
+    else
+    {
+        $parser_options['me_username'] = $post['username'];
+    }
+	if(!function_exists("post_bbcode_clean"))
+    {
+    	if(!defined("IN_MOBIQUO")) define('IN_MOBIQUO', true);		
+		if(empty($mybb->settings['tapatalk_directory'])) $mybb->settings['tapatalk_directory'] = 'mobiquo';
+		define('TT_ROOT',MYBB_ROOT.$mybb->settings['tapatalk_directory'] . '/');
+		if(file_exists(TT_ROOT."mobiquo_common.php"))
+		{
+			require_once TT_ROOT."mobiquo_common.php";	
+		}
+		else 
+		{
+			return $post['message'];
+		}
+    }
+    if(file_exists(TT_ROOT.'parser.php') && !class_exists('Tapatalk_Parser'))
+    {
+    	require_once TT_ROOT.'parser.php';
+    }
+	$message = post_bbcode_clean($post['message']);
+	// Post content and attachments
+	$parser = new Tapatalk_Parser;
+    $message = $parser->parse_message($message, $parser_options);          
+    $message = process_post($message, true);
+    return $message;
 }

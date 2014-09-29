@@ -44,7 +44,6 @@ function login_func($xmlrpc_params)
     {
         if(validate_email_format($input['username']))
         {
-        	$mybb->settings['username_method'] = 1;
         	$user = validate_password_from_username($input['username'], $input['password']);
         }
         if(!$user['uid'])

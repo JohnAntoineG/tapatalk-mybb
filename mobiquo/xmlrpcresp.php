@@ -4,7 +4,7 @@ defined('IN_MOBIQUO') or exit;
 
 function search_func()
 {
-    global $search_data, $include_topic_num, $mybb;
+    global $search_data, $include_topic_num, $mybb, $parser;
     
     $return_list = array();
     foreach ($search_data['results'] as $item)
@@ -27,7 +27,7 @@ function search_func()
                 'last_reply_time'       => new xmlrpcval(mobiquo_iso8601_encode($lastpost ? $lastpost['dateline'] : $item['lastpost']), 'dateTime.iso8601'),
                 'timestamp'             => new xmlrpcval($lastpost ? $lastpost['dateline'] : $item['lastpost'], 'string'),
                 'icon_url'              => new xmlrpcval(absolute_url($lastpost ? $lastpost['avatar'] : $item['avatar']) , 'string'),
-                'short_content'         => new xmlrpcval(basic_clean($lastpost ? $lastpost['prev'] : ''), 'base64'),
+                'short_content'         => new xmlrpcval(basic_clean(process_short_content($lastpost['message'], $parser)), 'base64'),
                 
                 // compatibility data
                 'last_reply_author_id'  => new xmlrpcval($lastpost ? $lastpost['uid'] : $item['lastposteruid'], 'string'),

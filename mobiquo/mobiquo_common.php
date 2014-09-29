@@ -874,130 +874,23 @@ function check_return_user_type($username)
  * @exmaple: getContentFromRemoteServer('http://push.tapatalk.com/push.php', 0, $error_msg, 'POST', $ttp_post_data)
  * @return string when get content successfully|false when the parameter is invalid or connection failed.
 */
-function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 'GET', $data = array())
+function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 'GET', $data = array(), $retry = true)
 {
-    //Validate input.
-    $vurl = parse_url($url);
-    if ($vurl['scheme'] != 'http' && $vurl['scheme'] != 'https')
+	global $mybb;
+    if(!defined("TT_ROOT"))
+	{
+		if(!defined('IN_MOBIQUO')) define('IN_MOBIQUO', true);
+		if(empty($mybb->settings['tapatalk_directory'])) $mybb->settings['tapatalk_directory'] = 'mobiquo';
+		define('TT_ROOT',MYBB_ROOT.$mybb->settings['tapatalk_directory'] . '/');
+	}	
+			
+	include_once TT_ROOT."lib/classConnection.php";
+	$connection = new classFileManagement();
+	$connection->timeout = $holdTime;
+    $response = $connection->getContentFromSever($url,$data,$method, $retry);
+    if(empty($connection->errors))
     {
-        $error_msg = 'Error: invalid url given: '.$url;
-        return false;
-    }
-    if($method != 'GET' && $method != 'POST')
-    {
-        $error_msg = 'Error: invalid method: '.$method;
-        return false;//Only POST/GET supported.
-    }
-    if($method == 'POST' && empty($data))
-    {
-        $error_msg = 'Error: data could not be empty when method is POST';
-        return false;//POST info not enough.
-    }
-
-    if(!empty($holdTime) && function_exists('file_get_contents') && $method == 'GET')
-    {
-        $opts = array(
-            $vurl['scheme'] => array(
-                'method' => "GET",
-                'timeout' => $holdTime,
-            )
-        );
-
-        $context = stream_context_create($opts);
-        $response = file_get_contents($url,false,$context);
-    }
-    else if (@ini_get('allow_url_fopen'))
-    {
-        if(empty($holdTime))
-        {
-            // extract host and path:
-            $host = $vurl['host'];
-            $path = $vurl['path'];
-
-            if($method == 'POST')
-            {
-                $fp = @fsockopen($host, 80, $errno, $errstr, 5);
-
-                if(!$fp)
-                {
-                    $error_msg = 'Error: socket open time out or cannot connet.';
-                    return false;
-                }
-
-                $data =  http_build_query($data);
-
-                fputs($fp, "POST $path HTTP/1.1\r\n");
-                fputs($fp, "Host: $host\r\n");
-                fputs($fp, "Content-type: application/x-www-form-urlencoded\r\n");
-                fputs($fp, "Content-length: ". strlen($data) ."\r\n");
-                fputs($fp, "Connection: close\r\n\r\n");
-                fputs($fp, $data);
-                fclose($fp);
-                return 1;
-            }
-            else
-            {
-                $error_msg = 'Error: 0 hold time for get method not supported.';
-                return false;
-            }
-        }
-        else
-        {
-            if($method == 'POST')
-            {
-                $params = array(
-                    $vurl['scheme'] => array(
-                        'method' => 'POST',
-                        'content' => http_build_query($data, '', '&'),
-                    )
-                );
-               
-                $ctx = stream_context_create($params);
-                $old = ini_set('default_socket_timeout', $holdTime);
-                $fp = @fopen($url, 'rb', false, $ctx);
-            }
-            else
-            {
-                $fp = @fopen($url, 'rb', false);
-            }
-            if (!$fp)
-            {
-                $error_msg = 'Error: fopen failed.';
-                return false;
-            }
-            ini_set('default_socket_timeout', $old);
-            stream_set_timeout($fp, $holdTime);
-            stream_set_blocking($fp, 0);
-
-            $response = @stream_get_contents($fp);
-        }
-    }
-    elseif (function_exists('curl_init'))
-    {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        if($method == 'POST')
-        {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        }
-        if(empty($holdTime))
-        {
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT,1);
-        }
-        $response = curl_exec($ch);
-        curl_close($ch);
-    }
-    else
-    {
-        $error_msg = 'CURL is disabled and PHP option "allow_url_fopen" is OFF. You can enable CURL or turn on "allow_url_fopen" in php.ini to fix this problem.';
-        return false;
-    }
-    if(!empty($error_msg))
-    {
-    	return $error_msg;
+    	$error_msg = $connection->errors[0];
     }
     return $response;
 }
@@ -1026,10 +919,10 @@ function tt_register_verify($tt_token,$tt_code)
 	}
 	if(empty($response))
 	{
-		$response = '{"result":false,"result_text":"Connect timeout , please try again"}';
+		$response = '{"result":false,"result_text":"Connection Timeout!"}';
 	}
 	include_once TT_ROOT."lib/classTTJson.php";
-	$result = json_decode($response);
+	$result = TTJson::decode($response);
 	return $result;
 }
 
@@ -1148,6 +1041,8 @@ function tt_login_success()
     {
     	$flood_interval = $mybb->settings['postfloodsecs'];
     }
+
+    $avatar_zize = explode('x', $mybb->settings['maxavatardims']);
 	$result = array(
 		'result'            => new xmlrpcval(true, 'boolean'),
 		'result_text'       => new xmlrpcval('', 'base64'),
@@ -1173,6 +1068,9 @@ function tt_login_success()
 		'register'          => new xmlrpcval($register, "boolean"),
 		'push_type'         => new xmlrpcval($push_type, 'array'), 
 		'post_countdown'    => new xmlrpcval($flood_interval,'int'),
+		'max_avatar_size'   => new xmlrpcval($mybb->settings['avatarsize'] * 1024,'int'),
+    	'max_avatar_width'  => new xmlrpcval($avatar_zize[0],'int'),
+    	'max_avatar_height'  => new xmlrpcval($avatar_zize[1],'int'),
 	);
 	
 	if($mybb->usergroup['isbannedgroup'] == 1)

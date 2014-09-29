@@ -60,3 +60,4 @@ emoji_support = 1
 advanced_edit = 1
 avatar = 1
 mark_pm_read = 1
+login_type = username
