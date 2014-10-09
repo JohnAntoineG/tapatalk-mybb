@@ -424,8 +424,8 @@ function get_thread_func($xmlrpc_params)
 	{
 		$new_topic['can_subscribe']  = new xmlrpcval(true, 'boolean');
 	}
-    if ($thread['prefix'])  $result['prefix']        = new xmlrpcval(basic_clean($thread['displayprefix']), 'base64');
-    if (!$thread['visible'])$result['is_approved']   = new xmlrpcval(false, 'boolean'); // default as true
+	$result['is_approved']   = new xmlrpcval($thread['visible'], 'boolean'); // default as true
+    if ($thread['prefix'])  $result['prefix']        = new xmlrpcval(basic_clean($thread['displayprefix']), 'base64');  
     if ($thread['closed'])  $result['is_closed']     = new xmlrpcval(true, 'boolean');
     if ($thread['sticky'])  $result['is_sticky']     = new xmlrpcval(true, 'boolean');
     if ($subscribed)        $result['is_subscribed'] = new xmlrpcval(true, 'boolean');
