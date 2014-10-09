@@ -391,7 +391,7 @@ function process_short_content($post_text, $parser = null, $length = 200)
 		array('reg' => '/\[align=(.*?)\](.*?)\[\/align\]/si',replace=>" $2 "),
 		array('reg' => '/\[email\](.*?)\[\/email\]/si',replace=>"[url]"),
 		array('reg' => '/\[quote(.*?)\](.*?)\[\/quote\]/si','replace' => '[quote]'),
-		array('reg' => '/\[code\](.*?)\[\/code\]/si','replace' => ''),
+		array('reg' => '/\[code\](.*?)\[\/code\]/si','replace' => '[code]'),
 		array('reg' => '/\[url=(.*?)\](.*?)\[\/url\]/sei','replace' => "mobi_url_convert('$1','$2')"),
 		array('reg' => '/\[img(.*?)\](.*?)\[\/img\]/si','replace' => '[img]'),
 		array('reg' => '/\[video=(.*?)\](.*?)\[\/video\]/si','replace' => '[V]'),
