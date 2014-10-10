@@ -608,16 +608,14 @@ function m_get_new_report_func($xmlrpc_params)
 		        	'report_reason'     => new xmlrpcval($reportcache[$post['pid']]['reason'], 'base64'),
 		        ), "struct");
 		    }
-		}
-	
-	    $result = new xmlrpcval(array(
-	        'total_report_num'  => new xmlrpcval(count($reportcache), 'int'),
-	        'reports'           => new xmlrpcval($post_list, 'array'),
-	    ), 'struct');
-	
-	    return new xmlrpcresp($result);
-		
+		}			
 	}
+	$result = new xmlrpcval(array(
+        'total_report_num'  => new xmlrpcval(count($reportcache), 'int'),
+        'reports'           => new xmlrpcval($post_list, 'array'),
+    ), 'struct');
+
+    return new xmlrpcresp($result);
 }
 function m_move_topic_func($xmlrpc_params)
 {

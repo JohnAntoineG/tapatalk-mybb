@@ -307,7 +307,7 @@ function get_thread_func($xmlrpc_params)
             'attachments'       => new xmlrpcval($attachment_list, 'array'),
         );
 
-        if (!$post['visible'])  $post_xmlrpc['is_approved']     = new xmlrpcval(false, 'boolean'); // default as true
+        $post_xmlrpc['is_approved']     = new xmlrpcval($post['visible'], 'boolean'); // default as true
         if ($post['smilieoff']) $post_xmlrpc['allow_smilies']   = new xmlrpcval(false, 'boolean'); // default as true
         if ($post['isbanned'])  $post_xmlrpc['is_ban']          = new xmlrpcval(true, 'boolean');
         if ($is_online)         $post_xmlrpc['is_online']       = new xmlrpcval(true, 'boolean');
@@ -442,6 +442,7 @@ function get_thread_func($xmlrpc_params)
 		$result['can_merge_post']     = new xmlrpcval(true, 'boolean');
 	}
     if (is_moderator($fid, "canopenclosethreads"))  $result['can_approve']  = new xmlrpcval(true, 'boolean');
+    else $result['can_approve']  = new xmlrpcval(false, 'boolean');
     if ($can_rename)         $result['can_rename']   = new xmlrpcval(true, 'boolean');
     if ($mybb->usergroup['canmodcp'] == 1)          $result['can_ban']      = new xmlrpcval(true, 'boolean');
     if (!empty($breadcrumb))
