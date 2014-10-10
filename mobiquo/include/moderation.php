@@ -176,9 +176,20 @@ function m_close_report_func($xmlrpc_params)
 	$sql = "pid IN ({$pids})";
 
 	$plugins->run_hooks("modcp_do_reports");
-
-	$db->update_query("reportedposts", array('reportstatus' => 1), "{$sql}");
-	$cache->update_reportedposts();
+	
+    if(version_compare($mybb->version, '1.8.0', '<'))
+	{
+		$db->update_query("reportedposts", array('reportstatus' => 1), "{$sql}");
+		$cache->update_reportedposts();
+	}
+	else 
+	{
+		$sql = "id IN ({$pids})";
+		$db->update_query("reportedcontent", array('reportstatus' => 1), "{$sql}");
+		$cache->update_reportedcontent();
+	}
+	
+	
 	$response = new xmlrpcval(array(
         'result'        => new xmlrpcval(true, 'boolean'),
         'result_text'   => new xmlrpcval("", 'base64')

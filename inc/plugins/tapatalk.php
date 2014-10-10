@@ -1065,7 +1065,7 @@ function tapatalk_push_pm()
         );
         if(!empty($mybb->settings['tapatalk_push_type']))
         {
-        	$ttp_data['content'] = tt_push_covert_content($pm['message']);
+        	$ttp_data['content'] = tt_push_covert_content($pm);
         }
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['pm'] == 1)
@@ -1449,12 +1449,12 @@ function tt_push_covert_content($post)
     $parser_options['nl2br'] = true;
     $parser_options['filter_badwords'] = 1;
 
-    if(!$post['username'])
+    if(empty($post['username']))
     {
         $post['username'] = $lang->guest;
     }
 
-    if($post['userusername'])
+    if(!empty($post['userusername']))
     {
         $parser_options['me_username'] = $post['userusername'];
     }

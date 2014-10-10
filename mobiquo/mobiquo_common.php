@@ -888,7 +888,7 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
 	$connection = new classFileManagement();
 	$connection->timeout = $holdTime;
     $response = $connection->getContentFromSever($url,$data,$method, $retry);
-    if(empty($connection->errors))
+    if(!empty($connection->errors))
     {
     	$error_msg = $connection->errors[0];
     }
