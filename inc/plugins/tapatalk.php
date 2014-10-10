@@ -802,7 +802,7 @@ function tapatalk_push_reply()
     {
         if(ingnore_user_push($user)) continue;
         
-        $ttp_data[] = array(
+        $push_data_row = array(
             'userid'    => $user['uid'],
             'type'      => 'sub',
             'id'        => $tid,
@@ -815,8 +815,9 @@ function tapatalk_push_reply()
         );
     	if(!empty($mybb->settings['tapatalk_push_type']))
     	{
-    		$ttp_data['content'] = tt_push_covert_content($post);
+    		$push_data_row['content'] = tt_push_covert_content($post);
     	}
+    	$ttp_data[] = $push_data_row;
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['sub'] == 1)
         {
@@ -867,7 +868,7 @@ function tapatalk_push_quote()
             
             if(ingnore_user_push($user)) continue;
             $ttp_push_data = array();
-            $ttp_data[] = array(
+            $push_data_row = array(
                 'userid'    => $user['uid'],
                 'type'      => 'quote',
                 'id'        => $tid,
@@ -880,8 +881,9 @@ function tapatalk_push_quote()
             );
 	        if(!empty($mybb->settings['tapatalk_push_type']))
 	    	{
-	    		$ttp_data['content'] = tt_push_covert_content($post);
+	    		$push_data_row['content'] = tt_push_covert_content($post);
 	    	}
+	    	$ttp_data[] = $push_data_row;
             tt_insert_push_data($ttp_data[count($ttp_data)-1]);
             if($user['quote'] == 1)
             {
@@ -928,7 +930,7 @@ function tapatalk_push_tag()
             
             if(ingnore_user_push($user)) continue;
             $ttp_push_data = array();
-            $ttp_data[] = array(
+            $push_data_row = array(
                 'userid'    => $user['uid'],
                 'type'      => 'tag',
                 'id'        => $tid,
@@ -941,8 +943,9 @@ function tapatalk_push_tag()
             );
         	if(!empty($mybb->settings['tapatalk_push_type']))
 	    	{
-	    		$ttp_data['content'] = tt_push_covert_content($post);
+	    		$push_data_row['content'] = tt_push_covert_content($post);
 	    	}
+	    	$ttp_data[] = $push_data_row;
             tt_insert_push_data($ttp_data[count($ttp_data)-1]);
             if($user['tag'] == 1)
             {
@@ -984,7 +987,7 @@ function tapatalk_push_newtopic()
     while($user = $db->fetch_array($query))
     {
         if(ingnore_user_push($user)) continue;
-        $ttp_data[] = array(
+        $push_data_row = array(
             'userid'    => $user['uid'],
             'type'      => 'newtopic',
             'id'        => $tid,
@@ -997,8 +1000,9 @@ function tapatalk_push_newtopic()
         );
     	if(!empty($mybb->settings['tapatalk_push_type']))
 	    {
-	    	$ttp_data['content'] = tt_push_covert_content($new_thread);
+	    	$push_data_row['content'] = tt_push_covert_content($new_thread);
 	    }
+	    $ttp_data[] = $push_data_row;
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['newtopic'] == 1)
         {
@@ -1054,7 +1058,7 @@ function tapatalk_push_pm()
         if ($user['toid'] == $mybb->user['uid']) continue;
         if (tt_check_ignored($user['toid'])) continue;
         
-        $ttp_data[] = array(
+        $push_data_row = array(
             'userid'    => $user['toid'],
             'type'      => 'pm',
             'id'        => $user['pmid'],
@@ -1065,8 +1069,9 @@ function tapatalk_push_pm()
         );
         if(!empty($mybb->settings['tapatalk_push_type']))
         {
-        	$ttp_data['content'] = tt_push_covert_content($pm);
+        	$push_data_row['content'] = tt_push_covert_content($pm);
         }
+        $ttp_data[] = $push_data_row;
         tt_insert_push_data($ttp_data[count($ttp_data)-1]);
         if($user['pm'] == 1)
         {
