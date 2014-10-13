@@ -158,7 +158,10 @@ class classFileManagement
     	}
     	else
     	{
-    		$file_location = $url . '?' . $this->http_build_query($data);
+    		if(!empty($data))
+    			$file_location = $url . '?' . $this->http_build_query($data);
+    		else 
+    			$file_location = $url;	
     		$content = $this->getFileContents($file_location);
     		if(empty($content) && $retry)
     		{
