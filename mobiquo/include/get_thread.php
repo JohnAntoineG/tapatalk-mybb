@@ -403,12 +403,16 @@ function get_thread_func($xmlrpc_params)
     }
     
     $is_poll = !empty($thread['poll']) ? true : false;
+    $topic_author_info = get_user($thread['uid']);
     $result = array(
         'total_post_num'  => new xmlrpcval($postcount, 'int'),
         'forum_id'        => new xmlrpcval($thread['fid'], 'string'),
         'forum_name'      => new xmlrpcval(basic_clean($forum['name']), 'base64'),
         'topic_id'        => new xmlrpcval($thread['tid'], 'string'),
         'topic_title'     => new xmlrpcval(basic_clean($thread['subject']), 'base64'),
+    	'topic_author_id' => new xmlrpcval($thread['uid'],'int'),
+    	'topic_author_name' => new xmlrpcval($thread['username'],'base64'),
+    	'topic_author_avatar' => new xmlrpcval(absolute_url($topic_author_info['avatar']),'string'),
         'can_upload'      => new xmlrpcval($forumpermissions['canpostattachments'] != 0, 'boolean'),
     	'can_report'      => new xmlrpcval(true,'boolean'),
     	'can_reply'       => new xmlrpcval($can_reply, 'boolean'),

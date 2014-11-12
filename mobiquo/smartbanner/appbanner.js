@@ -148,7 +148,9 @@ else
 add_app_event(tapatalkDetectAfterLoad)
 
 var bannerLoaded = false
-
+var bannerScale
+var bannerHeight
+var tapatalk_logo_height 
 function tapatalkDetectAfterLoad()
 {
     tapatalkDetect(true)
@@ -156,8 +158,11 @@ function tapatalkDetectAfterLoad()
 
 function tapatalkDetect(afterLoad)
 {
+	if(bannerLoaded) return;
     var standalone = navigator.standalone // Check if it's already a standalone web app or running within a web ui view of an app (not mobile safari)
-    
+    var is_android = false;
+    var is_ios = false;
+    var is_wp = false;
     // work only when browser support cookie
     if (!navigator.cookieEnabled 
         || (typeof(app_banner_enable) !== "undefined" && !app_banner_enable)
@@ -168,7 +173,15 @@ function tapatalkDetect(afterLoad)
         return
     
     bannerLoaded = true
-    
+    getBannerScale();
+    if(bannerScale > 2 && app_forum_name.length > 20)
+    {
+    	app_forum_name = "this forum";
+    }
+    else if(app_forum_name.length > 40)
+    {
+    	app_forum_name = app_forum_name.substr(0,40) + "...";
+    }
     app_banner_message = app_banner_message.replace(/\{your_forum_name\}/gi, app_forum_name);
     app_banner_message = app_banner_message.replace(/\{app_name\}/gi, "Tapatalk");
     
@@ -176,11 +189,13 @@ function tapatalkDetect(afterLoad)
         if (app_ios_id == '-1') return;
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'iPhone');
         banner_location_url = app_ios_id ? app_location_url_byo : app_location_url;
+        is_ios = true;
     }
     else if (navigator.userAgent.match(/iPad/i)) {
         if (app_ios_id == '-1') return;
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'iPad');
         banner_location_url = app_ios_id ? app_location_url_byo : app_location_url;
+        is_ios = true;
     }
     else if (navigator.userAgent.match(/Silk|KFOT|KFTT|KFJWI|KFJWA/)) {
         if (app_kindle_url == '-1') return;
@@ -191,11 +206,13 @@ function tapatalkDetect(afterLoad)
         if (app_android_id == '-1') return;
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Android');
         banner_location_url = app_android_id ? app_location_url_byo : app_location_url;
+        is_android = true;
     }
     else if (navigator.userAgent.match(/IEMobile|Windows Phone/i)) {
         if (app_ios_id || app_android_id || app_kindle_url) return;
         app_banner_message = app_banner_message.replace(/\[os_platform\]/gi, 'Windows Phone');
         banner_location_url = app_location_url;
+        is_wp = true;
     }
     /*
     else if (navigator.userAgent.match(/BlackBerry/i)) {
@@ -205,67 +222,161 @@ function tapatalkDetect(afterLoad)
     */
     else
         return
+      
+    bodyItem = document.body 
+    appBanner = document.createElement("div")
+    appBanner.id = "tt_mobile_banner"
+	if(is_android)
+    {
+    	class_ext = '_android';
+    	app_desc = 'FREE - on Google Play';
+    	var css = '@import url(https://fonts.googleapis.com/css?family=Roboto:100,100italic,300,300italic,400,400italic,500,500italic,700,700italic,900,900italic&subset=latin,latin-ext,cyrillic,cyrillic-ext,greek-ext,greek,vietnamese);' +
+            '@import url(https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext,cyrillic-ext,cyrillic,greek-ext,greek,vietnamese);' +
+            '@import url(https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700&subset=latin,latin-ext,greek-ext,greek,vietnamese,cyrillic,cyrillic-ext);';
+		style = document.createElement('style');
+		head = document.head || document.getElementsByTagName('head')[0],
+		style.type = 'text/css';
+		if (style.styleSheet){
+		    style.styleSheet.cssText = css;
+		} else {
+		    style.appendChild(document.createTextNode(css));
+		}
+		head.appendChild(style);
+    }
+    else if(is_ios)
+    {
+    	class_ext = '_ios';
+    	app_desc = 'FREE - on App Store';
+    }
+    else if(is_wp)
+    {
+    	class_ext = '_wp';
+    	app_desc = 'FREE - on WP App Store';
+    }
+    else
+    {
+    	class_ext = ''
+    }
+    appBanner.className = "mobile_banner" + class_ext;
+    tapatalk_logo_height = 8.125 * 8 * bannerScale;
+    appBanner.innerHTML = 
+                    '<table class="mobile_banner_inner"  align="center" cellpadding="0" cellspacing="0" border="0"  id="mobile_banner_inner" ><tr>'+   
+                     '<td style="width:2.5em"><div onclick="closeBanner()" class="mobile_banner_close" id="mobile_banner_close" style="text-align:right">×</div></td>' + 
+                     '<td style="width:1.0em"></td>' + 
+                     '<td >' + 
+                     	'<div id="mobile_banner_logo" style="text-align:left"><img style="height:'+ tapatalk_logo_height + 'px" id="mobile_banner_logo_img" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/tapatalk-banner-logo.png' + '"></div>' + 
+                     '</td>' +
+                     '<td style="width:1.0em"></td>' + 
+                     '<td >' + 
+                     	'<table cellpadding="0" cellspacing="0" border="0">' + 
+                     		'<tr>'+
+                     			'<td>' + 
+                     				'<div class="mobile_banner_heading'+class_ext+'">'+app_banner_message+'</div>'+
+                     			'</td>'+
+                     		'</tr>' + 
+                     		'<tr>'+
+	                 			'<td>' + 
+	                 				'<div class="mobile_banner_star'+class_ext+'"><img src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/star.png' + '"></div>'+
+	                 			'</td>'+
+	                 		'</tr>' + 
+	                 		'<tr>'+
+	                 			'<td>' + 
+	                 				'<div class="mobile_banner_app_desc'+class_ext+'">'+app_desc+'</div>'+
+	                 			'</td>'+
+	                 		'</tr>' + 
+	                 	 '</table>' + 
+                     '</td>' +
+                     '<td style="width:2.0em"></td>' +
+                     '<td>' +
+                            '<a class="mobile_banner_button mobile_banner_open'+class_ext+'"  href="javascript:openOrInstall()" id="mobile_banner_open">'+'VIEW'+'</a>'+                                                    
+                     '</td>' +
+                     '<td style="width:1.5em"></td>' +
+                    '</tr>' +
+                   '</table>';
     
-    
-    htmlElement = document.getElementsByTagName("html")[0]
-    origHtmlMargin = parseFloat(htmlElement.style.marginTop)
-    if ( isNaN(origHtmlMargin)) origHtmlMargin = 0
-    
-    var bannerScale = document.body.clientWidth / window.screen.width
-    
-    if (bannerScale < 1 || (is_mobile_skin && navigator.userAgent.match(/mobile/i))) bannerScale = 1;
-        
+    bodyItem.insertBefore(appBanner, bodyItem.firstChild)    
+    setFontSize(1)
+    bannerHeight = appBanner.clientHeight; 
+    resetBannerStyle();
+       
+    if(navigator.userAgent.match(/chrome/i) && is_android)
+	{
+		open_or_install_button = document.getElementById("mobile_banner_open");
+		version = parseInt(window.navigator.appVersion.match(/Chrome\/(\d+)\./i)[1], 10);
+		if(version > 25)
+		{
+			banner_location_url = "intent://scan/#Intent;scheme=" + banner_location_url + ";package=com.quoord.tapatalkpro.activity;end";
+			open_or_install_button.href = banner_location_url;
+		}
+	}
+    //Detect whether device supports orientationchange event, otherwise fall back to
+    var supportsOrientationChange = "onorientationchange" in window,
+        orientationEvent = supportsOrientationChange ? "orientationchange" : "resize";
+      
+    window.addEventListener(orientationEvent, function() {
+    	getBannerScale();
+    	tapatalk_logo_height = 8.125 * 8 * bannerScale;
+    	setFontSize(1);
+    	bannerLogo = document.getElementById("mobile_banner_logo_img");
+    	bannerDiv = document.getElementById("banner_div_empty");
+    	bannerLogo.style.height = tapatalk_logo_height + 'px';
+    	bannerHeight = appBanner.clientHeight;
+    	bannerDiv.style.height = bannerHeight + "px";
+    })
+}
+
+function setFontSize(Scale)
+{
+	if (bannerScale > 1) {
+        appBanner.style.fontSize = (8*bannerScale*Scale)+"px";
+        tables = appBanner.getElementsByTagName("table");
+        for(var i=0;i < tables.length;i++){
+        	table = tables[i];
+        	table.style.fontSize = (8*bannerScale*Scale)+"px";
+        	tds = table.getElementsByTagName("td");
+        	for(var j=0;j < tds.length;j++){
+        		tds[j].style.fontSize = (8*bannerScale*Scale)+"px";
+        	}
+        } 
+    }
+}
+
+function getBannerScale()
+{
+	bannerScale = document.body.clientWidth / window.screen.width
+    if (bannerScale < 1.5 || (is_mobile_skin && navigator.userAgent.match(/mobile/i))) bannerScale = 1.5;
+  
     // mobile portrait mode may need bigger scale
     if (window.innerWidth < window.innerHeight)
     {
         if (bannerScale < 2 && !is_mobile_skin && document.body.clientWidth > 600) {
-            bannerScale = 2
-        } else if (bannerScale > 2.8) {
-            bannerScale = 2.8
+            bannerScale = 1.5
+        } 
+        else
+        {
+        	bannerScale = 2.5
         }
     }
     else
     {
         if (navigator.userAgent.match(/mobile/i) && bannerScale < 1.5 && !is_mobile_skin && document.body.clientWidth > 600) {
             bannerScale = 1.5
-        } else if (bannerScale > 2) {
-            bannerScale = 2
-        }
+        } 
     }
-    
-    
-    bodyItem = document.body
-    appBanner = document.createElement("div")
-    appBanner.id = "mobile_banner"
-    appBanner.className = "mobile_banner banner_theme_light mobile_banner_animate"
-    appBanner.innerHTML = 
-                    '<div class="mobile_banner_inner">'+
-                        '<div class="mobile_banner_heading">'+app_banner_message+'</div>'+
-                        '<div class="mobile_banner_controls">'+
-                            '<a class="mobile_banner_button mobile_banner_open" href="'+banner_location_url+'" id="mobile_banner_open">'+'Open in app'+'</a>'+
-                            '<a class="mobile_banner_button mobile_banner_install" href="'+app_install_url+'" id="mobile_banner_install">'+'Install'+'</a>'+
-                            '<a class="mobile_banner_close" href="javascript:closeBanner()" id="mobile_banner_close">x</a>'+
-                        '</div>'+
-                    '</div>'
-    bodyItem.insertBefore(appBanner, bodyItem.firstChild)
-    
-    if (bannerScale > 1) {
-        appBanner.style.fontSize = (8*bannerScale)+"px"
-    }
-    
-    bannerHeight = getWH(appBanner, 'height', true)
-    bannerTop = (origHtmlMargin+bannerHeight)+"px"
-    htmlElement.style.marginTop = bannerTop
-    
-    if (getComputedStyle(bodyItem, null).position !== 'static')
-        appBanner.style.top = '-'+bannerTop
-    
-    if (typeof(afterLoad)!=='undefined'&&afterLoad)
-        resetBannerTop()
-    else
-        add_app_event(resetBannerTop)
+    if(bannerScale > 2.5) bannerScale = 2.5;
 }
 
+function openOrInstall()
+{
+	iframe = document.createElement("iframe");	
+	iframe.id = 'open_in_app';
+	document.body.insertBefore(iframe, bodyItem.firstChild);
+	iframe.style.display = "none";		
+	iframe.src =  banner_location_url;
+	setTimeout(function(){
+		window.location.href = app_install_url;
+	},1);	
+}
 
 function resetBannerTop()
 {
@@ -275,9 +386,10 @@ function resetBannerTop()
 
 function closeBanner()
 {
-    bodyItem.removeChild( appBanner )
-    htmlElement.style.marginTop = origHtmlMargin+"px"
-    setBannerCookies('banner-closed', 'true', 90)
+	bannerDiv = document.getElementById("banner_div_empty");
+    bodyItem.removeChild( appBanner );
+    bodyItem.removeChild( bannerDiv );
+    setBannerCookies('banner-closed', 'true', 90);
 }
 
 function setBannerCookies(name, value, exdays)
@@ -288,92 +400,48 @@ function setBannerCookies(name, value, exdays)
     document.cookie=name+'='+value+'; path=/;';
 }
 
+add_app_event(gestureChangeListener);
 
-/* to get element outer height */
-
-var defView = document.defaultView;
-
-var getStyle = defView && defView.getComputedStyle ?
-    function( elem ) {
-      return defView.getComputedStyle( elem, null );
-    }
-    :
-    function( elem ) {
-      return elem.currentStyle;
-    };
-
-function hackPercentMargin( elem, computedStyle, marginValue ) {
-    if ( marginValue.indexOf('%') === -1 ) {
-        return marginValue;
-    }
-
-    var elemStyle = elem.style,
-        originalWidth = elemStyle.width,
-        ret;
-
-    // get measure by setting it on elem's width
-    elemStyle.width = marginValue;
-    ret = computedStyle.width;
-    elemStyle.width = originalWidth;
-
-    return ret;
+function gestureChangeListener()
+{
+	appBanner = document.getElementById("tt_mobile_banner");
+	document.addEventListener("touchmove", touchMove, false);
+	document.addEventListener("touchend", touchEnd, false);
+	touchEnd();
 }
 
-function getWH( elem, measure, isOuter )
+function touchMove()
 {
-    // Start with offset property
-    var isWidth = measure !== 'height',
-        val = isWidth ? elem.offsetWidth : elem.offsetHeight,
-        dirA = isWidth ? 'Left' : 'Top',
-        dirB = isWidth ? 'Right' : 'Bottom',
-        computedStyle = getStyle( elem ),
-        paddingA = parseFloat( computedStyle[ 'padding' + dirA ] ) || 0,
-        paddingB = parseFloat( computedStyle[ 'padding' + dirB ] ) || 0,
-        borderA = parseFloat( computedStyle[ 'border' + dirA + 'Width' ] ) || 0,
-        borderB = parseFloat( computedStyle[ 'border' + dirB + 'Width' ] ) || 0,
-        computedMarginA = computedStyle[ 'margin' + dirA ],
-        computedMarginB = computedStyle[ 'margin' + dirB ],
-        marginA, marginB;
+	touchEnd();
+}
 
-    var tmpDiv = document.createElement('div');
-    tmpDiv.style.marginTop = '1%';
-    bodyItem.appendChild( tmpDiv );
-    var supportsPercentMargin = getStyle( tmpDiv ).marginTop !== '1%';
-    bodyItem.removeChild( tmpDiv );
+function touchEnd()
+{
+	resetBannerStyle();
+}
 
-    if ( !supportsPercentMargin ) {
-        computedMarginA = hackPercentMargin( elem, computedStyle, computedMarginA );
-        computedMarginB = hackPercentMargin( elem, computedStyle, computedMarginB );
-    }
-
-    marginA = parseFloat( computedMarginA ) || 0;
-    marginB = parseFloat( computedMarginB ) || 0;
-
-    if ( val > 0 ) {
-
-        if ( isOuter ) {
-            // outerWidth, outerHeight, add margin
-            val += marginA + marginB;
-        } else {
-            // like getting width() or height(), no padding or border
-            val -= paddingA + paddingB + borderA + borderB;
-        }
-
-    } else {
-
-        // Fall back to computed then uncomputed css if necessary
-        val = computedStyle[ measure ];
-        if ( val < 0 || val === null ) {
-            val = elem.style[ measure ] || 0;
-        }
-        // Normalize "", auto, and prepare for extra
-        val = parseFloat( val ) || 0;
-        
-        if ( isOuter ) {
-            // Add padding, border, margin
-            val += paddingA + paddingB + marginA + marginB + borderA + borderB;
-        }
-    }
-
-    return val;
+function resetBannerStyle()
+{
+	appBanner = document.getElementById("tt_mobile_banner");
+	Scale = window.innerWidth / document.body.clientWidth ;
+	if(Scale > 1)
+	{
+		Scale = 1;
+	} 
+	
+	setFontSize(Scale);
+	newBannerHeight = bannerHeight * Scale; 
+	bannerDiv = document.getElementById("banner_div_empty");
+	bannerLogo = document.getElementById("mobile_banner_logo_img");
+	bannerLogo.style.height = tapatalk_logo_height * Scale + 'px';
+	if(bannerDiv == undefined)
+	{
+		bannerDiv = document.createElement("div");  
+		bannerDiv.style.margin = 0;
+	    bannerDiv.style.padding = 0;
+	    bannerDiv.id = "banner_div_empty";
+	    document.body.insertBefore(bannerDiv, bodyItem.firstChild)	
+	}
+	
+    bannerDiv.style.height = newBannerHeight + "px";
 }

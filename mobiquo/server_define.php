@@ -627,6 +627,11 @@ $server_param = array(
     	'function' => 'get_contact_func',
         'signature' => array(array($xmlrpcStruct,$xmlrpcString)),
     ),
+    
+    'activate_account'   => array(
+    	'function' => 'activate_account_func',
+        'signature' => array(array($xmlrpcStruct,$xmlrpcBase64,$xmlrpcString,$xmlrpcString)),
+    ),
     //**********************************************
     // Puch related functions
     //**********************************************

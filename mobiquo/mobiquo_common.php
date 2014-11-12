@@ -884,7 +884,7 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
 		define('TT_ROOT',MYBB_ROOT.$mybb->settings['tapatalk_directory'] . '/');
 	}	
 			
-	include_once TT_ROOT."lib/classConnection.php";
+	require_once TT_ROOT."lib/classConnection.php";
 	$connection = new classFileManagement();
 	$connection->timeout = $holdTime;
     $response = $connection->getContentFromSever($url,$data,$method, $retry);
@@ -898,31 +898,12 @@ function getContentFromRemoteServer($url, $holdTime = 0, &$error_msg, $method = 
 function tt_register_verify($tt_token,$tt_code)
 {
 	global $mybb;
-	if(empty($mybb->settings['tapatalk_push_key']))
-	{
-		$mybb->settings['tapatalk_push_key'] = '';
-	}
-	
-	$url = "http://directory.tapatalk.com/au_reg_verify.php";
-    $data = array(
-        'token' => $tt_token,
-        'code' => $tt_code,
-        'key' => $mybb->settings['tapatalk_push_key'],
-        'url' => $mybb->settings['bburl']
-    );
-    $error_msg = '';
-    $response = getContentFromRemoteServer($url, 10, $error_msg, 'POST', $data);
-    
-	if(!empty($error_msg))
-	{
-		$response = '{"result":false,"result_text":"'.$error_msg.'"}';
-	}
-	if(empty($response))
-	{
-		$response = '{"result":false,"result_text":"Connection Timeout!"}';
-	}
-	include_once TT_ROOT."lib/classTTJson.php";
-	$result = TTJson::decode($response);
+	require_once TT_ROOT."lib/classTTJson.php";
+	require_once TT_ROOT."lib/classConnection.php";
+    $connection = new classFileManagement();
+	$result = $connection->signinVerify($tt_token,$tt_code,$mybb->settings['bburl'],$mybb->settings['tapatalk_push_key']);
+	$result = json_encode($result);
+	$result = json_decode($result);
 	return $result;
 }
 

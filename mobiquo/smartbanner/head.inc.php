@@ -118,9 +118,19 @@ if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
     file_exists(dirname(__FILE__) . '/app.php') &&
     file_exists(dirname(__FILE__) . '/appbanner.css'))
 {
+	if(!$is_byo)
+	{
+		$app_banner_css_link = $tapatalk_dir_url.'/smartbanner/appbanner.css';
+		$app_banner_js_link = $tapatalk_dir_url.'/smartbanner/appbanner.js';
+	}
+	else 
+	{
+		$app_banner_css_link = 'https://s3.amazonaws.com/welcome-screen/appbanner.min.css';
+		$app_banner_js_link = 'https://s3.amazonaws.com/welcome-screen/appbanner.min.js';
+	}
     $app_banner_head = '
         <!-- Tapatalk Banner&Welcome head start -->
-        <link href="'.$tapatalk_dir_url.'/smartbanner/appbanner.css" rel="stylesheet" type="text/css" media="screen" />
+        <link href="' . $app_banner_css_link . '" rel="stylesheet" type="text/css" media="screen" />
         <script type="text/javascript">
             var is_byo             = '.$is_byo.';
             var is_mobile_skin     = '.$is_mobile_skin.';
@@ -140,7 +150,7 @@ if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
             var app_welcome_enable = '.(!isset($app_ads_enable) || $app_ads_enable ? 1 : 0).';
             var app_banner_enable  = '.(!isset($app_banner_enable) || $app_banner_enable ? 1 : 0).';
         </script>
-        <script src="'.$tapatalk_dir_url.'/smartbanner/appbanner.js" type="text/javascript"></script>
+        <script src="' . $app_banner_js_link . '" type="text/javascript"></script>
         <!-- Tapatalk Banner head end-->
     ';
 }

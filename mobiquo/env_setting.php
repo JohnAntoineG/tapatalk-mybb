@@ -276,6 +276,7 @@ switch ($request_method)
     
     case 'get_config':
     case 'login':
+    case 'activate_account':
         define('THIS_SCRIPT', 'member.php');
         $_GET['action'] = 'login';
         break;
@@ -332,10 +333,14 @@ switch ($request_method)
     	$_POST['email'] = $request_params[2];
     	$_POST['username'] = $request_params[3];
     	$_POST['password'] = $request_params[4];
+    	define('THIS_SCRIPT', 'member.php');
     	define("ALLOWABLE_PAGE", "register,do_register,login,do_login");
     	$_GET['action'] = "do_register";
     	break;
     case 'prefetch_account':
+    	$_GET['action'] = "login";
+	define('THIS_SCRIPT', 'member.php');
+	define("ALLOWABLE_PAGE","login");
     	$_POST['email'] = $request_params[0];
     	break;
     case 'search_user':
@@ -355,14 +360,16 @@ switch ($request_method)
     	$_POST['mode'] = isset($request_params[1]) ? $request_params[1] : '1';
     	break;
     case 'get_contact':
-    	$_GET['action'] = "contact";
-		define("ALLOWABLE_PAGE","contact");
+    	$_GET['action'] = "login";
+    	define('THIS_SCRIPT', 'member.php');
+		define("ALLOWABLE_PAGE","login");
 		break;
 }
 if(isset($_POST['session']) && isset($_POST['api_key']) && isset($_POST['subject']) && isset($_POST['body']) || isset($_POST['email_target']))
 {
-	$_GET['action'] = "invitation";
-	define("ALLOWABLE_PAGE","invitation");
+	$_GET['action'] = "login";
+    define('THIS_SCRIPT', 'member.php');
+	define("ALLOWABLE_PAGE","login");
 }
 error_reporting(MOBIQUO_DEBUG);
 restore_error_handler();

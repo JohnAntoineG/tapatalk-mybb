@@ -148,7 +148,7 @@ function tapatalk_install()
  
         'datakeep' => array(
             'title'         => 'Uninstall Behaviour',
-            'description'   => "Ability to retain 'tapatalk_' tables in DB. Useful if you're re-installing Tapatalk Plugin.",
+            'description'   => "Ability to retain 'tapatalk_' tables and Tapatalk settings in DB. Useful if you're re-installing Tapatalk Plugin.",
             'optionscode'   => "radio\nkeep=Keep Data\ndelete=Delete all data and tables",
             'value'         => 'keep'
         ),
@@ -156,7 +156,7 @@ function tapatalk_install()
             'title'         => 'Tapatalk API Key',
             'description'   => 'Formerly known as Push Key. This key is now required for secure connection between your community and Tapatalk server. Features such as Push Notification and Single Sign-On requires this key to work. ',
             'optionscode'   => 'text',
-            'value'         => isset($_SESSION['tapatalk_push_key']) ? $_SESSION['tapatalk_push_key'] : ''
+            'value'         => ''
         ),
         'push_type' => array(
             'title'         => 'Push Notifications',
@@ -247,12 +247,10 @@ function tapatalk_install()
 	$settings_register = array(
     	'register_status' => array(
             'title'         => 'Registration Options',
-            'description'   => "Native Registration and Social Sign On (Recommended) - Facebook users can register for your forum using their Facebook credentials, and those not connected to Facebook can register for your forum via an in-app form.<br/>
-Native Registration Only - No SSO available for Facebook users. All users must register for the forum via an in-app form.<br/>
+            'description'   => "In App Registration - Allows Tapatalk users to register your forum easily with in-app registration, Tapatalk supports all custom and required fields such as birthday control and any extra fields you requires new members to enter.<br/>
 Redirect to External Registration URL - All users registering for your forum will be redirected to a web browser outside of the app to continue registration.",
             'optionscode'   => 'select
-            2=Native Registration and Social Sign On (Recommended)
-            1=Native Registration Only 
+            2=In-App Registration (Recommended)
             0=Redirect to External Registration URL',
             'value'         => 2
         ),
@@ -283,12 +281,21 @@ Redirect to External Registration URL - All users registering for your forum wil
     foreach($settings as $name => $setting)
     {
         $s_index++;
+        if(!empty($_SESSION['tapatalk_'.$name]))
+        {
+        	$value = $_SESSION['tapatalk_'.$name];
+        	unset($_SESSION['tapatalk_'.$name]);
+        }
+        else 
+        {
+        	$value = $setting['value'];
+        }
         $insert_settings = array(
             'name'        => $db->escape_string('tapatalk_'.$name),
             'title'       => $db->escape_string($setting['title']),
             'description' => $db->escape_string($setting['description']),
             'optionscode' => $db->escape_string($setting['optionscode']),
-            'value'       => $db->escape_string($setting['value']),
+            'value'       => $db->escape_string($value),
             'disporder'   => $s_index,
             'gid'         => $gid,
             'isdefault'   => 0
@@ -300,12 +307,21 @@ Redirect to External Registration URL - All users registering for your forum wil
     foreach($settings_byo as $name => $setting)
     {
         $s_index++;
+        if(!empty($_SESSION['tapatalk_'.$name]))
+        {
+        	$value = $_SESSION['tapatalk_'.$name];
+        	unset($_SESSION['tapatalk_'.$name]);
+        }
+        else 
+        {
+        	$value = $setting['value'];
+        }
         $insert_settings = array(
             'name'        => $db->escape_string('tapatalk_'.$name),
             'title'       => $db->escape_string($setting['title']),
             'description' => $db->escape_string($setting['description']),
             'optionscode' => $db->escape_string($setting['optionscode']),
-            'value'       => $db->escape_string($setting['value']),
+            'value'       => $db->escape_string($value),
             'disporder'   => $s_index,
             'gid'         => $gid_byo,
             'isdefault'   => 0
@@ -316,12 +332,21 @@ Redirect to External Registration URL - All users registering for your forum wil
     foreach($settings_register as $name => $setting)
     {
         $s_index++;
+        if(!empty($_SESSION['tapatalk_'.$name]))
+        {
+        	$value = $_SESSION['tapatalk_'.$name];
+        	unset($_SESSION['tapatalk_'.$name]);
+        }
+        else 
+        {
+        	$value = $setting['value'];
+        }
         $insert_settings = array(
             'name'        => $db->escape_string('tapatalk_'.$name),
             'title'       => $db->escape_string($setting['title']),
             'description' => $db->escape_string($setting['description']),
             'optionscode' => $db->escape_string($setting['optionscode']),
-            'value'       => $db->escape_string($setting['value']),
+            'value'       => $db->escape_string($value),
             'disporder'   => $s_index,
             'gid'         => $gid_register,
             'isdefault'   => 0
@@ -356,11 +381,16 @@ function tapatalk_uninstall()
     {
         $db->drop_table('tapatalk_users');
     }
-    if(isset($mybb->settings['tapatalk_push_key']))
+    if($mybb->settings['tapatalk_datakeep'] == 'keep')
     {
-		$_SESSION['tapatalk_push_key'] = $mybb->settings['tapatalk_push_key'];
+	    foreach ($mybb->settings as $key => $value)
+	    {
+	    	if(preg_match('/^(tapatalk)/', $key))
+	    	{
+	    		$_SESSION[$key] = $value;
+	    	}
+	    }
     }
-	
     // Remove settings
     $result = $db->simple_select('settinggroups', 'gid', "name = 'tapatalk'", array('limit' => 1));
     $group = $db->fetch_array($result);
@@ -451,7 +481,6 @@ function tapatalk_error($error)
                 'result_text'   => new xmlrpcval(trim(strip_tags($error)), 'base64'),
             ), 'struct'));
         }
-
         echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".$response->serialize('UTF-8');
         exit;
     }
@@ -810,7 +839,7 @@ function tapatalk_push_reply()
             'title'     => tt_push_clean($thread['subject']),
             'author'    => tt_push_clean($mybb->user['username']),
         	'authorid'  => $mybb->user['uid'],
-        	'fid'       => $thread['fid'],
+        	'subfid'       => $thread['fid'],
             'dateline'  => TIME_NOW,
         );
     	if(!empty($mybb->settings['tapatalk_push_type']))
@@ -823,25 +852,13 @@ function tapatalk_push_reply()
         {
             $ttp_push_data[] = $ttp_data[count($ttp_data)-1];
         }
-    }
-    
-    if(!empty($ttp_push_data))
-    {
-        $ttp_post_data = array(
-            'url'  => $mybb->settings['bburl'],
-            'data' => base64_encode(serialize($ttp_push_data)),
-        );
-
-        $return_status = tt_do_post_request($ttp_post_data);
-        return true;
-    }
-    return false;
+    }    
+    return tt_do_post_request($ttp_push_data);
 }
 
 function tapatalk_push_quote()
 {
     global $mybb, $db, $tid, $pid, $visible, $thread ,$post,$thread_info,$new_thread;
-    
     if(!empty($new_thread))
     {
         $pid = $thread_info['pid'];
@@ -856,6 +873,7 @@ function tapatalk_push_quote()
     
     if(!empty($post['message']))
     {
+    	$ttp_push_data = array();
         $matches = array();
         preg_match_all('/\[quote=\'(.*?)\' pid=\'(.*?)\' dateline=\'(.*?)\'\]/', $post['message'] , $matches);
         $matches = array_unique($matches[1]);
@@ -877,7 +895,7 @@ function tapatalk_push_quote()
                 'author'    => tt_push_clean($mybb->user['username']),
                 'dateline'  => TIME_NOW,
                 'authorid'  => $mybb->user['uid'],
-        		'fid'       => $thread['fid'],
+        		'subfid'       => $thread['fid'],
             );
 	        if(!empty($mybb->settings['tapatalk_push_type']))
 	    	{
@@ -891,16 +909,7 @@ function tapatalk_push_quote()
             }
         }
         
-        if(!empty($ttp_push_data))
-        {
-            $ttp_post_data = array(
-                'url'  => $mybb->settings['bburl'],
-                'data' => base64_encode(serialize($ttp_push_data)),
-            );
-
-            $return_status = tt_do_post_request($ttp_post_data);
-            return true;
-        }
+        return tt_do_post_request($ttp_push_data);
     }
     return false;
 }
@@ -918,6 +927,7 @@ function tapatalk_push_tag()
     {
         return false;
     }
+    $ttp_push_data = array();
     if(!empty($post['message']))
     {
         $matches = tt_get_tag_list($post['message']);
@@ -939,7 +949,7 @@ function tapatalk_push_tag()
                 'author'    => tt_push_clean($mybb->user['username']),
                 'dateline'  => TIME_NOW,
             	'authorid'  => $mybb->user['uid'],
-        		'fid'       => $thread['fid'],
+        		'subfid'       => $thread['fid'],
             );
         	if(!empty($mybb->settings['tapatalk_push_type']))
 	    	{
@@ -952,17 +962,7 @@ function tapatalk_push_tag()
                 $ttp_push_data[] = $ttp_data[count($ttp_data)-1];
             }
         }
-        if(!empty($ttp_push_data))
-        {
-            $ttp_post_data = array(
-                'url'  => $mybb->settings['bburl'],
-                'data' => base64_encode(serialize($ttp_push_data)),
-            );
-			
-            $return_status = tt_do_post_request($ttp_post_data);
-            return true;
-        }
-
+        return tt_do_post_request($ttp_push_data);
     }
     return false;
 }
@@ -996,7 +996,7 @@ function tapatalk_push_newtopic()
             'author'    => tt_push_clean($mybb->user['username']),
             'dateline'  => TIME_NOW,
         	'authorid'  => $mybb->user['uid'],
-        	'fid'       => $fid,
+        	'subfid'       => $fid,
         );
     	if(!empty($mybb->settings['tapatalk_push_type']))
 	    {
@@ -1009,17 +1009,7 @@ function tapatalk_push_newtopic()
         	$ttp_push_data[] = $ttp_data[count($ttp_data)-1];
         }
     }
-    if(!empty($ttp_push_data))
-    {
-    	$ttp_post_data = array(
-            'url'  => $mybb->settings['bburl'],
-            'data' => base64_encode(serialize($ttp_push_data)),
-        );
-        
-        $return_status = tt_do_post_request($ttp_post_data);
-        return true;
-    }
-    return false;
+    return tt_do_post_request($ttp_push_data);
 }
 
 
@@ -1079,15 +1069,7 @@ function tapatalk_push_pm()
         }
     }
     
-    if(!empty($ttp_push_data))
-    {
-        $ttp_post_data = array(
-            'url'  => $mybb->settings['bburl'],
-            'data' => base64_encode(serialize($ttp_push_data)),
-        );
-        
-        $return_status = tt_do_post_request($ttp_post_data);
-    }
+    return tt_do_post_request($ttp_push_data);
 }
 
 
@@ -1095,70 +1077,28 @@ function tt_do_post_request($data,$is_test=false)
 {
     global $mybb;
     
-    if(empty($data['data']) && !isset($data['ip']) && !isset($data['test']))
+    if(empty($data))
     {
         return false;
     }
-    
-    if(!empty($mybb->settings['tapatalk_push_key']))
-    {
-        $data['key'] = $mybb->settings['tapatalk_push_key'];
-    }
-    
-    $push_url = 'http://push.tapatalk.com/push.php';
-    
     //Get push_slug from db
     $push_slug = !empty($mybb->settings['tapatalk_push_slug'])? $mybb->settings['tapatalk_push_slug'] : 0;
-    $slug = base64_decode($push_slug);
-    $slug = push_slug($slug, 'CHECK');
-    $check_res = unserialize($slug);
-
-    //If it is valide(result = true) and it is not sticked, we try to send push
-    if($check_res['result'] && !$check_res['stick'])
-    {
-        //Slug is initialed or just be cleared
-        if($check_res['save'])
-        {
-            tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => base64_encode($slug)));
-        }
-		if(!function_exists("getContentFromRemoteServer"))
-		{
-			define('IN_MOBIQUO', true);
-			require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/mobiquo_common.php';
-		}
-		if(isset($data['ip']) || isset($data['test']))
-		{
-			$hold_time = 10;
-		}
-		else 
-		{
-			$hold_time = 0;
-		}
-        //Send push
-		$error_msg = '';
-        $push_resp = getContentFromRemoteServer($push_url, $hold_time, $error_msg, 'POST', $data, false);
-        if((trim($push_resp) === 'Invalid push notification key') && !$is_test)
-        {
-        	$push_resp = 1;
-        }
-        if(!is_numeric($push_resp) && !$is_test)
-        {
-            //Sending push failed, try to update push_slug to db
-            $slug = push_slug($slug, 'UPDATE');
-            $update_res = unserialize($slug);
-            if($update_res['result'] && $update_res['save'])
-            {
-                tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => base64_encode($slug)));
-            }
-        }
-        
-        return $push_resp;
+    if(!defined("TT_ROOT"))
+	{
+		if(!defined('IN_MOBIQUO')) define('IN_MOBIQUO', true);
+		if(empty($mybb->settings['tapatalk_directory'])) $mybb->settings['tapatalk_directory'] = 'mobiquo';
+		define('TT_ROOT',MYBB_ROOT.$mybb->settings['tapatalk_directory'] . '/');
+	}	
+			
+	require_once TT_ROOT."lib/classConnection.php";
+	$connection = new classFileManagement();
+    $push_resp = $connection->push($data,$push_slug,$mybb->settings['bburl'],$mybb->settings['tapatalk_push_key'].'afaiea',$is_test);
+    if(is_array($push_resp))
+    {        
+        if(isset($push_resp['slug'])) tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => $push_resp['slug']));
+        return $push_resp['result'];
     }
-    else 
-    {
-    	return 'stick ' . $check_res['stick'] . ' | result ' . $check_res['result'];
-    }
-    
+    return false;
 }
 
 function push_slug($push_v, $method = 'NEW')
@@ -1222,6 +1162,7 @@ function push_slug($push_v, $method = 'NEW')
 
     return serialize($push_v_data);
 }
+
 function tt_insert_push_data($data)
 {
 	global $mybb,$db;
@@ -1385,27 +1326,17 @@ function tt_is_spam()
 	}
 	$email = $mybb->input['email'];
 	$ip = $session->ipaddress;
-	$params = '';
     if($email || $ip)
-    {
-        $email = @urlencode($email);    
-        if($email)
-        {        
-            $params = "&email=$email";
-        }
-    	if($ip)
-        {
-        	$params .= "&ip=$ip";
-        }
-        if(!function_exists("getContentFromRemoteServer"))
-        {
-        	define('IN_MOBIQUO', true);
-			require_once MYBB_ROOT.$mybb->settings['tapatalk_directory'].'/mobiquo_common.php';
-        }
-    	$resp = @getContentFromRemoteServer("http://www.stopforumspam.com/api?f=serial".$params, 3);
-        $resp = @unserialize($resp);
-        if((isset($resp['email']['confidence']) && $resp['email']['confidence'] > 50) ||
-           (isset($resp['ip']['confidence']) && $resp['ip']['confidence'] > 60))
+    {    
+        if(!defined("TT_ROOT"))
+		{
+			if(!defined('IN_MOBIQUO')) define('IN_MOBIQUO', true);
+			if(empty($mybb->settings['tapatalk_directory'])) $mybb->settings['tapatalk_directory'] = 'mobiquo';
+			define('TT_ROOT',MYBB_ROOT.$mybb->settings['tapatalk_directory'] . '/');
+		}				
+		require_once TT_ROOT."lib/classConnection.php";
+		$connection = new classFileManagement();     
+        if($connection->checkSpam($email,$ip))
         {
             error('Your email or IP address matches that of a known spammer and therefore you cannot register here. If you feel this is an error, please contact the administrator or try again later.');
         }
