@@ -19,7 +19,7 @@ function sign_in_func()
 	{
 		$result = tt_register_verify($token, $code);
 	
-		if($result->result && !empty($result->email))
+		if(!empty($result->email))
 		{
 			$email = $result->email;
 		    if(!empty($post_email) && $post_email != $email)
@@ -50,19 +50,27 @@ function sign_in_func()
 				require_once MYBB_ROOT."inc/datahandlers/user.php";
 				$userhandler = new UserDataHandler("insert");
 				
-				$birthday_arr = explode('-', $profile->birthday);
-				$bday = array(
-					"day" => $birthday_arr[2],
-					"month" => $birthday_arr[1],
-					"year" => $birthday_arr[0],
+			    $bday = array(
+					"day" => '01',
+					"month" => '01',
+					"year" => 1970,
 				);
+				$birthday_arr = explode('-', $profile->birthday);
+				if(count($birthday_arr) == 3)
+				{
+					$bday = array(
+						"day" => $birthday_arr[2],
+						"month" => $birthday_arr[1],
+						"year" => $birthday_arr[0],
+					);
+				}
 				$user_field = array(
 					'fid3' => ucfirst($profile->gender),
 					'fid1' => $profile->location,
 					'fid2' => $profile->description,
 				);
 				
-				if( $mybb->settings['regtype'] == "admin" )
+				if( $mybb->settings['regtype'] == "admin" || !empty( $result->inactive))
 				{
 					$usergroup = 5;
 				}
@@ -97,7 +105,7 @@ function sign_in_func()
 				{
 					$updated_avatar = tt_update_avatar_url($profile->avatar_url);
 				}
-
+				
 				$userhandler->set_data($user);
 				$userhandler->verify_birthday();
 				$userhandler->verify_options();

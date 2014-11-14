@@ -35,7 +35,7 @@ $board_url = isset($board_url) ? preg_replace('#/$#', '', trim($board_url)) : ''
 $app_ios_id = isset($app_ios_id) && intval($app_ios_id) ? intval($app_ios_id) : '';
 $app_android_id = isset($app_android_id) && $app_android_id ? preg_replace('/^.*?details\?id=([^\s,&]+).*?$/si', '$1', $app_android_id) : '';
 $app_kindle_url = isset($app_kindle_url) ? $app_kindle_url : '';
-$app_banner_message = isset($app_banner_message) && $app_banner_message ? preg_replace('/\r\n|\n|\r/si', '<br />', $app_banner_message) : '';
+$app_banner_message = isset($app_banner_message) && $app_banner_message && ($app_ios_id || $app_android_id) ? preg_replace('/\r\n|\n|\r/si', '<br />', $app_banner_message) : '';
 $is_mobile_skin = isset($is_mobile_skin) && $is_mobile_skin ? 1 : 0;
 
 // valid page_type: index, forum, topic, post, pm, search, profile, online, other

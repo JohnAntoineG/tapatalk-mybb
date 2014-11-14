@@ -281,7 +281,7 @@ Redirect to External Registration URL - All users registering for your forum wil
     foreach($settings as $name => $setting)
     {
         $s_index++;
-        if(!empty($_SESSION['tapatalk_'.$name]))
+        if(!empty($_SESSION['tapatalk_'.$name]) && $name != 'push_slug')
         {
         	$value = $_SESSION['tapatalk_'.$name];
         	unset($_SESSION['tapatalk_'.$name]);
@@ -1092,7 +1092,7 @@ function tt_do_post_request($data,$is_test=false)
 			
 	require_once TT_ROOT."lib/classConnection.php";
 	$connection = new classFileManagement();
-    $push_resp = $connection->push($data,$push_slug,$mybb->settings['bburl'],$mybb->settings['tapatalk_push_key'].'afaiea',$is_test);
+    $push_resp = $connection->push($data,$push_slug,$mybb->settings['bburl'],$mybb->settings['tapatalk_push_key'],$is_test);
     if(is_array($push_resp))
     {        
         if(isset($push_resp['slug'])) tt_update_settings(array('name' => 'tapatalk_push_slug', 'value' => $push_resp['slug']));

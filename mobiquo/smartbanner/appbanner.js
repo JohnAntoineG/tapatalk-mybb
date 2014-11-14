@@ -258,17 +258,17 @@ function tapatalkDetect(afterLoad)
     	class_ext = ''
     }
     appBanner.className = "mobile_banner" + class_ext;
-    tapatalk_logo_height = 8.125 * 8 * bannerScale;
+    tapatalk_logo_height = 8 * 8 * bannerScale;
     appBanner.innerHTML = 
                     '<table class="mobile_banner_inner"  align="center" cellpadding="0" cellspacing="0" border="0"  id="mobile_banner_inner" ><tr>'+   
                      '<td style="width:2.5em"><div onclick="closeBanner()" class="mobile_banner_close" id="mobile_banner_close" style="text-align:right">×</div></td>' + 
                      '<td style="width:1.0em"></td>' + 
-                     '<td >' + 
+                     '<td style="min-width:8.0em">' + 
                      	'<div id="mobile_banner_logo" style="text-align:left"><img style="height:'+ tapatalk_logo_height + 'px" id="mobile_banner_logo_img" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/tapatalk-banner-logo.png' + '"></div>' + 
                      '</td>' +
                      '<td style="width:1.0em"></td>' + 
-                     '<td >' + 
-                     	'<table cellpadding="0" cellspacing="0" border="0">' + 
+                     '<td style="min-width:22em;">' + 
+                     	'<table style="min-width:22em;" cellpadding="0" cellspacing="0" border="0">' + 
                      		'<tr>'+
                      			'<td>' + 
                      				'<div class="mobile_banner_heading'+class_ext+'">'+app_banner_message+'</div>'+
@@ -287,7 +287,7 @@ function tapatalkDetect(afterLoad)
 	                 	 '</table>' + 
                      '</td>' +
                      '<td style="width:2.0em"></td>' +
-                     '<td>' +
+                     '<td style="width:8.0em">' +
                             '<a class="mobile_banner_button mobile_banner_open'+class_ext+'"  href="javascript:openOrInstall()" id="mobile_banner_open">'+'VIEW'+'</a>'+                                                    
                      '</td>' +
                      '<td style="width:1.5em"></td>' +
@@ -349,12 +349,11 @@ function getBannerScale()
     // mobile portrait mode may need bigger scale
     if (window.innerWidth < window.innerHeight)
     {
-        if (bannerScale < 2 && !is_mobile_skin && document.body.clientWidth > 600) {
+        if (bannerScale < 2.0 && !is_mobile_skin && document.body.clientWidth > 600) {
             bannerScale = 1.5
-        } 
-        else
-        {
-        	bannerScale = 2.5
+        }
+        else if(bannerScale < 2.5) {
+        	bannerScale = 2.0
         }
     }
     else
