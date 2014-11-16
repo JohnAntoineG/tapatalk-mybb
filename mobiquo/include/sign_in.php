@@ -70,7 +70,7 @@ function sign_in_func()
 					'fid2' => $profile->description,
 				);
 				
-				if( $mybb->settings['regtype'] == "admin" || !empty( $result->inactive))
+				if( $mybb->settings['regtype'] == "admin" || ($mybb->settings['regtype'] == "both") || (!empty( $result->inactive) && $mybb->settings['regtype'] != 'instant'))
 				{
 					$usergroup = 5;
 				}

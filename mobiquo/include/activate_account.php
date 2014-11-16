@@ -84,13 +84,13 @@ function activate_account_func($xmlrpc_params)
 	
 	if(!empty($status)) 
 	{
-	    $result['status'] = $status;
-	    $result['result'] = false;
+	    $result['status'] = new xmlrpcval($status);
+	    $result['result'] = new xmlrpcval(false, 'boolean');
 	}
 	if(!empty($result_text))
 	{
-		$result['result_text'] = $result_text;
-		$result['result'] = false;
+		$result['result_text'] = new xmlrpcval($result_text, 'base64');
+		$result['result'] = new xmlrpcval(false, 'boolean');
 	}
 	return new xmlrpcresp(new xmlrpcval($result, 'struct'));
 	

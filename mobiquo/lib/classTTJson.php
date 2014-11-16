@@ -1,5 +1,5 @@
 <?php
-
+defined('IN_MOBIQUO') or exit;
 class TTJson
 {
     public static function encode($value)
