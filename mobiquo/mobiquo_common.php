@@ -846,7 +846,7 @@ function check_return_user_type($username)
 	}
 	else if($user_groups['gid'] == 5)
 	{
-		if($mybb->settings['regtype'] == "admin")
+		if($mybb->settings['regtype'] == "admin" || $mybb->settings['regtype'] == "both")
 		{
 			$user_type = 'unapproved';
 		}

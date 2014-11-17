@@ -9,7 +9,7 @@ function prefetch_account_func()
 	if(empty($user['uid']))
 	{
 		$result = array (
-			'result'            => new xmlrpcval(true, 'boolean'),
+			'result'            => new xmlrpcval(false, 'boolean'),
 		    'result_text'       => new xmlrpcval($lang->error_nomember, 'base64'),
 		);
 	}

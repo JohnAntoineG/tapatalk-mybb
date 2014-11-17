@@ -44,7 +44,7 @@ function activate_account_func($xmlrpc_params)
 		{
 			$status = 1;
 		}
-		else if($mybb->settings['regtype'] == "admin")
+		else if($mybb->settings['regtype'] == "admin" || $mybb->settings['regtype'] == "both")
 		{
 			$status = 5;
 			$result_text = $lang->error_activated_by_admin;
@@ -57,7 +57,7 @@ function activate_account_func($xmlrpc_params)
 		else 
 		{
 			$uid = $user['uid'];
-			$query = $db->simple_select("awaitingactivation", "*", "uid='".$user['uid']."' AND type='r')");
+			$query = $db->simple_select("awaitingactivation", "*", "uid='".$user['uid']."' AND type='r'");
 			$activation = $db->fetch_array($query);
 			if(!$activation['uid'])
 			{

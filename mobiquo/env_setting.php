@@ -301,6 +301,9 @@ switch ($request_method)
             $_POST['tt_token'] = $request_params[3];
     	    $_POST['tt_code'] = $request_params[4];
     	}
+    	define('THIS_SCRIPT', 'member.php');
+    	define("ALLOWABLE_PAGE", "register,do_register,login,do_login");
+    	$_GET['action'] = "do_register";
     	break;
     case 'forget_password':
     	$_POST['action'] = 'do_lostpw';
