@@ -76,7 +76,7 @@ function sign_in_func()
 				}
 				else 
 				{
-					$usergroup = isset($mybb->settings['tapatalk_register_group']) ? $mybb->settings['tapatalk_register_group'] : 2;
+					$usergroup = 2;
 				}
 				// Set the data for the new user.
 				$user = array(
@@ -85,7 +85,7 @@ function sign_in_func()
 					"password2" => $mybb->input['password'],
 					"email" => $email,
 					"email2" => $email,
-					"usergroup" => $usergroup,
+					"usergroup" => $usergroup, 
 					"referrer" => '',
 					"timezone" => $mybb->settings['timezoneoffset'],
 					"language" => '',
@@ -100,7 +100,10 @@ function sign_in_func()
 					"regdate" => TIME_NOW,
 					"lastvisit" => TIME_NOW
 				);						
-				
+				if(!empty($mybb->settings['tapatalk_register_group']))
+				{
+					$user['additionalgroups'] = $mybb->settings['tapatalk_register_group'];
+				}
 				if(!empty($profile->avatar_url))
 				{
 					$updated_avatar = tt_update_avatar_url($profile->avatar_url);
