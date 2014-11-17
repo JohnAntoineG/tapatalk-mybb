@@ -57,22 +57,13 @@ function activate_account_func($xmlrpc_params)
 		else 
 		{
 			$uid = $user['uid'];
-			$query = $db->simple_select("awaitingactivation", "*", "uid='".$user['uid']."' AND type='r'");
-			$activation = $db->fetch_array($query);
-			if(!$activation['uid'])
+			
+			$db->delete_query("awaitingactivation", "uid='".$user['uid']."' AND (type='r' OR type='e')");
+	
+			if($user['usergroup'] == 5)
 			{
-				$status = 5;
-				$result_text = $lang->error_alreadyactivated;
-			}
-			else 
-			{	
-				$db->delete_query("awaitingactivation", "uid='".$user['uid']."' AND (type='r' OR type='e')");
-		
-				if($user['usergroup'] == 5 && $activation['type'] != "e" && $activation['type'] != "b")
-				{
-					$db->update_query("users", array("usergroup" => 2), "uid='".$user['uid']."'");		
-					$cache->update_awaitingactivation();
-				}
+				$db->update_query("users", array("usergroup" => 2), "uid='".$user['uid']."'");		
+				$cache->update_awaitingactivation();
 			}
 			
 		}
