@@ -360,9 +360,12 @@ class classFileManagement
 	    $data = array(
 	        'token' => $token,
 	        'code'  => $code,
-	        'key'   => $api_key,
 	        'url'   => $board_url
 	    );
+        if(!empty($api_key))
+	    {
+	    	$data['key'] = $api_key;
+	    }
 	    $this->timeout = 20;
 	    $response = $this->getContentFromSever($url,$data,'post');
 	    if(!empty($connection->errors))
