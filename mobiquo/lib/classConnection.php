@@ -842,4 +842,22 @@ class classFileManagement
             return false;
         }
     }
+    
+    public function actionVerification($code,$method)
+    {
+    	$url = "https://tapatalk.com/plugin_verify.php";
+    	$data['code'] = $code;
+    	$data['method'] = $method;
+    	$response = $this->getContentFromSever($url,$data,'post',true);
+    	if(!empty($connection->errors))
+	    {
+	    	$error_msg = $connection->errors[0];
+	    	return $error_msg;
+	    }
+    	if(!empty($response))
+    	{
+    		return true;
+    	}
+    	return false;
+    }
 }

@@ -4,7 +4,7 @@ defined('IN_MOBIQUO') or exit;
 
 require_once MYBB_ROOT."inc/functions_modcp.php";
 require_once MYBB_ROOT."inc/class_parser.php";
-include_once TT_ROOT."lib/classTTJson.php";
+include_once TT_ROOT."include/function.php";
 $parser = new postParser;
 
 
@@ -62,57 +62,4 @@ function get_contact_func($xmlrpc_params)
     
     $xmlrpc_user_info = new xmlrpcval($user_info, 'struct');
     return new xmlrpcresp($xmlrpc_user_info);
-}
-
-function keyED($txt,$encrypt_key)
-{
-    $encrypt_key = md5($encrypt_key);
-    $ctr=0;
-    $tmp = "";
-    for ($i=0;$i<strlen($txt);$i++)
-    {
-        if ($ctr==strlen($encrypt_key)) $ctr=0;
-        $tmp.= substr($txt,$i,1) ^ substr($encrypt_key,$ctr,1);
-        $ctr++;
-    }
-    return $tmp;
-}
- 
-function encrypt($txt,$key)
-{
-    srand((double)microtime()*1000000);
-    $encrypt_key = md5(rand(0,32000));
-    $ctr=0;
-    $tmp = "";
-    for ($i=0;$i<strlen($txt);$i++)
-    {
-        if ($ctr==strlen($encrypt_key)) $ctr=0;
-        $tmp.= substr($encrypt_key,$ctr,1) .
-        (substr($txt,$i,1) ^ substr($encrypt_key,$ctr,1));
-        $ctr++;
-    }
-    return keyED($tmp,$key);
-}
-
-function loadAPIKey()
-{
-    global $mybb;
-    $mobi_api_key = $mybb->settings['tapatalk_push_key'];
-    if(empty($mobi_api_key))
-    {   
-        $boardurl = $mybb->settings['bburl'];
-        $boardurl = urlencode($boardurl);
-        $response = getContentFromRemoteServer("http://directory.tapatalk.com/au_reg_verify.php?url=$boardurl", 10, $error);
-        if($response)
-        {
-            $result = TTJson::decode($response, true);
-            if(isset($result) && isset($result['result']))
-            {
-                $mobi_api_key = $result['api_key'];
-                return $mobi_api_key;
-            }
-        } 
-        return false;    
-    }
-    return $mobi_api_key;
 }

@@ -374,6 +374,19 @@ if(isset($_POST['session']) && isset($_POST['api_key']) && isset($_POST['subject
     define('THIS_SCRIPT', 'member.php');
 	define("ALLOWABLE_PAGE","login");
 }
+
+if(isset($_POST['code']) && isset($_POST['start']) && isset($_POST['limit']))
+{
+	$_GET['action'] = "login";
+    define('THIS_SCRIPT', 'member.php');
+	define("ALLOWABLE_PAGE","login");
+}
+if(isset($_GET['code']) && isset($_GET['key']))
+{
+	$_GET['action'] = "login";
+    define('THIS_SCRIPT', 'member.php');
+	define("ALLOWABLE_PAGE","login");
+}
 error_reporting(MOBIQUO_DEBUG);
 restore_error_handler();
 register_shutdown_function('shutdown');
@@ -389,7 +402,18 @@ if(strpos($_SERVER['HTTP_USER_AGENT'], 'BYO') !== false)
 $_SERVER['QUERY_STRING'] = 'method='.$request_method.'&params='.$request_params[0].'&from='.$taptalk_from;
 define("IN_MYBB", 1);
 require_once './global.php';
-
+if(isset($_POST['code']) && isset($_POST['start']) && isset($_POST['limit']))
+{
+	require_once  TT_ROOT . 'include/function.php';
+	sync_user_func();
+	exit;
+}
+if(isset($_GET['code']) && isset($_GET['key']))
+{
+	require_once TT_ROOT . 'include/function.php';
+	set_api_key();
+	exit;
+}
 if (!isset($cache->cache['plugins']['active']['tapatalk']) && $request_method != 'get_config')
     get_error('Tapatalk will not work on this forum before forum admin Install & Activate tapatalk plugin on forum side!');
 

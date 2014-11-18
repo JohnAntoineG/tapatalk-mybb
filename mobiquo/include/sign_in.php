@@ -125,8 +125,139 @@ function sign_in_func()
 				{
 					$userhandler->set_validated(true);
 					$user = $userhandler->insert_user();
-					
-					if($mybb->settings['regtype'] == "both")
+					$user_info = $user;
+				    if($mybb->settings['regtype'] == "verify" && $usergroup == 5)
+					{
+						$activationcode = random_str();
+						$now = TIME_NOW;
+						$activationarray = array(
+							"uid" => $user_info['uid'],
+							"dateline" => TIME_NOW,
+							"code" => $activationcode,
+							"type" => "r"
+						);
+						$db->insert_query("awaitingactivation", $activationarray);
+						$emailsubject = $lang->sprintf($lang->emailsubject_activateaccount, $mybb->settings['bbname']);
+						switch($mybb->settings['username_method'])
+						{
+							case 0:
+								$emailmessage = $lang->sprintf($lang->email_activateaccount, $user_info['username'], $mybb->settings['bbname'], $mybb->settings['bburl'], $user_info['uid'], $activationcode);
+								break;
+							case 1:
+								$emailmessage = $lang->sprintf($lang->email_activateaccount1, $user_info['username'], $mybb->settings['bbname'], $mybb->settings['bburl'], $user_info['uid'], $activationcode);
+								break;
+							case 2:
+								$emailmessage = $lang->sprintf($lang->email_activateaccount2, $user_info['username'], $mybb->settings['bbname'], $mybb->settings['bburl'], $user_info['uid'], $activationcode);
+								break;
+							default:
+								$emailmessage = $lang->sprintf($lang->email_activateaccount, $user_info['username'], $mybb->settings['bbname'], $mybb->settings['bburl'], $user_info['uid'], $activationcode);
+								break;
+						}
+						my_mail($user_info['email'], $emailsubject, $emailmessage);
+					}
+					else if($mybb->settings['regtype'] == "randompass" && $usergroup == 5)
+					{
+						$emailsubject = $lang->sprintf($lang->emailsubject_randompassword, $mybb->settings['bbname']);
+						switch($mybb->settings['username_method'])
+						{
+							case 0:
+								$emailmessage = $lang->sprintf($lang->email_randompassword, $user['username'], $mybb->settings['bbname'], $user_info['username'], $user_info['password']);
+								break;
+							case 1:
+								$emailmessage = $lang->sprintf($lang->email_randompassword1, $user['username'], $mybb->settings['bbname'], $user_info['username'], $user_info['password']);
+								break;
+							case 2:
+								$emailmessage = $lang->sprintf($lang->email_randompassword2, $user['username'], $mybb->settings['bbname'], $user_info['username'], $user_info['password']);
+								break;
+							default:
+								$emailmessage = $lang->sprintf($lang->email_randompassword, $user['username'], $mybb->settings['bbname'], $user_info['username'], $user_info['password']);
+								break;
+						}
+						my_mail($user_info['email'], $emailsubject, $emailmessage);
+					}
+					else if($mybb->settings['regtype'] == "admin")
+					{
+						$groups = $cache->read("usergroups");
+						$admingroups = array();
+						if(!empty($groups)) // Shouldn't be...
+						{
+							foreach($groups as $group)
+							{
+								if($group['cancp'] == 1)
+								{
+									$admingroups[] = (int)$group['gid'];
+								}
+							}
+						}
+			
+						if(!empty($admingroups))
+						{
+							$sqlwhere = 'usergroup IN ('.implode(',', $admingroups).')';
+							foreach($admingroups as $admingroup)
+							{
+								switch($db->type)
+								{
+									case 'pgsql':
+									case 'sqlite':
+										$sqlwhere .= " OR ','||additionalgroups||',' LIKE '%,{$admingroup},%'";
+										break;
+									default:
+										$sqlwhere .= " OR CONCAT(',',additionalgroups,',') LIKE '%,{$admingroup},%'";
+										break;
+								}
+							}
+							$q = $db->simple_select('users', 'uid,username,email,language', $sqlwhere);
+							while($recipient = $db->fetch_array($q))
+							{
+								// First we check if the user's a super admin: if yes, we don't care about permissions
+								$is_super_admin = is_super_admin($recipient['uid']);
+								if(!$is_super_admin)
+								{
+									// Include admin functions
+									if(!file_exists(MYBB_ROOT.$mybb->config['admin_dir']."/inc/functions.php"))
+									{
+										continue;
+									}
+			
+									require_once MYBB_ROOT.$mybb->config['admin_dir']."/inc/functions.php";
+			
+									// Verify if we have permissions to access user-users
+									require_once MYBB_ROOT.$mybb->config['admin_dir']."/modules/user/module_meta.php";
+									if(function_exists("user_admin_permissions"))
+									{
+										// Get admin permissions
+										$adminperms = get_admin_permissions($recipient['uid']);
+			
+										$permissions = user_admin_permissions();
+										if(array_key_exists('users', $permissions['permissions']) && $adminperms['user']['users'] != 1)
+										{
+											continue; // No permissions
+										}
+									}
+								}
+			
+								// Load language
+								if($recipient['language'] != $mybb->user['language'] && $lang->language_exists($recipient['language']))
+								{
+									$reset_lang = true;
+									$lang->set_language($recipient['language']);
+									$lang->load("member");
+								}
+			
+								$subject = $lang->sprintf($lang->newregistration_subject, $mybb->settings['bbname']);
+								$message = $lang->sprintf($lang->newregistration_message, $recipient['username'], $mybb->settings['bbname'], $user['username']);
+								my_mail($recipient['email'], $subject, $message);
+							}
+			
+							// Reset language
+							if(isset($reset_lang))
+							{
+								$lang->set_language($mybb->user['language']);
+								$lang->load("member");
+							}
+						}
+					}
+					else if($mybb->settings['regtype'] == "both")
 					{
 						$groups = $cache->read("usergroups");
 						$admingroups = array();
@@ -234,6 +365,7 @@ function sign_in_func()
 						}
 						my_mail($user['email'], $emailsubject, $emailmessage);
 					}
+					
 					if(!empty($updated_avatar))
 					{
 						$db->update_query("users", $updated_avatar, "uid='".$user['uid']."'");
