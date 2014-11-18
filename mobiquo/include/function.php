@@ -15,6 +15,7 @@ function set_api_key()
 		$updated_value = array('value' => $db->escape_string($key));
 		$db->update_query("settings", $updated_value, "name='tapatalk_push_key'");
 		rebuild_settings();
+		echo 1;
 	}
 	else if(!empty($response))
 	{
