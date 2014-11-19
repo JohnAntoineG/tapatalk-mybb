@@ -16,7 +16,7 @@ if(!empty($_POST['session']) && !empty($_POST['api_key']) && !empty($_POST['subj
 	$error = '';
     $push_url = "http://tapatalk.com/forum_owner_invite.php?PHPSESSID=$_POST[session]&api_key=$_POST[api_key]&url=".urlencode($furl)."&action=verify";
     $response = getContentFromRemoteServer($push_url, 10, $error, 'GET');
-    if($response) $result = TTJson::decode($response, true);
+    if($response) $result = json_decode($response, true);
     if(empty($result) || empty($result['result']))
         if(preg_match('/\{"result":true/', $response))
             $result = array('result' => true); 
@@ -67,7 +67,7 @@ else if(!empty($_POST['email_target']))
 }
 
 header('Content-type: application/json');
-echo TTJson::encode($invite_response);
+echo json_encode($invite_response);
 exit;
 
 function send_mass_email($subject,$message,$target=false)

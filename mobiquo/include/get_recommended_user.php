@@ -234,7 +234,7 @@ function loadAPIKey()
         $response = getContentFromRemoteServer("http://directory.tapatalk.com/au_reg_verify.php?url=$boardurl", 10, $error);
         if($response)
         {
-            $result = TTJson::decode($response, true);
+            $result = json_decode($response, true);
             if(isset($result) && isset($result['result']))
             {
                 $mobi_api_key = $result['api_key'];
