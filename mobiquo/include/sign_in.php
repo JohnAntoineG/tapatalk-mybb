@@ -18,7 +18,6 @@ function sign_in_func()
 	if(!empty($token) && !empty($code))
 	{
 		$result = tt_register_verify($token, $code);
-	
 		if(!empty($result->email))
 		{
 			$email = $result->email;
@@ -32,10 +31,21 @@ function sign_in_func()
 				{
 					$status = 3;
 				}
-				else 
+				else if(!empty($result->result))
 				{
 					$register = 0;
 					return tt_login_success();
+				}
+				else 
+				{
+					if(!empty($return->result_text))
+					{
+						error($return->result_text);
+					}
+					else 
+					{
+						error("Un conncet to sever!");
+					}
 				}		
 			}
 			else if(!empty($username) && !empty($email))
@@ -371,7 +381,21 @@ function sign_in_func()
 						$db->update_query("users", $updated_avatar, "uid='".$user['uid']."'");
 					}	
 					$register = 1;			
-					return tt_login_success();
+					if(!empty($result->result))
+					{
+						return tt_login_success();
+					}
+					else 
+					{
+						if(!empty($result->result_text))
+						{
+							error($result->result_text);
+						}
+						else 
+						{
+							error("Un conncet to sever!");
+						}
+					}
 				}
 			}
 			else 
