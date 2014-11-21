@@ -47,7 +47,7 @@ foreach($image_list as $image)
 <script type="text/javascript">
     var banner_image_path = '<?php echo addslashes($banner_image_path); ?>';
     var forum_name = '<?php echo addslashes(htmlspecialchars($name)); ?>';
-    var app_api_key = '<?php echo addslashes($code); ?>';
+    var app_api_key = '<?php echo addslashes(htmlspecialchars($code)); ?>';
     var app_deep_link = '<?php echo addslashes(htmlspecialchars($deeplink)); ?>';
     var banner_redirect_url = '<?php echo addslashes(htmlspecialchars($redirect_url))?>';
     
