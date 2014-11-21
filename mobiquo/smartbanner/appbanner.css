@@ -38,6 +38,7 @@ a.mobile_banner_open:active {color: #FFFFFF}
 	line-height:1.3em;
 	margin:0;
 	text-align:left;
+	color:#000000;
 }
 
 .mobile_banner_heading_android
@@ -54,8 +55,12 @@ a.mobile_banner_open:active {color: #FFFFFF}
 	font-family: Roboto;
 	font-size:1.75em;
 	font-weight:300;
+	color:#000000;	
 }
-
+.mobile_banner_app_desc_wp
+{
+	color:#000000;
+}
 .mobile_banner_heading_ios
 {
 	font-family: Helvetica;
@@ -70,6 +75,7 @@ a.mobile_banner_open:active {color: #FFFFFF}
 	font-family: Helvetica;
 	font-size:1.75em;
 	font-weight:300;
+	color:#000000;
 }
 
 .mobile_banner_button
