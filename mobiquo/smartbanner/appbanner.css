@@ -29,6 +29,7 @@ a.mobile_banner_open:active {color: #FFFFFF}
 	position:relative;
 	margin-left:auto;
 	margin-right:auto;
+	line-height:normal;
 }
 
 .mobile_banner_heading_android,.mobile_banner_heading,.mobile_banner_heading_ios,.mobile_banner_heading_wp
