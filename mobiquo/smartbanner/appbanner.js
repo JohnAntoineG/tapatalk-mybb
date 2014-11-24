@@ -222,7 +222,14 @@ function tapatalkDetect(afterLoad)
     */
     else
         return
-      
+        
+    //load banner css file;
+    link = document.createElement( "link" );
+    link.href = './' + tapatalk_dir_name + '/smartbanner/appbanner.css';
+    link.type = "text/css";
+    link.rel = "stylesheet";
+    document.getElementsByTagName( "head" )[0].appendChild( link );
+    
     bodyItem = document.body 
     appBanner = document.createElement("div")
     appBanner.id = "tt_mobile_banner"
@@ -257,6 +264,7 @@ function tapatalkDetect(afterLoad)
     {
     	class_ext = ''
     }
+        
     appBanner.className = "mobile_banner" + class_ext;
     tapatalk_logo_height = 8 * 8 * bannerScale;
     appBanner.innerHTML = 
@@ -296,7 +304,7 @@ function tapatalkDetect(afterLoad)
     
     bodyItem.insertBefore(appBanner, bodyItem.firstChild)    
     setFontSize(1)
-    bannerHeight = appBanner.clientHeight; 
+    bannerHeight = tapatalk_logo_height + 3 * 8 * bannerScale; 
     resetBannerStyle();
        
     if(navigator.userAgent.match(/chrome/i) && is_android)

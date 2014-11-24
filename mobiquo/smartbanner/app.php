@@ -37,7 +37,7 @@ foreach($image_list as $image)
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title><?php echo htmlspecialchars($title); ?></title>
+<title><?php echo htmlspecialchars($title, ENT_QUOTES, "UTF-8"); ?></title>
 <meta name="format-detection" content="telephone=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="white" />
@@ -46,10 +46,10 @@ foreach($image_list as $image)
 <link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/welcome-screen/welcome_screen.css"/>
 <script type="text/javascript">
     var banner_image_path = '<?php echo addslashes($banner_image_path); ?>';
-    var forum_name = '<?php echo addslashes(htmlspecialchars($name)); ?>';
-    var app_api_key = '<?php echo addslashes(htmlspecialchars($code)); ?>';
-    var app_deep_link = '<?php echo addslashes(htmlspecialchars($deeplink)); ?>';
-    var banner_redirect_url = '<?php echo addslashes(htmlspecialchars($redirect_url))?>';
+    var forum_name = '<?php echo addslashes(htmlspecialchars($name, ENT_QUOTES, "UTF-8")); ?>';
+    var app_api_key = '<?php echo addslashes(htmlspecialchars($code, ENT_QUOTES, "UTF-8")); ?>';
+    var app_deep_link = '<?php echo addslashes(htmlspecialchars($deeplink, ENT_QUOTES, "UTF-8")); ?>';
+    var banner_redirect_url = '<?php echo addslashes(htmlspecialchars($redirect_url, ENT_QUOTES, "UTF-8"))?>';
     
     // ---- tapstream track ----
     var _tsq = _tsq || [];
@@ -106,7 +106,7 @@ foreach($image_list as $image)
             check_device();
             $("#close_icon img").click(function() {
                 localStorage.hide = true;
-                window.location.href='<?php echo addslashes(htmlspecialchars($redirect_url))?>';
+                window.location.href='<?php echo addslashes(htmlspecialchars($redirect_url, ENT_QUOTES, "UTF-8"))?>';
             });
         }, false);
 
@@ -114,7 +114,7 @@ foreach($image_list as $image)
         //$("body").height(($(window).height()*2- $(document).height() )+ 'px');
         $("#close_icon img").click(function() {
             localStorage.hide = true;
-            window.location.href='<?php echo addslashes(htmlspecialchars($redirect_url))?>';
+            window.location.href='<?php echo addslashes(htmlspecialchars($redirect_url, ENT_QUOTES, "UTF-8"))?>';
         });
         /*
         $("#button a").attr("href","https://tapatalk.com/m?id=23&referer=<?php echo urlencode($redirect_url)?>");

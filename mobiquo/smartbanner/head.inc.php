@@ -52,6 +52,7 @@ if (in_array($page_type, array('topic', 'post', 'home')) && $host_path)
         $app_head_include .= '
         <!-- App Indexing for Google Search -->
         <link href="android-app://com.quoord.tapatalkpro.activity/tapatalk/'.$host_path.'" rel="alternate" />
+        <link href="ios-app://307880732/tapatalk/'.$host_path.'" rel="alternate" />
         ';
     }
     
@@ -114,14 +115,15 @@ if (preg_match('/googlebot|twitterbot/i', $useragent))
 
 // display smart banner and welcome page
 $app_banner_head = '';
+$tapatalk_dir_name = addslashes(basename(dirname(dirname(__FILE__))));
 if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
     file_exists(dirname(__FILE__) . '/app.php') &&
     file_exists(dirname(__FILE__) . '/appbanner.css'))
 {
 	if(!$is_byo)
 	{
-		$app_banner_css_link = $tapatalk_dir_url.'/smartbanner/appbanner.css';
-		$app_banner_js_link = $tapatalk_dir_url.'/smartbanner/appbanner.js';
+		//$app_banner_css_link = './' . $tapatalk_dir_name . '/smartbanner/appbanner.css';
+		$app_banner_js_link = './' . $tapatalk_dir_name .'/smartbanner/appbanner.js';
 	}
 	else 
 	{
@@ -130,7 +132,7 @@ if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
 	}
     $app_banner_head = '
         <!-- Tapatalk Banner&Welcome head start -->
-        <link href="' . $app_banner_css_link . '" rel="stylesheet" type="text/css" media="screen" />
+        
         <script type="text/javascript">
             var is_byo             = '.$is_byo.';
             var is_mobile_skin     = '.$is_mobile_skin.';
@@ -146,7 +148,7 @@ if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
             
             var app_api_key        = "'.(trim($api_key) ? md5(trim($api_key)) : '').'";
             var app_referer        = "'.addslashes($app_referer).'";
-            var tapatalk_dir_name  = "'.addslashes(basename(dirname(dirname(__FILE__)))).'";
+            var tapatalk_dir_name  = "'.$tapatalk_dir_name.'";
             var app_welcome_enable = '.(!isset($app_ads_enable) || $app_ads_enable ? 1 : 0).';
             var app_banner_enable  = '.(!isset($app_banner_enable) || $app_banner_enable ? 1 : 0).';
         </script>
