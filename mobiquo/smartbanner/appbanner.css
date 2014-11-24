@@ -30,8 +30,22 @@ a.mobile_banner_open:active {color: #FFFFFF}
 	margin-left:auto;
 	margin-right:auto;
 	line-height:normal;
+	border:0px none;
+	vertical-align: middle;
 }
 
+.mobile_banner_inner tr
+{
+	border:0px none;
+	line-height:normal;
+}
+
+.mobile_banner_inner td
+{
+	border:0px none;
+	vertical-align: middle;
+	line-height:normal;
+}
 .mobile_banner_heading_android,.mobile_banner_heading,.mobile_banner_heading_ios,.mobile_banner_heading_wp
 {
 	font-size:1.75em;
