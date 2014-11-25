@@ -223,12 +223,20 @@ function tapatalkDetect(afterLoad)
     else
         return
         
-    //load banner css file;
+    //init css style
     link = document.createElement( "link" );
     link.href = './' + tapatalk_dir_name + '/smartbanner/appbanner.css';
     link.type = "text/css";
     link.rel = "stylesheet";
     document.getElementsByTagName( "head" )[0].appendChild( link );
+    style_mobile_banner = 'position:fixed;margin:0;padding:0;top:0;left:0;right:0;width:100%;font-size:1em;z-index:2147483647;color:#000000;	background-color: #f2f2f2;text-align:left;';
+    style_mobile_banner_heading = 'font-size:1.75em;padding:0;line-height:1.3em;margin:0;text-align:left;color:#000000;';
+    style_mobile_banner_heading_android = style_mobile_banner_heading + 'font-family: Roboto;font-weight:normal;';
+    style_mobile_banner_heading_ios = style_mobile_banner_heading + 'font-family: Helvetica;font-weight:normal;';
+    style_mobile_banner_app_desc = 'font-family: Roboto;font-size:1.75em;font-weight:300;color:#000000;';
+    style_mobile_banner_app_desc_ios = style_mobile_banner_app_desc + 'font-family: Helvetica;font-size:1.75em;font-weight:300;color:#000000;'
+    style_mobile_banner_open = 'background-color:#32c7e7;color:#ffffff;font-family: Roboto;';
+    style_mobile_banner_open_ios = 'background-color:#f2f2f2;color:#007aff;font-family: Helvetica;border:1px solid #007aff;';
     
     bodyItem = document.body 
     appBanner = document.createElement("div")
@@ -249,11 +257,15 @@ function tapatalkDetect(afterLoad)
 		    style.appendChild(document.createTextNode(css));
 		}
 		head.appendChild(style);
+		style_mobile_banner_heading = style_mobile_banner_heading_android
     }
     else if(is_ios)
     {
     	class_ext = '_ios';
     	app_desc = 'FREE - on App Store';
+    	style_mobile_banner_heading = style_mobile_banner_heading_ios;
+    	style_mobile_banner_app_desc = style_mobile_banner_app_desc_ios;
+    	style_mobile_banner_open = style_mobile_banner_open_ios;
     }
     else if(is_wp)
     {
@@ -264,41 +276,46 @@ function tapatalkDetect(afterLoad)
     {
     	class_ext = ''
     }
-        
-    appBanner.className = "mobile_banner" + class_ext;
+    
+    appBanner.className = 'mobile_banner_tt';
+    appBanner.style = style_mobile_banner;
     tapatalk_logo_height = 8 * 8 * bannerScale;
     appBanner.innerHTML = 
-                    '<table class="mobile_banner_inner"  align="center" cellpadding="0" cellspacing="0" border="0"  id="mobile_banner_inner" ><tr>'+   
-                     '<td style="width:2.5em"><div onclick="closeBanner()" class="mobile_banner_close" id="mobile_banner_close" style="text-align:right">×</div></td>' + 
-                     '<td style="width:1.0em"></td>' + 
-                     '<td style="min-width:8.0em">' + 
+                   '<table class="mobile_banner_inner" style="border-collapse:separate;padding:1.5em 0;position:relative;margin-left:auto;margin-right:auto;line-height:normal;border:0px none;vertical-align: middle;" align="center" cellpadding="0" cellspacing="0" border="0"  id="mobile_banner_inner" >' +
+    	           '<tr style="border:0px none;">'+   
+                     '<td style="width:2.5em; border:0px none;vertical-align: middle;line-height:normal;"> ' +
+    	              '<div onclick="closeBanner()" id="mobile_banner_close" style="cursor:pointer;text-align:right;margin:0;padding:0;margin-top:-5px;overflow:hidden;font-size:2.8em;color:rgb(121,121,121);">×</div></td>' + 
+                     '<td style="width:1.0em; border:0px none;vertical-align: middle;line-height:normal;"></td>' + 
+                     '<td style="min-width:8.0em;border:0px none;vertical-align: middle;line-height:normal;">' + 
                      	'<div id="mobile_banner_logo" style="text-align:left"><img style="height:'+ tapatalk_logo_height + 'px" id="mobile_banner_logo_img" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/tapatalk-banner-logo.png' + '"></div>' + 
                      '</td>' +
-                     '<td style="width:1.0em"></td>' + 
-                     '<td style="min-width:22em;">' + 
-                     	'<table style="min-width:22em;" cellpadding="0" cellspacing="0" border="0">' + 
-                     		'<tr>'+
-                     			'<td>' + 
-                     				'<div class="mobile_banner_heading'+class_ext+'">'+app_banner_message+'</div>'+
+                     '<td style="width:1.0em;border:0px none;vertical-align: middle;line-height:normal;"></td>' + 
+                     '<td style="min-width:22em;border:0px none;vertical-align: middle;line-height:normal;">' + 
+                     	'<table style="min-width:22em;border-collapse:separate;" cellpadding="0" cellspacing="0" border="0">' + 
+                     		'<tr style="border:0px none;">'+
+                     			'<td style="border:0px none;vertical-align: middle;line-height:normal;">' + 
+                     				'<div style="' + style_mobile_banner_heading + '" >'+app_banner_message+'</div>'+
                      			'</td>'+
                      		'</tr>' + 
-                     		'<tr>'+
-	                 			'<td>' + 
-	                 				'<div class="mobile_banner_star'+class_ext+'"><img src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/star.png' + '"></div>'+
+                     		'<tr style="border:0px none;">'+
+	                 			'<td style="border:0px none;vertical-align: middle;line-height:normal;">' + 
+	                 				'<div><img style="width:7.9em" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/star.png' + '"></div>'+
 	                 			'</td>'+
 	                 		'</tr>' + 
-	                 		'<tr>'+
-	                 			'<td>' + 
-	                 				'<div class="mobile_banner_app_desc'+class_ext+'">'+app_desc+'</div>'+
+	                 		'<tr style="border:0px none;">'+
+	                 			'<td style="border:0px none;vertical-align: middle;line-height:normal;">' + 
+	                 				'<div style="' + style_mobile_banner_app_desc + '" >'+app_desc+'</div>'+
 	                 			'</td>'+
 	                 		'</tr>' + 
 	                 	 '</table>' + 
                      '</td>' +
-                     '<td style="width:2.0em"></td>' +
-                     '<td style="width:8.0em">' +
-                            '<a class="mobile_banner_button mobile_banner_open'+class_ext+'"  href="javascript:openOrInstall()" id="mobile_banner_open">'+'VIEW'+'</a>'+                                                    
+                     '<td style="width:2.0em;border:0px none;vertical-align: middle;line-height:normal;""></td>' +
+                     '<td style="width:8.0em;border:0px none;vertical-align: middle;line-height:normal;"">' +
+                            '<a style="display: inline-block;width:100%;text-decoration:none;font-size:1.75em;line-height:2.2em;margin:0;position:relative;border-radius:0.2em;z-index:100;background-color:#32c7e7;color:#ffffff;cursor:pointer;text-align:center;padding:0;'+
+                             style_mobile_banner_open
+                             +'"  href="javascript:openOrInstall()" id="mobile_banner_open">'+'VIEW'+'</a>'+                                                    
                      '</td>' +
-                     '<td style="width:1.5em"></td>' +
+                     '<td style="width:1.5em;style="border:0px none;vertical-align: middle;line-height:normal;""></td>' +
                     '</tr>' +
                    '</table>';
     
