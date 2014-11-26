@@ -508,6 +508,10 @@ add_app_event(gestureChangeListener);
 function gestureChangeListener()
 {
 	appBanner = document.getElementById("tt_mobile_banner");
+	if(appBanner == undefined)
+	{
+		return;
+	}
 	document.addEventListener("touchmove", touchMove, false);
 	document.addEventListener("touchend", touchEnd, false);
 	touchEnd();
@@ -526,6 +530,10 @@ function touchEnd()
 function resetBannerStyle()
 {
 	appBanner = document.getElementById("tt_mobile_banner");
+	if(appBanner == undefined)
+	{
+		return;
+	}
 	Scale = window.innerWidth / document.body.clientWidth ;
 	if(Scale > 1)
 	{
