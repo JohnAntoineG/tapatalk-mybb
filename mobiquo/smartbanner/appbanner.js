@@ -280,8 +280,8 @@ function tapatalkDetect(afterLoad)
     
     appBanner.className = 'mobile_banner_tt';
     appBanner.style = style_mobile_banner;
- 
-    if(document.body.clientWidth >= 600)
+       
+    if(!isMobileStyle())
     {
     	tapatalk_logo_height = 8 * 8 * bannerScale;
     	appBanner.innerHTML = 
@@ -291,7 +291,7 @@ function tapatalkDetect(afterLoad)
 	              '<div onclick="closeBanner()" id="mobile_banner_close" style="cursor:pointer;text-align:right;margin:0;padding:0;margin-top:-5px;overflow:hidden;font-size:2.8em;color:rgb(121,121,121);">×</div></td>' + 
               '<td style="padding:0;margin:0;width:1.0em; border:0px none;vertical-align: middle;line-height:normal;"></td>' + 
               '<td style="padding:0;margin:0;min-width:8.0em;border:0px none;vertical-align: middle;line-height:normal;">' + 
-              	'<div id="mobile_banner_logo" style="text-align:left"><img style="height:'+ tapatalk_logo_height + 'px" id="mobile_banner_logo_img" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/tapatalk-banner-logo.png' + '"></div>' + 
+              	'<div id="mobile_banner_logo" style="text-align:left"><img style="max-height:'+ tapatalk_logo_height + 'px" id="mobile_banner_logo_img" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/tapatalk-banner-logo.png' + '"></div>' + 
               '</td>' +
               '<td style="padding:0;margin:0;width:1.0em;border:0px none;vertical-align: middle;line-height:normal;"></td>' + 
               '<td style="padding:0;margin:0;min-width:22em;border:0px none;vertical-align: middle;line-height:normal;">' + 
@@ -303,7 +303,7 @@ function tapatalkDetect(afterLoad)
               		'</tr>' + 
               		'<tr style="padding:0;margin:0;border:0px none;">'+
               			'<td style="padding:0;margin:0;border:0px none;vertical-align: middle;line-height:normal;">' + 
-              				'<div><img style="width:7.9em" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/star.png' + '"></div>'+
+              				'<div><img style="width:7.9em;max-height:1.4em" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/star.png' + '"></div>'+
               			'</td>'+
               		'</tr>' + 
               		'<tr style="padding:0;margin:0;border:0px none;">'+
@@ -322,10 +322,12 @@ function tapatalkDetect(afterLoad)
               '<td style="padding:0;margin:0;width:1.5em;border:0px none;vertical-align: middle;line-height:normal;"></td>' +
              '</tr>' +
             '</table>';
+    	bannerHeight = tapatalk_logo_height + 3 * 8 * bannerScale; 
     }
     else 
     {
     	tapatalk_logo_height = 8 * 8 * bannerScale * 0.67;
+    	bannerHeight = tapatalk_logo_height + 1.5 * 8 * bannerScale; 
     	appBanner.innerHTML = 
             '<table class="mobile_banner_inner" style="margin:0;width:auto;border-collapse:separate;padding:0.75em 0;position:relative;margin-left:auto;margin-right:auto;line-height:normal;border:0px none;vertical-align: middle;" align="center" cellpadding="0" cellspacing="0" border="0"  id="mobile_banner_inner" >' +
 	           '<tr style="border:0px none;padding:0;margin:0;">'+   
@@ -333,7 +335,7 @@ function tapatalkDetect(afterLoad)
 	              '<div onclick="closeBanner()" id="mobile_banner_close" style="cursor:pointer;text-align:right;margin:0;padding:0;margin-top:-5px;overflow:hidden;font-size:1.8em;color:rgb(121,121,121);">×</div></td>' + 
               '<td style="padding:0;margin:0;width:0.5em; border:0px none;vertical-align: middle;line-height:normal;"></td>' + 
               '<td style="padding:0;margin:0;min-width:4.0em;border:0px none;vertical-align: middle;line-height:normal;">' + 
-              	'<div id="mobile_banner_logo" style="text-align:left"><img style="height:'+ tapatalk_logo_height + 'px" id="mobile_banner_logo_img" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/tapatalk-banner-logo.png' + '"></div>' + 
+              	'<div id="mobile_banner_logo" style="text-align:left"><img style="max-height:'+ tapatalk_logo_height + 'px" id="mobile_banner_logo_img" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/tapatalk-banner-logo.png' + '"></div>' + 
               '</td>' +
               '<td style="padding:0;margin:0;width:1.0em;border:0px none;vertical-align: middle;line-height:normal;"></td>' + 
               '<td style="padding:0;margin:0;min-width:11em;border:0px none;vertical-align: middle;line-height:normal;">' + 
@@ -345,7 +347,7 @@ function tapatalkDetect(afterLoad)
               		'</tr>' + 
               		'<tr style="padding:0;margin:0;border:0px none;">'+
               			'<td style="padding:0;margin:0;border:0px none;vertical-align: middle;line-height:normal;">' + 
-              				'<div><img style="width:5.0em" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/star.png' + '"></div>'+
+              				'<div><img style="max-width:5.0em;max-height:1em" src="'+app_board_url + '/' + tapatalk_dir_name + '/smartbanner/images/star.png' + '"></div>'+
               			'</td>'+
               		'</tr>' + 
               		'<tr style="padding:0;margin:0;border:0px none;">'+
@@ -368,7 +370,7 @@ function tapatalkDetect(afterLoad)
     
     bodyItem.insertBefore(appBanner, bodyItem.firstChild)    
     setFontSize(1)
-    bannerHeight = tapatalk_logo_height + 3 * 8 * bannerScale; 
+    
     resetBannerStyle();
        
     if(navigator.userAgent.match(/chrome/i) && is_android)
@@ -387,7 +389,7 @@ function tapatalkDetect(afterLoad)
       
     window.addEventListener(orientationEvent, function() {
     	getBannerScale();
-    	tapatalk_logo_height = 8.125 * 8 * bannerScale;
+    	tapatalk_logo_height = 8 * 8 * bannerScale;
     	setFontSize(1);
     	bannerLogo = document.getElementById("mobile_banner_logo_img");
     	bannerDiv = document.getElementById("banner_div_empty");
@@ -416,7 +418,7 @@ function setFontSize(Scale)
 function getBannerScale()
 {
 	bannerScale = document.body.clientWidth / window.screen.width
-	if(bannerScale == 1)
+	if(bannerScale == 1 || isMobileStyle())
 	{
 		bannerScale = 1.5;
 		return;
@@ -441,6 +443,30 @@ function getBannerScale()
     }
     
     if(bannerScale > 2.5) bannerScale = 2.5;
+}
+
+function isMobileStyle()
+{
+	/*check if is mobile style*/
+    metas = document.getElementsByTagName( "meta" );
+    var is_mobile_style = false
+    for(i = 0; i < metas.length; i++)
+    {
+    	if(metas[i].name && metas[i].name.toLowerCase() == 'viewport' )
+    	{
+    		meta_content = metas[i].content;
+    		re = /width\s?=\s?device\-width/i;
+    		if((re.test(meta_content) && window.screen.width < 600))
+    		{
+    			is_mobile_style = true;
+    		}
+    	}
+    }
+    if(document.body.clientWidth < 600)
+    {
+    	is_mobile_style = true;
+    }
+    return is_mobile_style;
 }
 
 function openOrInstall()
