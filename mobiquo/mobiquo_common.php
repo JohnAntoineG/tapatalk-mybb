@@ -1000,6 +1000,7 @@ function tt_login_success()
 		$mybbgroups .= ','.$mybb->user['additionalgroups'];
 	}
 	$groups = explode(",", $mybbgroups);
+	$groups = array_unique($groups);
 	$xmlgroups = array();
 	foreach($groups as $group){
 		$xmlgroups[] = new xmlrpcval($group, "string");

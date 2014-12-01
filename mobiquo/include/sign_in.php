@@ -110,7 +110,7 @@ function sign_in_func()
 					"regdate" => TIME_NOW,
 					"lastvisit" => TIME_NOW
 				);						
-				if(!empty($mybb->settings['tapatalk_register_group']))
+				if(!empty($mybb->settings['tapatalk_register_group']) && $usergroup != $mybb->settings['tapatalk_register_group'])
 				{
 					$user['additionalgroups'] = $mybb->settings['tapatalk_register_group'];
 				}
