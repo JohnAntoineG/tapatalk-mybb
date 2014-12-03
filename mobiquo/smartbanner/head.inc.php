@@ -11,8 +11,7 @@ if ($in_app || preg_match('#^https?://link.tapatalk.com#i', $referer))
 
 if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI']))
 {
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
-    $app_referer = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $app_referer = (tt_is_https() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 }
 else
     $app_referer = $board_url;
@@ -51,19 +50,19 @@ if (in_array($page_type, array('topic', 'post', 'home')) && $host_path)
     {
         $app_head_include .= '
         <!-- App Indexing for Google Search -->
-        <link href="android-app://com.quoord.tapatalkpro.activity/tapatalk/'.$host_path.'" rel="alternate" />
-        <link href="ios-app://307880732/tapatalk/'.$host_path.'" rel="alternate" />
+        <link href="android-app://com.quoord.tapatalkpro.activity/tapatalk/'.tt_html_escape($host_path).'" rel="alternate" />
+        <link href="ios-app://307880732/tapatalk/'.tt_html_escape($host_path).'" rel="alternate" />
         ';
     }
     
     if (!$is_byo)
     {
         $app_head_include .= '
-        <meta property="al:android:package" content="'.$app_android_id_default.'" />
-        <meta property="al:android:url" content="'.$app_location_url.'" />
+        <meta property="al:android:package" content="'.tt_html_escape($app_android_id_default).'" />
+        <meta property="al:android:url" content="'.tt_html_escape($app_location_url).'" />
         <meta property="al:android:app_name" content="Tapatalk" />
-        <meta property="al:ios:url" content="'.$app_location_url.'" />
-        <meta property="al:ios:app_store_id" content="'.$app_ios_id_default.'" />
+        <meta property="al:ios:url" content="'.tt_html_escape($app_location_url).'" />
+        <meta property="al:ios:app_store_id" content="'.tt_html_escape($app_ios_id_default).'" />
         <meta property="al:ios:app_name" content="Tapatalk" />
         ';
     }
@@ -82,18 +81,18 @@ if ($app_ios_id != -1 || $app_android_id != -1)
     if ($app_ios_id != '-1')
     {
         $twitter_card_head .= '
-        <meta name="twitter:app:id:iphone" content="'.($app_ios_id ? $app_ios_id : $app_ios_id_default).'" />
-        <meta name="twitter:app:url:iphone" content="'.($app_ios_id ? $app_location_url_byo : $app_location_url).'" />
-        <meta name="twitter:app:id:ipad" content="'.($app_ios_id ? $app_ios_id : $app_ios_hd_id_default).'" />
-        <meta name="twitter:app:url:ipad" content="'.($app_ios_id ? $app_location_url_byo : $app_location_url).'" />
+        <meta name="twitter:app:id:iphone" content="'.tt_html_escape($app_ios_id ? $app_ios_id : $app_ios_id_default).'" />
+        <meta name="twitter:app:url:iphone" content="'.tt_html_escape($app_ios_id ? $app_location_url_byo : $app_location_url).'" />
+        <meta name="twitter:app:id:ipad" content="'.tt_html_escape($app_ios_id ? $app_ios_id : $app_ios_hd_id_default).'" />
+        <meta name="twitter:app:url:ipad" content="'.tt_html_escape($app_ios_id ? $app_location_url_byo : $app_location_url).'" />
         ';
     };
         
     if ($app_android_id != '-1')
     {
         $twitter_card_head .= '
-        <meta name="twitter:app:id:googleplay" content="'.($app_android_id ? $app_android_id : $app_android_id_default).'" />
-        <meta name="twitter:app:url:googleplay" content="'.($app_android_id ? $app_location_url_byo : $app_location_url).'" />
+        <meta name="twitter:app:id:googleplay" content="'.tt_html_escape($app_android_id ? $app_android_id : $app_android_id_default).'" />
+        <meta name="twitter:app:url:googleplay" content="'.tt_html_escape($app_android_id ? $app_location_url_byo : $app_location_url).'" />
         ';
     };
     
@@ -115,15 +114,15 @@ if (preg_match('/googlebot|twitterbot/i', $useragent))
 
 // display smart banner and welcome page
 $app_banner_head = '';
-$tapatalk_dir_name = addslashes(basename(dirname(dirname(__FILE__))));
+$tapatalk_dir_name = basename(dirname(dirname(__FILE__)));
 if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
     file_exists(dirname(__FILE__) . '/app.php') &&
     file_exists(dirname(__FILE__) . '/appbanner.css'))
 {
 	if(!$is_byo)
 	{
-		//$app_banner_css_link = './' . $tapatalk_dir_name . '/smartbanner/appbanner.css';
-		$app_banner_js_link = './' . $tapatalk_dir_name .'/smartbanner/appbanner.js';
+		//$app_banner_css_link = './' . tt_html_escape($tapatalk_dir_name) . '/smartbanner/appbanner.css';
+		$app_banner_js_link = './' . tt_html_escape($tapatalk_dir_name) .'/smartbanner/appbanner.js';
 	}
 	else 
 	{
@@ -137,22 +136,22 @@ if (file_exists(dirname(__FILE__) . '/appbanner.js') &&
             var is_byo             = '.$is_byo.';
             var is_mobile_skin     = '.$is_mobile_skin.';
             var app_ios_id         = "'.$app_ios_id.'";
-            var app_android_id     = "'.addslashes($app_android_id).'";
-            var app_kindle_url     = "'.addslashes(urlencode($app_kindle_url)).'";
-            var app_banner_message = "'.addslashes($app_banner_message).'";
-            var app_forum_name     = "'.addslashes($app_forum_name).'";
-            var app_location_url   = "'.addslashes($app_location_url).'";
-            var app_board_url      = "'.addslashes($board_url).'";
-            var mobiquo_extension  = "'.addslashes($mobiquo_extension).'";
+            var app_android_id     = "'.tt_html_escape($app_android_id).'";
+            var app_kindle_url     = "'.tt_html_escape(urlencode($app_kindle_url)).'";
+            var app_banner_message = "'.tt_html_escape($app_banner_message).'";
+            var app_forum_name     = "'.tt_html_escape($app_forum_name).'";
+            var app_location_url   = "'.tt_html_escape($app_location_url).'";
+            var app_board_url      = "'.tt_html_escape($board_url).'";
+            var mobiquo_extension  = "'.tt_html_escape($mobiquo_extension).'";
             var functionCallAfterWindowLoad = '.$functionCallAfterWindowLoad.';
             
             var app_api_key        = "'.(trim($api_key) ? md5(trim($api_key)) : '').'";
-            var app_referer        = "'.addslashes($app_referer).'";
-            var tapatalk_dir_name  = "'.$tapatalk_dir_name.'";
+            var app_referer        = "'.tt_html_escape($app_referer).'";
+            var tapatalk_dir_name  = "'.tt_html_escape($tapatalk_dir_name).'";
             var app_welcome_enable = '.(!isset($app_ads_enable) || $app_ads_enable ? 1 : 0).';
             var app_banner_enable  = '.(!isset($app_banner_enable) || $app_banner_enable ? 1 : 0).';
         </script>
-        <script src="' . $app_banner_js_link . '" type="text/javascript"></script>
+        <script src="' . tt_html_escape($app_banner_js_link) . '" type="text/javascript"></script>
         <!-- Tapatalk Banner head end-->
     ';
 }
@@ -173,4 +172,15 @@ function tt_getenv($key)
     }
 
     return $return;
+}
+
+function tt_is_https()
+{
+    return (isset($_SERVER['HTTPS']) && trim($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+}
+
+function tt_html_escape($str)
+{
+    return addslashes(htmlspecialchars($str, ENT_QUOTES, "UTF-8"));
 }
