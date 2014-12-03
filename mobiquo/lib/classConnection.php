@@ -718,7 +718,7 @@ class classFileManagement
             curl_setopt( $ch, CURLOPT_FAILONERROR       , 1 );
             curl_setopt( $ch, CURLOPT_MAXREDIRS         , 10 );
             curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER    , false );
-            curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST    , 1 );
+            curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST    , 2 );
 
             if ( $this->userAgent )
             {
